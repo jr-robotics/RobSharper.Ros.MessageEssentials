@@ -12,7 +12,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
         [Fact]
         public void Can_create_CodeGenerationContext_for_standard_package()
         {
-            var context = CodeGenerationContext.Create("TestPackages/std_msgs");
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "std_msgs"));
 
             context.Should().NotBeNull();
 
@@ -21,13 +21,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
 
             context.Packages.First().Name.Should().Be("std_msgs");
             context.Packages.First().IsMetaPackage.Should().BeFalse();
-            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath("TestPackages\\std_msgs"));
+            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "std_msgs")));
         }
         
         [Fact]
         public void Can_create_CodeGenerationContext_for_nested_package()
         {
-            var context = CodeGenerationContext.Create("TestPackages\\control_msgs");
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "control_msgs"));
 
             context.Should().NotBeNull();
 
@@ -36,7 +36,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
 
             context.Packages.First().Name.Should().Be("control_msgs");
             context.Packages.First().IsMetaPackage.Should().BeFalse();
-            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath("TestPackages\\control_msgs\\control_msgs"));
+            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "control_msgs", "control_msgs")));
         }
         
         [Fact]
