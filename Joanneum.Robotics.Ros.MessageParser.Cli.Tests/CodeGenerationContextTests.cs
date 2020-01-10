@@ -42,7 +42,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
         [Fact]
         public void Can_create_CodeGenerationContext_for_meta_package()
         {
-            var context = CodeGenerationContext.Create("TestPackages\\common_msgs");
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "common_msgs"));
 
             context.Should().NotBeNull();
 
