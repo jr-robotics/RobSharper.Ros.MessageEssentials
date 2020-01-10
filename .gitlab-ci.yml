@@ -13,19 +13,33 @@ build:
   tags:
     - docker-executor
 
-test:
+test-cli:
   stage: test
   script:
-    - 'echo TODO: Uncomment gitlab-ci.yml script'
-    - "#dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[Joanneum.Robotics.Ros.MessageParser.Examples]*%2C[Joanneum.Robotics.Ros.MessageParser.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
-    - '#dotnet $(find ~/.nuget/packages/reportgenerator -name ReportGenerator.dll | head -n1) -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -verbosity:Warning -reporttypes:Html'
+    - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[Joanneum.Robotics.Ros.MessageParser.Cli.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
+    - 'dotnet $(find ~/.nuget/packages/reportgenerator -name ReportGenerator.dll | head -n1) -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -verbosity:Warning -reporttypes:Html'
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
     paths:
       - 'coverage'
-      - 'Joanneum.Robotics.Ros.MessageParserCLI.Tests/TestResults/TestResults.xml'
+      - 'Joanneum.Robotics.Ros.MessageParser.Cli.Tests/TestResults/TestResults.xml'
     reports:
-      junit: 'Joanneum.Robotics.Ros.MessageParserCLI.Tests/TestResults/TestResults.xml'
+      junit: 'Joanneum.Robotics.Ros.MessageParser.Cli.Tests/TestResults/TestResults.xml'
+  tags:
+    - docker-executor
+
+test-packagexml:
+  stage: test
+  script:
+    - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[Joanneum.Robotics.Ros.PackageXml.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
+    - 'dotnet $(find ~/.nuget/packages/reportgenerator -name ReportGenerator.dll | head -n1) -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -verbosity:Warning -reporttypes:Html'
+  coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
+  artifacts:
+    paths:
+      - 'coverage'
+      - 'Joanneum.Robotics.Ros.PackageXml.Tests/TestResults/TestResults.xml'
+    reports:
+      junit: 'Joanneum.Robotics.Ros.PackageXml.Tests/TestResults/TestResults.xml'
   tags:
     - docker-executor
 
