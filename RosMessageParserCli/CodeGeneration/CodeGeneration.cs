@@ -1,8 +1,8 @@
 using System;
 
-namespace RosMessageParserCli.CodeGeneration
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
-    public class CodeGeneration
+    public static class CodeGeneration
     {
         public static int Execute(CodeGenerationCommandLineOptions options)
         {

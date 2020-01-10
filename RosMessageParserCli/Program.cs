@@ -3,12 +3,12 @@ using System.IO;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CommandLine;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RosMessageParserCli.CodeGeneration;
 
-namespace RosMessageParserCli
+namespace Joanneum.Robotics.Ros.MessageParser.Cli
 {
     class Program
     {

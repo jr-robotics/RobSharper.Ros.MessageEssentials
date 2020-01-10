@@ -3,6 +3,8 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.1</TargetFramework>
+        <AssemblyName>Joanneum.Robotics.Ros.MessageParser.Cli</AssemblyName>
+        <RootNamespace>Joanneum.Robotics.Ros.MessageParser.Cli</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

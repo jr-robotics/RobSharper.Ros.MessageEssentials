@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace RosMessageParserCli.CodeGeneration
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     [Verb("generate", HelpText = "Generates code")]
     public class CodeGenerationCommandLineOptions
