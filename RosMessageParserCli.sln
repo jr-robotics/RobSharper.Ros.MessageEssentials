@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosMessageParserCli", "RosMessageParserCli\RosMessageParserCli.csproj", "{DA6626D1-3CC2-4C65-A69B-08901434AD12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.PackageXml", "Joanneum.Robotics.Ros.PackageXml\Joanneum.Robotics.Ros.PackageXml.csproj", "{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.PackageXml.Tests", "Joanneum.Robotics.Ros.PackageXml.Tests\Joanneum.Robotics.Ros.PackageXml.Tests.csproj", "{1E560131-BDDB-4FD3-9E32-681D0DFED368}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{DA6626D1-3CC2-4C65-A69B-08901434AD12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA6626D1-3CC2-4C65-A69B-08901434AD12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA6626D1-3CC2-4C65-A69B-08901434AD12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E560131-BDDB-4FD3-9E32-681D0DFED368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E560131-BDDB-4FD3-9E32-681D0DFED368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E560131-BDDB-4FD3-9E32-681D0DFED368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E560131-BDDB-4FD3-9E32-681D0DFED368}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
