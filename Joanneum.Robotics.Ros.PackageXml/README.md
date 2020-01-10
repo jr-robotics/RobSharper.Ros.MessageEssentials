@@ -2,7 +2,10 @@
 
 ## How to Use
 
-TODO
+```CSharp
+var serializer = new XmlSerializer(typeof(Joanneum.Robotics.Ros.PackageXml.V2.package));
+var package = (Joanneum.Robotics.Ros.PackageXml.V2.package)serializer.Deserialize(new XmlTextReader(filename));
+```
 
 
 ## How to update data contracts
@@ -27,3 +30,8 @@ cd V2
 cd ..
 dotnet build
 ``` 
+
+### Resources
+
+- http://wiki.ros.org/catkin/package.xml
+- http://download.ros.org/schema/package_format2.xsd
