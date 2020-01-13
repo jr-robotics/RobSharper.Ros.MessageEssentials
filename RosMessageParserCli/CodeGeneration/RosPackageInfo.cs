@@ -14,18 +14,41 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public string Version { get; }
         public bool IsMetaPackage { get; }
 
-        [Obsolete("Maybe the dependencies should be determined on the fly during parsing")]
         private readonly List<string> _messagePackageDependencies;
-        
-        public string SourcePath { get; }
+
+        private IEnumerable<FileInfo> _messages;
+
+        public DirectoryInfo PackageDirectory { get; }
 
         public IList<string> MessagePackageDependencies => _messagePackageDependencies;
 
-        public RosPackageInfo(string sourcePath, string name, string version, IEnumerable<string> messagePackageDependencies, bool isMetaPackage)
+        public bool HasMessages => Messages.Any();
+
+        public IEnumerable<FileInfo> Messages
         {
-            SourcePath = sourcePath;
-            Name = name;
-            Version = version;
+            get
+            {
+                if (_messages != null)
+                {
+                    return _messages;
+                }
+
+                _messages = PackageDirectory
+                    .GetDirectories()
+                    .Where(d => new[] {"msg", "srv", "action"}.Contains(d.Name.ToLowerInvariant()))
+                    .SelectMany(d => d.GetFiles())
+                    .Where(f => f.GetRosMessageType() != RosMessageType.None)
+                    .ToList();
+
+                return _messages;
+            }
+        }
+
+        public RosPackageInfo(DirectoryInfo packageDirectory, string name, string version, IEnumerable<string> messagePackageDependencies, bool isMetaPackage)
+        {
+            PackageDirectory = packageDirectory ?? throw new ArgumentNullException(nameof(packageDirectory));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Version = version ?? throw new ArgumentNullException(nameof(version));
             IsMetaPackage = isMetaPackage;
 
             _messagePackageDependencies = new List<string>();
@@ -33,7 +56,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             if (messagePackageDependencies != null)
                 _messagePackageDependencies.AddRange(messagePackageDependencies);
         }
-        
+
+
         public static bool IsPackageFolder(string packageFolder)
         {
             // folder is package folder if it contains a package.xml file
@@ -42,7 +66,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         public static RosPackageInfo Create(string packageRootPath)
         {
+            if (packageRootPath == null) throw new ArgumentNullException(nameof(packageRootPath));
+            
             var logger = LoggingHelper.Factory.CreateLogger<RosPackageInfo>();
+            
+            packageRootPath = Path.GetFullPath(packageRootPath);
             var packageXmlPath = Path.Combine(packageRootPath, "package.xml");
 
             using (logger.BeginScope($"package.xml ({packageXmlPath})"))
@@ -66,7 +94,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     var isMetaPackage = package.export?.Any != null && package.export.Any.Any(x =>
                                             "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
                     
-                    return new RosPackageInfo(packageRootPath, package.name, package.version, messagePackages, isMetaPackage);
+                    var packageDirectory = new DirectoryInfo(packageRootPath);
+                    return new RosPackageInfo(packageDirectory, package.name, package.version, messagePackages, isMetaPackage);
                 }
                 catch (Exception e)
                 {

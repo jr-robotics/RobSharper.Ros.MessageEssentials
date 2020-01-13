@@ -20,9 +20,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli
             {
                 LoggingHelper.Factory = serviceProvider.Resolve<ILoggerFactory>();
                 
-                CommandLine.Parser.Default.ParseArguments<CodeGenerationCommandLineOptions>(args)
+                CommandLine.Parser.Default.ParseArguments<CodeGenerationOptions>(args)
                     .MapResult(
-                        (CodeGenerationCommandLineOptions options) =>
+                        (CodeGenerationOptions options) =>
                         {
                             return CodeGeneration.CodeGeneration.Execute(options);
                         },

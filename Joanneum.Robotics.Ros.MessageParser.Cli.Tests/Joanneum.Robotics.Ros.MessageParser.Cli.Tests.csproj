@@ -17,10 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="TestPackages" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\RosMessageParserCli\RosMessageParserCli.csproj" />
     </ItemGroup>
 

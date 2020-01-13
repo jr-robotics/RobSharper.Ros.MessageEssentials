@@ -27,7 +27,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             var packageFolders = FindPackageFolders(packageFolder);
             var packages = packageFolders
-                .Select(RosPackageInfo.Create);
+                .Select(RosPackageInfo.Create)
+                .Where(p => p.IsMetaPackage || p.HasMessages);
             
             var context = new CodeGenerationContext(packages);
 

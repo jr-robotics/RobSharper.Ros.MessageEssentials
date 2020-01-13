@@ -19,9 +19,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Should().NotContainNulls();
             context.Packages.Should().ContainSingle();
 
-            context.Packages.First().Name.Should().Be("std_msgs");
-            context.Packages.First().IsMetaPackage.Should().BeFalse();
-            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "std_msgs")));
+            var package = context.Packages.First();
+
+            package.Name.Should().Be("std_msgs");
+            package.IsMetaPackage.Should().BeFalse();
+            package.PackageDirectory.FullName.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "std_msgs")));
         }
         
         [Fact]
@@ -34,9 +36,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Should().NotContainNulls();
             context.Packages.Should().ContainSingle();
 
-            context.Packages.First().Name.Should().Be("control_msgs");
-            context.Packages.First().IsMetaPackage.Should().BeFalse();
-            context.Packages.First().SourcePath.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "control_msgs", "control_msgs")));
+            var package = context.Packages.First();
+            
+            package.Name.Should().Be("control_msgs");
+            package.IsMetaPackage.Should().BeFalse();
+            package.PackageDirectory.FullName.Should().Be(Path.GetFullPath(Path.Combine("TestPackages", "control_msgs", "control_msgs")));
         }
         
         [Fact]
