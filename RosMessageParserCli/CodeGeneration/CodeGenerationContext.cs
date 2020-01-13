@@ -9,9 +9,17 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     {
         public IEnumerable<CodeGenerationPackageContext> Packages { get; }
         
-        private CodeGenerationContext(IEnumerable<CodeGenerationPackageContext> packageInfos)
+        public PackageRegistry PackageRegistry { get; }
+        
+        private CodeGenerationContext(IEnumerable<RosPackageInfo> packageInfos)
         {
-            Packages = packageInfos;
+            if (packageInfos == null) throw new ArgumentNullException(nameof(packageInfos));
+
+            Packages = packageInfos
+                .Select(p => new CodeGenerationPackageContext(this, p, new RosMessagePackageParser(p)))
+                .ToList();
+            
+            PackageRegistry = new PackageRegistry(this);
         }
 
         public static CodeGenerationContext Create(string packageFolder)
@@ -28,9 +36,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             var packageFolders = FindPackageFolders(packageFolder);
             var packages = packageFolders
                 .Select(RosPackageInfo.Create)
-                .Where(p => p.IsMetaPackage || p.HasMessages)
-                .Select(p => new CodeGenerationPackageContext(p, new RosMessagePackageParser(p)))
-                .ToList();
+                .Where(p => p.IsMetaPackage || p.HasMessages);
             
             var context = new CodeGenerationContext(packages);
 

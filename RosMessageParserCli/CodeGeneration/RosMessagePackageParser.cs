@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
-    public class RosMessagePackageParser
+    public class RosMessagePackageParser : IRosMessagePackageParser
     {
         private IEnumerable<string> _packageDependencies;
 
@@ -13,7 +13,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private IEnumerable<KeyValuePair<string, ActionDescriptor>> _actions;
         private IEnumerable<KeyValuePair<string, ServiceDescriptor>> _services;
         
-        private object _lock = new object();
+        private readonly object _lock = new object();
         private bool _done;
 
         public RosPackageInfo Package { get; }
@@ -114,9 +114,10 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     packageDependencies.Add("actionlib_msgs");
                 }
 
-                // Remove selfdependency
+                // Remove self dependency
                 packageDependencies.Remove(Package.Name);
 
+                
                 _packageDependencies = packageDependencies;
                 _messages = messages;
                 _actions = actions;
