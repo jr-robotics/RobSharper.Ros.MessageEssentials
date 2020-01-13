@@ -19,7 +19,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Should().NotContainNulls();
             context.Packages.Should().ContainSingle();
 
-            var package = context.Packages.First();
+            var package = context.Packages.First().PackageInfo;
 
             package.Name.Should().Be("std_msgs");
             package.IsMetaPackage.Should().BeFalse();
@@ -36,7 +36,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Should().NotContainNulls();
             context.Packages.Should().ContainSingle();
 
-            var package = context.Packages.First();
+            var package = context.Packages.First().PackageInfo;
             
             package.Name.Should().Be("control_msgs");
             package.IsMetaPackage.Should().BeFalse();
@@ -53,7 +53,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Should().NotContainNulls();
             context.Packages.Count().Should().Be(10);
 
-            context.Packages.First(x => x.Name == "common_msgs").IsMetaPackage.Should().BeTrue();
+            context.Packages.First(x => x.PackageInfo.Name == "common_msgs").PackageInfo.IsMetaPackage.Should().BeTrue();
         }
     }
 }

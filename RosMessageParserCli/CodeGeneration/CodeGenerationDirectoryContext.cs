@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
@@ -8,26 +10,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private readonly bool _preserveGeneratedCode;
         private bool _disposed;
 
-        public DirectoryInfo TempDirectory { get; }
+        private readonly IDictionary<string, ProjectCodeGenerationDirectoryContext> _projectTempDirectories =
+            new Dictionary<string, ProjectCodeGenerationDirectoryContext>();
 
         public DirectoryInfo OutputDirectory { get; }
         
 
-        public CodeGenerationDirectoryContext(RosPackageInfo packageInfo, string outputPath,
-            bool preserveGeneratedCode)
+        public CodeGenerationDirectoryContext(string outputPath, bool preserveGeneratedCode)
         {
-            if (packageInfo == null) throw new ArgumentNullException(nameof(packageInfo));
             if (outputPath == null) throw new ArgumentNullException(nameof(outputPath));
             _preserveGeneratedCode = preserveGeneratedCode;
-
-            var tempPath = GetTempPath(packageInfo);
-            TempDirectory = new DirectoryInfo(tempPath);
-
-            if (TempDirectory.Exists)
-                TempDirectory.Delete(true);
-
-            TempDirectory.Create();
-            
             
             outputPath = Path.GetFullPath(outputPath);
             OutputDirectory = new DirectoryInfo(outputPath);
@@ -44,7 +36,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             try
             {
                 if (!_preserveGeneratedCode)
-                    TempDirectory.Delete(true);
+                {
+                    var tasks = new List<Task>();
+                    foreach (var directory in _projectTempDirectories)
+                    {
+                        var task = Task.Factory.StartNew(() => directory.Value.TempDirectory.Delete(true));
+                        tasks.Add(task);
+                    }
+
+                    Task.WaitAll(tasks.ToArray());
+                }
             }
             finally
             {
@@ -72,6 +73,38 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 .ToLowerInvariant();
 
             return Path.Combine(BasePath, packageSlug);
+        }
+
+        public ProjectCodeGenerationDirectoryContext GetPackageTempDir(RosPackageInfo packageInfo)
+        {
+            var tempPath = GetTempPath(packageInfo);
+
+            if (_projectTempDirectories.TryGetValue(tempPath, out var context)) 
+                return context;
+            
+            var tempDirectory = new DirectoryInfo(tempPath);
+
+            if (tempDirectory.Exists)
+                tempDirectory.Delete(true);
+
+            tempDirectory.Create();
+
+            context = new ProjectCodeGenerationDirectoryContext(OutputDirectory, tempDirectory);
+            _projectTempDirectories.Add(tempPath, context);
+
+            return context;
+        }
+    }
+
+    public class ProjectCodeGenerationDirectoryContext
+    {
+        public DirectoryInfo OutputDirectory { get; }
+        public DirectoryInfo TempDirectory { get; }
+
+        public ProjectCodeGenerationDirectoryContext(DirectoryInfo outputDirectory, DirectoryInfo tempDirectory)
+        {
+            OutputDirectory = outputDirectory;
+            TempDirectory = tempDirectory;
         }
     }
 }
