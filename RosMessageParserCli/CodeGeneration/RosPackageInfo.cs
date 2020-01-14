@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using Joanneum.Robotics.Ros.PackageXml;
 using Microsoft.Extensions.Logging;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
@@ -83,18 +84,63 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
                 try
                 {
-                    var serializer = new XmlSerializer(typeof(PackageXml.V2.package));
-                    var package = (PackageXml.V2.package) serializer.Deserialize(new XmlTextReader(packageXmlPath));
-
-                    var dependentPackages = package.Items
-                        .Select(x => x.Value)
-                        .Where(x => x != null);
-
-                    var isMetaPackage = package.export?.Any != null && package.export.Any.Any(x =>
-                                            "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+                    var formatVersion = PackageXmlReader.GetFormatVersion(packageXmlPath);
                     
+                    IEnumerable<string> dependentPackages;
+                    string name;
+                    string packageVersion;
+                    bool isMetaPackage;
+
+                    switch (formatVersion)
+                    {
+                        case 1:
+                            var v1Package = PackageXmlReader.ReadV1PackageXml(packageXmlPath);
+
+                            name = v1Package.name;
+                            packageVersion = v1Package.version;
+                            
+                            dependentPackages = v1Package.Items
+                                .Select(x => x.Value)
+                                .Where(x => x != null);
+                            
+                            isMetaPackage = v1Package.export?.Any != null && v1Package.export.Any.Any(x =>
+                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+                            
+                            break;
+                        case 2:
+                            var v2Package = PackageXmlReader.ReadV2PackageXml(packageXmlPath);
+                            
+                            name = v2Package.name;
+                            packageVersion = v2Package.version;
+                            
+                            dependentPackages = v2Package.Items
+                                .Select(x => x.Value)
+                                .Where(x => x != null);
+                            
+                            isMetaPackage = v2Package.export?.Any != null && v2Package.export.Any.Any(x =>
+                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+                            
+                            break;
+                        case 3:
+                            var v3Package = PackageXmlReader.ReadV3PackageXml(packageXmlPath);
+
+                            name = v3Package.name;
+                            packageVersion = v3Package.version;
+                            
+                            dependentPackages = v3Package.Items
+                                .Select(x => x.Value)
+                                .Where(x => x != null);
+                            
+                            isMetaPackage = v3Package.export?.Any != null && v3Package.export.Any.Any(x =>
+                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+                            
+                            break;
+                        default:
+                            throw new NotSupportedException();
+                    }
+                   
                     var packageDirectory = new DirectoryInfo(packageRootPath);
-                    return new RosPackageInfo(packageDirectory, package.name, package.version, dependentPackages, isMetaPackage);
+                    return new RosPackageInfo(packageDirectory, name, packageVersion, dependentPackages, isMetaPackage);
                 }
                 catch (Exception e)
                 {

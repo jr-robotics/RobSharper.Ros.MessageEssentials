@@ -47,7 +47,7 @@ namespace Joanneum.Robotics.Ros.PackageXml
 
         private static V1.package ReadV1PackageXml(XmlTextReader xmlReader)
         {
-            var serializer = new XmlSerializer(typeof(V2.package));
+            var serializer = new XmlSerializer(typeof(V1.package));
             var package = (V1.package) serializer.Deserialize(xmlReader);
 
             return package;
