@@ -3,8 +3,26 @@
 ## How to Use
 
 ```CSharp
-var serializer = new XmlSerializer(typeof(Joanneum.Robotics.Ros.PackageXml.V2.package));
-var package = (Joanneum.Robotics.Ros.PackageXml.V2.package)serializer.Deserialize(new XmlTextReader(filename));
+var package = PackageXmlReader.ReadV1PackageXml(filename);
+```
+
+```CSharp
+var version = PackageXmlReader.GetFormatVersion(filename);
+
+switch (version)
+{
+    case 1:
+        var v1Package = PackageXmlReader.ReadV1PackageXml(filename);
+        break;
+    case 2:
+        var v2Package = PackageXmlReader.ReadV2PackageXml(filename);
+        break;
+    case 3:
+        var v3Package = PackageXmlReader.ReadV3PackageXml(filename);
+        break;
+    default:
+        throw new NotSupportedException();
+}
 ```
 
 
