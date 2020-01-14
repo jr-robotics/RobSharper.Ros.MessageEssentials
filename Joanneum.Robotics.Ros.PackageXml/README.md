@@ -11,27 +11,21 @@ var package = (Joanneum.Robotics.Ros.PackageXml.V2.package)serializer.Deserializ
 ## How to update data contracts
 
 Data files are generated from ROS Package XSD Files using Microsoft xsd.exe (https://docs.microsoft.com/en-us/dotnet/standard/serialization/xml-schema-definition-tool-xsd-exe).
-ROS XSD Files are located in the VX (e.g. V2) folders. 
+ROS XSD Files are located in the VX (e.g. V2) folder. 
 
-###Example: How to generate package.xml V2 code in **powerhsell**:
+Use ```build.ps1``` powershell script to generate  a new version of the package.
+The script takes the path to xsd.exe as only argument
 
+**Example - How to generate package.xml V2 code in powerhsell:**
 
 ```powershell
-# SET Path to xsd.exe
-$xsdPath = "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.2 Tools\xsd.exe"
-
-# Go to V2 folder
-cd V2
-
-# Start Code generation
-& $xsdPath package_format2.xsd /parameters:xsdOptions.xml
-
-# Rebuild solution
-cd ..
-dotnet build
+.\build.ps1 "C:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.2 Tools\xsd.exe"
 ``` 
 
 ### Resources
 
 - http://wiki.ros.org/catkin/package.xml
+- http://download.ros.org/schema/
+- http://download.ros.org/schema/package_format1.xsd
 - http://download.ros.org/schema/package_format2.xsd
+- http://download.ros.org/schema/package_format3.xsd
