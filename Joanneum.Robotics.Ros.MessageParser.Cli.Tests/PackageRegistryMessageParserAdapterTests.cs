@@ -9,39 +9,43 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
 {
     public class PackageRegistryMessageParserAdapterTests : IRosMessagePackageParserTests
     {
-        protected override IRosMessagePackageParser CreateParser(RosPackageInfo package)
+        private static IBuildPackages CreateBuildPackages(params RosPackageInfo[] buildPackages)
         {
-            var packageRegistry = CreatePackageRegistryForSinglePackage(package);
-            return CreateParser(package, packageRegistry);
-        }
-
-        protected PackageRegistryMessageParserAdapter CreateParser(RosPackageInfo package, PackageRegistry packageRegistry)
-        {
-            var innerParser = new RosMessagePackageParser(package);
-            var parser = new PackageRegistryMessageParserAdapter(packageRegistry, innerParser);
-
-            return parser;
-        }
-
-        private static PackageRegistry CreatePackageRegistryForSinglePackage(RosPackageInfo package)
-        {
-            var allPackages = new List<RosPackageInfo>() {package};
-
             var buildPackagesMock = new Mock<IBuildPackages>();
             buildPackagesMock
                 .Setup(x => x.Packages)
-                .Returns(allPackages);
+                .Returns(buildPackages);
 
-            var packageRegistry = new PackageRegistry(buildPackagesMock.Object);
-            return packageRegistry;
+            return buildPackagesMock.Object;
+        }
+        
+        protected override IRosMessagePackageParser CreateParser(RosPackageInfo package)
+        {
+            var buildPackages = CreateBuildPackages(package);
+
+            var packageRegistry = new PackageRegistry(buildPackages);
+            var innerParser = new RosMessagePackageParser(package, buildPackages);
+            
+            return CreateParser(innerParser, packageRegistry);
+        }
+
+        protected PackageRegistryMessageParserAdapter CreateParser(IRosMessagePackageParser innerParser, PackageRegistry packageRegistry)
+        {
+            var parser = new PackageRegistryMessageParserAdapter(packageRegistry, innerParser);
+            return parser;
         }
         
         [Fact]
         public void Parse_messages_adds_dependencies_to_package_registry()
         {
             var package = TestUtils.CreatePackageInfo("common_msgs", "nav_msgs");
-            var packageRegistry = CreatePackageRegistryForSinglePackage(package);
-            var target = CreateParser(package, packageRegistry);
+            var buildPackages = CreateBuildPackages(package);
+            
+            var innerParser = new RosMessagePackageParser(package, buildPackages);
+            var packageRegistry = new PackageRegistry(buildPackages);
+            
+            var target = CreateParser(innerParser, packageRegistry);
+            
             
             target.ParseMessages();
 

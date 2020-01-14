@@ -12,13 +12,10 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             using (var directories = new CodeGenerationDirectoryContext(options.OutputPath, options.PreserveGeneratedCode))
             {
-                // Build package dependencyGraph
-                foreach (var package in context.Packages)
-                {
-                    package.Parser.ParseMessages();
-                }
+                // Parse message files and build package dependency graph
+                context.ParseMessages();
                 
-                // Set build order
+                // Set build order depending on package dependencies
                 context.ReorderPackagesForBuilding();
 
                 // Check external dependencies
@@ -48,7 +45,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 if (package.IsAvailable)
                     continue;
                 
-                // Check nuget repo!
+                //TODO: Check nuget repo(s). For now we assume that all packages can be loaded on build 
             }
         }
     }

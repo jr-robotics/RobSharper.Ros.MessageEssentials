@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
@@ -10,7 +11,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public IEnumerable<CodeGenerationPackageContext> Packages { get; private set; }
 
         private PackageRegistry _packageRegistry;
-        
+
         public PackageRegistry PackageRegistry
         {
             get
@@ -34,10 +35,22 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             if (packageInfos == null) throw new ArgumentNullException(nameof(packageInfos));
 
             var context = this;
+            var factory = new RosMessageParserFactory();
             
             Packages = packageInfos
-                .Select(p => new CodeGenerationPackageContext(context, p, new RosMessagePackageParser(p)))
+                .Select(p => new CodeGenerationPackageContext(context, p, factory.Create(p, context)))
                 .ToList();
+        }
+
+        /// <summary>
+        /// Parses the message files of all packages
+        /// </summary>
+        public void ParseMessages()
+        {
+            foreach (var package in Packages)
+            {
+                package.Parser.ParseMessages();
+            }
         }
 
         /// <summary>
@@ -46,6 +59,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         /// <exception cref="InvalidOperationException">Thrown if packages no build sequence without breaking dependencies can be found.</exception>
         public void ReorderPackagesForBuilding()
         {
+            ParseMessages();
+            
             var buildQueue = new Queue<CodeGenerationPackageContext>();
             while (buildQueue.Count != Packages.Count())
             {

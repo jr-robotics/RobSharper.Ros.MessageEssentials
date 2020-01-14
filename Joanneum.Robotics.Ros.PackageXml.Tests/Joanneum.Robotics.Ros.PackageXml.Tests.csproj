@@ -17,17 +17,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="PackageXmlFiles" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Joanneum.Robotics.Ros.PackageXml\Joanneum.Robotics.Ros.PackageXml.csproj" />
     </ItemGroup>
 
+    <!-- Copy test files -->
     <ItemGroup>
-      <None Update="PackageXmlFiles\control_msgs.package.xml">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <Content Include="PackageXmlFiles\*.xml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>

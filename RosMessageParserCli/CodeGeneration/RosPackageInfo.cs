@@ -14,13 +14,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public string Version { get; }
         public bool IsMetaPackage { get; }
 
-        private readonly List<string> _messagePackageDependencies;
+        private readonly List<string> _packageDependencies;
 
         private IEnumerable<FileInfo> _messages;
 
         public DirectoryInfo PackageDirectory { get; }
 
-        public IList<string> MessagePackageDependencies => _messagePackageDependencies;
+        public IList<string> PackageDependencies => _packageDependencies;
 
         public bool HasMessages => Messages.Any();
 
@@ -44,17 +44,17 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public RosPackageInfo(DirectoryInfo packageDirectory, string name, string version, IEnumerable<string> messagePackageDependencies, bool isMetaPackage)
+        public RosPackageInfo(DirectoryInfo packageDirectory, string name, string version, IEnumerable<string> packageDependencies, bool isMetaPackage)
         {
             PackageDirectory = packageDirectory ?? throw new ArgumentNullException(nameof(packageDirectory));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Version = version ?? throw new ArgumentNullException(nameof(version));
             IsMetaPackage = isMetaPackage;
 
-            _messagePackageDependencies = new List<string>();
+            _packageDependencies = new List<string>();
             
-            if (messagePackageDependencies != null)
-                _messagePackageDependencies.AddRange(messagePackageDependencies);
+            if (packageDependencies != null)
+                _packageDependencies.AddRange(packageDependencies);
         }
 
 
@@ -86,16 +86,15 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     var serializer = new XmlSerializer(typeof(PackageXml.V2.package));
                     var package = (PackageXml.V2.package) serializer.Deserialize(new XmlTextReader(packageXmlPath));
 
-                    var messagePackages = package.Items?
-                        .Where(x => x.Value != null &&
-                                    x.Value.EndsWith("msgs", StringComparison.InvariantCultureIgnoreCase))
-                        .Select(x => x.Value);
+                    var dependentPackages = package.Items
+                        .Select(x => x.Value)
+                        .Where(x => x != null);
 
                     var isMetaPackage = package.export?.Any != null && package.export.Any.Any(x =>
                                             "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
                     
                     var packageDirectory = new DirectoryInfo(packageRootPath);
-                    return new RosPackageInfo(packageDirectory, package.name, package.version, messagePackages, isMetaPackage);
+                    return new RosPackageInfo(packageDirectory, package.name, package.version, dependentPackages, isMetaPackage);
                 }
                 catch (Exception e)
                 {

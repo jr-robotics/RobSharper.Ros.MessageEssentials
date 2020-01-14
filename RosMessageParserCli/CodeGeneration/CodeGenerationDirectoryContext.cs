@@ -95,16 +95,4 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             return context;
         }
     }
-
-    public class ProjectCodeGenerationDirectoryContext
-    {
-        public DirectoryInfo OutputDirectory { get; }
-        public DirectoryInfo TempDirectory { get; }
-
-        public ProjectCodeGenerationDirectoryContext(DirectoryInfo outputDirectory, DirectoryInfo tempDirectory)
-        {
-            OutputDirectory = outputDirectory;
-            TempDirectory = tempDirectory;
-        }
-    }
 }

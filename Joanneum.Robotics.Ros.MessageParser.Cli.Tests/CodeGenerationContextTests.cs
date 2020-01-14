@@ -61,15 +61,25 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
         public void Can_reorder_packages_for_building_if_only_one_package_should_be_built()
         {
             var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "std_msgs"));
-
-            foreach (var package in context.Packages)
-            {
-                package.Parser.ParseMessages();
-            }
             
-            //context.ReorderPackagesForBuilding();
-
+            context.ReorderPackagesForBuilding();
             context.Packages.Count().Should().Be(1);
+        }
+
+        [Fact]
+        public void Can_reorder_packages_for_building_dependent_packages()
+        {
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "common_msgs"));
+
+            var initialNames = context.Packages.Select(x => x.PackageInfo.Name).ToList();
+            
+            context.ReorderPackagesForBuilding();
+            context.Packages.Count().Should().Be(10);
+
+            var finalNames = context.Packages.Select(x => x.PackageInfo.Name).ToList();
+
+            initialNames.Should().Equals(finalNames);
+            context.Packages.Last().PackageInfo.Name.Should().Be("common_msgs");
         }
     }
 }
