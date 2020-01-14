@@ -8,6 +8,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private readonly PackageRegistry _packageRegistry;
         private readonly IRosMessagePackageParser _innerParser;
 
+        private bool _done;
+        private readonly object _lock = new object();
+
         public PackageRegistryMessageParserAdapter(PackageRegistry packageRegistry, IRosMessagePackageParser parser)
         {
             _packageRegistry = packageRegistry ?? throw new ArgumentNullException(nameof(packageRegistry));
@@ -54,11 +57,22 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         
         public void ParseMessages()
         {
-            _innerParser.ParseMessages();
+            if (_done)
+                return;
 
-            foreach (var dependency in PackageDependencies)
+            lock (_lock)
             {
-                _packageRegistry.AddDependency(dependency);
+                if (_done)
+                    return;
+                
+                _innerParser.ParseMessages();
+
+                foreach (var dependency in _innerParser.PackageDependencies)
+                {
+                    _packageRegistry.AddDependency(dependency);
+                }
+
+                _done = true;
             }
         }
     }

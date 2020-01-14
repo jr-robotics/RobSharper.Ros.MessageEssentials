@@ -19,7 +19,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 }
                 
                 // Set build order
-                var buildQueue = CreateBuildQueue(context);
+                context.ReorderPackagesForBuilding();
 
                 // Check external dependencies
                 CheckExternalPackagerDependencies(context);
@@ -50,36 +50,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 
                 // Check nuget repo!
             }
-        }
-
-        private static Queue<CodeGenerationPackageContext> CreateBuildQueue(CodeGenerationContext context)
-        {
-            var buildQueue = new Queue<CodeGenerationPackageContext>();
-            while (buildQueue.Count != context.Packages.Count())
-            {
-                var packageEnqueued = false;
-
-                foreach (var package in context.Packages)
-                {
-                    var dependencies = package.Parser.PackageDependencies;
-
-                    // Package can be built if all dependencies are
-                    //    external dependencies (not in build pipeline) OR
-                    //    have to be built but are already enqueued
-                    if (dependencies.All(x =>
-                        !context.PackageRegistry.Items[x].IsInBuildPipeline || buildQueue.Any(q => q.PackageInfo.Name == x)))
-                    {
-                        buildQueue.Enqueue(package);
-                        packageEnqueued = true;
-                    }
-                }
-
-                // If no package was enqueued in one round, we cannot build
-                if (!packageEnqueued)
-                    throw new Exception(); // TODO
-            }
-
-            return buildQueue;
         }
     }
 }

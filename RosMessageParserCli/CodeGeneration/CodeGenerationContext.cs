@@ -5,21 +5,73 @@ using System.Linq;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
-    public class CodeGenerationContext
+    public class CodeGenerationContext : IBuildPackages
     {
-        public IEnumerable<CodeGenerationPackageContext> Packages { get; }
+        public IEnumerable<CodeGenerationPackageContext> Packages { get; private set; }
+
+        private PackageRegistry _packageRegistry;
         
-        public PackageRegistry PackageRegistry { get; }
-        
+        public PackageRegistry PackageRegistry
+        {
+            get
+            {
+                if (_packageRegistry == null)
+                {
+                    _packageRegistry = new PackageRegistry(this);
+                }
+
+                return _packageRegistry;
+            }
+        }
+
+        IEnumerable<RosPackageInfo> IBuildPackages.Packages
+        {
+            get { return Packages?.Select(x => x.PackageInfo); }
+        }
+
         private CodeGenerationContext(IEnumerable<RosPackageInfo> packageInfos)
         {
             if (packageInfos == null) throw new ArgumentNullException(nameof(packageInfos));
 
-            Packages = packageInfos
-                .Select(p => new CodeGenerationPackageContext(this, p, new RosMessagePackageParser(p)))
-                .ToList();
+            var context = this;
             
-            PackageRegistry = new PackageRegistry(this);
+            Packages = packageInfos
+                .Select(p => new CodeGenerationPackageContext(context, p, new RosMessagePackageParser(p)))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Reorders the package list according to build dependencies.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">Thrown if packages no build sequence without breaking dependencies can be found.</exception>
+        public void ReorderPackagesForBuilding()
+        {
+            var buildQueue = new Queue<CodeGenerationPackageContext>();
+            while (buildQueue.Count != Packages.Count())
+            {
+                var packageEnqueued = false;
+
+                foreach (var package in Packages)
+                {
+                    var dependencies = package.Parser.PackageDependencies;
+
+                    // Package can be built if all dependencies are
+                    //    external dependencies (not in build pipeline) OR
+                    //    have to be built but are already enqueued
+                    if (dependencies.All(x =>
+                        !PackageRegistry.Items[x].IsInBuildPipeline || buildQueue.Any(q => q.PackageInfo.Name == x)))
+                    {
+                        buildQueue.Enqueue(package);
+                        packageEnqueued = true;
+                    }
+                }
+
+                // If no package was enqueued in one round, we cannot build
+                if (!packageEnqueued)
+                    throw new InvalidOperationException("Can not identify build sequence. All remaining packages have dependencies.");
+            }
+
+            Packages = buildQueue;
         }
 
         public static CodeGenerationContext Create(string packageFolder)

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
+using Joanneum.Robotics.Ros.PackageXml.V2;
 using Xunit;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
@@ -54,6 +55,21 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Count().Should().Be(10);
 
             context.Packages.First(x => x.PackageInfo.Name == "common_msgs").PackageInfo.IsMetaPackage.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Can_reorder_packages_for_building_if_only_one_package_should_be_built()
+        {
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "std_msgs"));
+
+            foreach (var package in context.Packages)
+            {
+                package.Parser.ParseMessages();
+            }
+            
+            //context.ReorderPackagesForBuilding();
+
+            context.Packages.Count().Should().Be(1);
         }
     }
 }

@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
-    public class PackageRegistry
+    public class PackageRegistry : IPackageRegistry
     {
-        private readonly CodeGenerationContext _context;
+        private readonly IBuildPackages _context;
         public IDictionary<string, PackageRegistryItem> Items { get; } = new Dictionary<string, PackageRegistryItem>();
 
-        public PackageRegistry(CodeGenerationContext context)
+        public PackageRegistry(IBuildPackages context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
@@ -23,7 +23,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             dependency = new PackageRegistryItem(packageName);
             
-            if (_context.Packages.Select(x => x.PackageInfo.Name).Contains(dependency.PackageName))
+            if (_context.Packages.Select(x => x.Name).Contains(dependency.PackageName))
                 dependency.SetIsInBuildPipline();
             
             Items.Add(dependency.PackageName, dependency);
