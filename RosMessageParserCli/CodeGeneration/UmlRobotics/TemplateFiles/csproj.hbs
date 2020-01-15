@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+        <AssemblyName>{{Namespace}}</AssemblyName>
+        <PackageVersion>{{Version}}</PackageVersion>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <NoWarn>168;219</NoWarn>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageVersion>{{version}}</PackageVersion>
+        <NoWarn>168;219</NoWarn>
     </PropertyGroup>
-    
-    {{itemGroups}}
 </Project>
