@@ -1,0 +1,16 @@
+<package>
+  <name>a_msgs</name>
+  <version>1.0.0</version>
+  <description>
+    Package Depending on b_msgs
+  </description>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>b_msgs</run_depend>
+
+  <export>
+    <architecture_independent/>
+  </export>
+</package>

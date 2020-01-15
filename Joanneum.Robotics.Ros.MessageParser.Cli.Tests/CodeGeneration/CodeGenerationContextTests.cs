@@ -3,10 +3,9 @@ using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
-using Joanneum.Robotics.Ros.PackageXml.V2;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests.CodeGeneration
 {
     public class CodeGenerationContextTests
     {
@@ -66,20 +65,24 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
             context.Packages.Count().Should().Be(1);
         }
 
-        [Fact(Skip = "true")]
+        [Fact]
         public void Can_reorder_packages_for_building_dependent_packages()
         {
             var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "common_msgs"));
-
-            var initialNames = context.Packages.Select(x => x.PackageInfo.Name).ToList();
             
             context.ReorderPackagesForBuilding();
             context.Packages.Count().Should().Be(10);
+            context.Packages.Last().PackageInfo.Name.Should().Be("common_msgs", "the meta package should be built as last package");
+        }
 
-            var finalNames = context.Packages.Select(x => x.PackageInfo.Name).ToList();
+        [Fact]
+        public void Reorder_packages_for_building_throws_exception_if_circular_dependencies_detected()
+        {
+            var context = CodeGenerationContext.Create(Path.Combine("TestPackages", "circular_msgs"));
 
-            initialNames.Should().Equals(finalNames);
-            context.Packages.Last().PackageInfo.Name.Should().Be("common_msgs");
+            context.Invoking(x => x.ReorderPackagesForBuilding())
+                .Should().Throw<CircularPackageDependencyException>();
+            
         }
     }
 }

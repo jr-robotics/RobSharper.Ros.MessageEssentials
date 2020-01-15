@@ -4,7 +4,7 @@ using FluentAssertions;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests.CodeGeneration
 {
     public class RosPackageInfoTests
     {

@@ -1,7 +1,7 @@
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
 using Moq;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests.CodeGeneration
 {
     public class RosMessagePackageParserTests : IRosMessagePackageParserTests
     {

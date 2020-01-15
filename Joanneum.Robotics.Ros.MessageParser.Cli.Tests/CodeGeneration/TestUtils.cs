@@ -1,7 +1,7 @@
 using System.IO;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests.CodeGeneration
 {
     public class TestUtils
     {

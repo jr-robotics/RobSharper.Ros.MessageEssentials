@@ -60,13 +60,19 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public void ReorderPackagesForBuilding()
         {
             ParseMessages();
-            
-            var buildQueue = new Queue<CodeGenerationPackageContext>();
-            while (buildQueue.Count != Packages.Count())
-            {
-                var packageEnqueued = false;
 
-                foreach (var package in Packages)
+            var buildQueue = new List<CodeGenerationPackageContext>();
+            List<CodeGenerationPackageContext> packagesToEnqueue;
+
+            while(true)
+            {
+                packagesToEnqueue = Packages.Except(buildQueue).ToList();
+
+                if (packagesToEnqueue.Count == 0)
+                    break;
+
+                var packageEnqueued = false;
+                foreach (var package in packagesToEnqueue)
                 {
                     var dependencies = package.Parser.PackageDependencies;
 
@@ -76,14 +82,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     if (dependencies.All(x =>
                         !PackageRegistry.Items[x].IsInBuildPipeline || buildQueue.Any(q => q.PackageInfo.Name == x)))
                     {
-                        buildQueue.Enqueue(package);
+                        buildQueue.Add(package);
                         packageEnqueued = true;
                     }
                 }
 
                 // If no package was enqueued in one round, we cannot build
                 if (!packageEnqueued)
-                    throw new InvalidOperationException("Can not identify build sequence. All remaining packages have dependencies.");
+                {
+                    throw new CircularPackageDependencyException("Can not identify build sequence. Packages have a circular dependency.", packagesToEnqueue);
+                }
             }
 
             Packages = buildQueue;
