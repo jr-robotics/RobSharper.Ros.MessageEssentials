@@ -4,6 +4,11 @@ namespace {{Package.Namespace}}
 {
     public class {{Name}} : RosMessage
     {
-        
+        {{#each Message.Fields}}
+        public {{mapType TypeInfo}} {{mapIdentifier Identifier}} { get; set; }
+            {{~#unless TypeInfo.IsPrimitive}} = new {{mapType TypeInfo}}();{{/unless}}
+        {{/each}}
+
+        public override string MessageType => "{{Package.RosName}}/{{RosName}}"; 
     }
 }

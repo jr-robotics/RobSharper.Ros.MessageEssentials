@@ -18,7 +18,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private readonly IKeyedTemplateFormatter _templateEngine;
 
         private readonly dynamic _data;
-        private string _projectFile;
+        
+        private string _projectFilePath;
+        private readonly IRosPackageNameResolver _packageNameResolver;
 
         public CodeGenerationPackageContext Package { get; }
 
@@ -30,19 +32,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             _options = options;
             _codeGenerationDir = codeGenerationDir;
             _templateEngine = templateEngine ?? throw new ArgumentNullException(nameof(templateEngine));
-            
-            _data = new ExpandoObject();
-        }
 
-        private string GetPackageName(string rosPackageName)
-        {
-            var data = new
-            {
-                Name = rosPackageName,
-                PascalName = rosPackageName.ToPascalCase()
-            };
-            
-            return _templateEngine.Format(TemplatePaths.AssemblyName, data);
+            _packageNameResolver = new UmlRosPackageNameResolver(templateEngine);
+            _data = new ExpandoObject();
         }
         
         private void EnsurePackageData()
@@ -54,13 +46,14 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             _data.Package.RosName = Package.PackageInfo.Name;
             _data.Package.Version = Package.PackageInfo.Version;
             _data.Package.Name = Package.PackageInfo.Name.ToPascalCase();
-            _data.Package.Namespace = GetPackageName(Package.PackageInfo.Name);
+            _data.Package.Namespace = _packageNameResolver.ResolvePackageName(Package.PackageInfo.Name);
         }
 
         public void CreateProject()
         {
             CreateProjectFile();
-            AddNugetDependencies();
+            //TODO
+            //AddNugetDependencies();
             
             CreateMessages();
             
@@ -80,7 +73,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             WriteFile(projectFilePath, projectFileContent);
 
-            _projectFile = projectFilePath;
+            _projectFilePath = projectFilePath;
         }
 
         private void AddNugetDependencies()
@@ -93,9 +86,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             
             foreach (var dependency in dependencies)
             {
-                var packageName = GetPackageName(dependency);
+                var packageName = _packageNameResolver.ResolvePackageName(dependency);
 
-                var command = $"add \"{_projectFile}\" package {packageName} --no-restore";
+                var command = $"add \"{_projectFilePath}\" package {packageName} --no-restore";
                 var process = RunDotNet(command);
             }
         }
@@ -122,7 +115,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             var data = new
             {
                 Package = _data.Package,
-                Name = name,
+                RosName = name,
+                Name = name.ToPascalCase(),
                 Message = message
             };
             
@@ -212,7 +206,12 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             if (name == null)
                 return null;
-            
+         
+            name = name
+                .Split(new [] {"_"}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
+                .Aggregate(string.Empty, (s1, s2) => s1 + s2);
+
             // TODO
             return name;
         }
