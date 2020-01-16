@@ -9,8 +9,8 @@ namespace {{Package.Namespace}}
         
         {{#each Fields}}
         [RosMessageFieldDescriptor({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
-        public {{Type}} {{Identifier}} { get; set; }
-            {{~#unless IsPrimitive}} = new {{Type}}();{{/unless}}
+        public {{{Type.Name}}} {{Identifier}} { get; set; }
+            {{~#unless Type.IsPrimitive}} = new {{{Type.Name}}}();{{/unless}}
         
         {{/each}}
 

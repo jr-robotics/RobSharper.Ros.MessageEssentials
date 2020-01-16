@@ -116,17 +116,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void CreateMessage(string name, MessageDescriptor message)
         {
-            var hasHeaderField = message.Fields.Any(f =>
-            {
-                if (f.TypeInfo is RosTypeInfo rosType)
-                {
-                    return rosType.HasPackage && 
-                           "std_msgs".Equals(rosType.PackageName) &&
-                           "Header".Equals(rosType.TypeName);
-                }
-
-                return false;
-            });
+            var hasHeaderField = message.Fields.Any(f => "std_msgs/Header".Equals(f.TypeInfo.ToString()));
 
             var fields = message.Fields.Select(x => new
             {
@@ -136,9 +126,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     .Select((item, index) => new { Item = item, Index = index})
                     .First(f => f.Item == x)
                     .Index + 1, // Index of this field in serialized message
-                Type = _typeNameMapper.GetTypeName(x.TypeInfo),
-                IsPrimitive = x.TypeInfo.IsPrimitive,
-                IsArray = x.TypeInfo.IsArray,
+                Type = new {
+                    Name = _typeNameMapper.GetTypeName(x.TypeInfo),
+                    IsPrimitive = x.TypeInfo.IsPrimitive,
+                    IsArray = x.TypeInfo.IsArray,
+                },
                 Identifier = x.Identifier.ToPascalCase()
             });
             
