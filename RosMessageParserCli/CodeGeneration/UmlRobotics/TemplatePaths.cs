@@ -1,10 +1,13 @@
 using System.IO;
+using System.Reflection;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
 {
     public static class TemplatePaths
     {
-        public static readonly string TemplatesDirectory = Path.Combine("CodeGeneration", "UmlRobotics", "TemplateFiles");
+        public static readonly string TemplatesDirectory =
+            Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "CodeGeneration", "UmlRobotics",
+                "TemplateFiles");
 
         public const string PackageName = "PackageNameConvention.hbs";
         public const string ProjectFile = "csproj.hbs";

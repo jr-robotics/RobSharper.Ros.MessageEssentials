@@ -10,20 +10,19 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
         /// These packages are defined in Uml:Robotics.Ros.MessageBase
         /// </summary>
         public static IDictionary<string, string> SpecialPackages { get; } = new Dictionary<string, string>()
-        {
-            {"rosgraph_msgs", "Messages.rosgraph_msgs"}, 
-            {"std_msgs", "Messages.std_msgs"},
-            {"actionlib_msgs", "Messages.actionlib_msgs"},
-            {"geometry_msgs", "Messages.geometry_msgs"},
-            {"tf", "Messages.tf"},
-        };
+                  {
+                      {"rosgraph_msgs", "Messages.rosgraph_msgs"}, 
+                      {"std_msgs", "Messages.std_msgs"},
+                      {"actionlib_msgs", "Messages.actionlib_msgs"},
+                      {"geometry_msgs", "Messages.geometry_msgs"},
+                      {"tf", "Messages.tf"},
+                  };
 
-        
-        private readonly IKeyedTemplateFormatter _templateFormatter;
+        private readonly ITemplateFormatter _packageNameFormatter;
 
-        public UmlRosPackageNameResolver(IKeyedTemplateFormatter templateFormatter)
+        public UmlRosPackageNameResolver(ITemplateFormatter packageNameTemplate)
         {
-            _templateFormatter = templateFormatter ?? throw new ArgumentNullException(nameof(templateFormatter));
+            _packageNameFormatter = packageNameTemplate ?? throw new ArgumentNullException(nameof(packageNameTemplate));
         }
         
         public string ResolvePackageName(string rosPackageName)
@@ -39,8 +38,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
                 PascalName = rosPackageName.ToPascalCase()
             };
             
-            return _templateFormatter
-                .Format(TemplatePaths.PackageName, data)
+            return _packageNameFormatter
+                .Format(data)
                 .Trim();
         }
     }

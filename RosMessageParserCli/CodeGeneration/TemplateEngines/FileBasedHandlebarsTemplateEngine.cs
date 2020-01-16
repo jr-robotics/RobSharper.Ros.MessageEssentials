@@ -6,50 +6,50 @@ using HandlebarsDotNet;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines
 {
-    public class FileBasedHandleBarsTemplateEngine : IKeyedTemplateEngine
+    public class FileBasedHandlebarsTemplateEngine : IKeyedTemplateEngine
     {
         private readonly Dictionary<string, Func<object, string>> _templates = new Dictionary<string, Func<object, string>>();
         private string _basePath;
         private IHandlebars _handlebars;
 
-        public string BasePath
-        {
-            get
-            {
-                if (_basePath == null)
-                {
-                    _basePath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                }
-                return _basePath;
-            }
-            set { _basePath = value; }
-        }
+        public string BasePath { get; }
 
         public HandlebarsConfiguration Configuration { get; }
 
-        public IHandlebars Handlebars
-        {
-            get
-            {
-                if (_handlebars == null)
-                {
-                    _handlebars = HandlebarsDotNet.Handlebars.Create(Configuration);
-                }
-                return _handlebars;
-            }
-        }
+        public IHandlebars Handlebars { get; }
 
         public bool Exists(string key)
         {
             return _templates.ContainsKey(key);
         }
 
-        public FileBasedHandleBarsTemplateEngine()
+        public FileBasedHandlebarsTemplateEngine(string templateDirectoryPath)
         {
+            BasePath = templateDirectoryPath ?? throw new ArgumentNullException(nameof(templateDirectoryPath));
+            
             Configuration = new HandlebarsConfiguration()
             {
                 ThrowOnUnresolvedBindingExpression = true
             };
+            
+            Handlebars = HandlebarsDotNet.Handlebars.Create(Configuration);
+        }
+
+        public FileBasedHandlebarsTemplateEngine(string templateDirectoryPath, HandlebarsConfiguration configuration)
+        {
+            BasePath = templateDirectoryPath ?? throw new ArgumentNullException(nameof(templateDirectoryPath));
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            Handlebars = HandlebarsDotNet.Handlebars.Create(Configuration);
+        }
+
+        public FileBasedHandlebarsTemplateEngine(string templateDirectoryPath, IHandlebars handlebars)
+        {
+            if (handlebars == null) throw new ArgumentNullException(nameof(handlebars));
+            BasePath = templateDirectoryPath ?? throw new ArgumentNullException(nameof(templateDirectoryPath));
+            
+            Configuration = handlebars.Configuration;
+            Handlebars = handlebars;
+            _handlebars = handlebars;
         }
 
         public bool IsAvailable(string templateKey)

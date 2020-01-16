@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using HandlebarsDotNet;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics;
 
@@ -14,7 +12,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     public class RosMessagePackageGenerator
     {
         private readonly CodeGenerationOptions _options;
-        private readonly ProjectCodeGenerationDirectoryContext _codeGenerationDir;
+        private readonly ProjectCodeGenerationDirectoryContext _directories;
         private readonly IKeyedTemplateFormatter _templateEngine;
 
         private readonly dynamic _data;
@@ -25,15 +23,18 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public CodeGenerationPackageContext Package { get; }
 
         public RosMessagePackageGenerator(CodeGenerationPackageContext package, CodeGenerationOptions options,
-            ProjectCodeGenerationDirectoryContext codeGenerationDir, IKeyedTemplateFormatter templateEngine)
+            ProjectCodeGenerationDirectoryContext directories, IKeyedTemplateFormatter templateEngine)
         {
             Package = package ?? throw new ArgumentNullException(nameof(package));
             
-            _options = options;
-            _codeGenerationDir = codeGenerationDir;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _directories = directories ?? throw new ArgumentNullException(nameof(directories));
             _templateEngine = templateEngine ?? throw new ArgumentNullException(nameof(templateEngine));
 
-            _packageNameResolver = new UmlRosPackageNameResolver(templateEngine);
+            _packageNameResolver =
+                new UmlRosPackageNameResolver(new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
+                    templateEngine));
+            
             _data = new ExpandoObject();
         }
         
@@ -52,7 +53,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public void CreateProject()
         {
             CreateProjectFile();
-            //TODO
+            //TODO uncomment - it's to slow for fast debugging ;-)
             //AddNugetDependencies();
             
             CreateMessages();
@@ -165,7 +166,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             if (!Path.IsPathFullyQualified(path))
             {
-                path = Path.Combine(_codeGenerationDir.OutputDirectory.FullName, path);
+                path = Path.Combine(_directories.OutputDirectory.FullName, path);
             }
             
             return path;
@@ -200,7 +201,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         }
     }
 
-    public static class RosPascalCaseConverter
+    public static class RosPascalCaseConverterStringExtensions
     {
         public static string ToPascalCase(this string name)
         {
@@ -212,7 +213,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
                 .Aggregate(string.Empty, (s1, s2) => s1 + s2);
 
-            // TODO
             return name;
         }
     }
