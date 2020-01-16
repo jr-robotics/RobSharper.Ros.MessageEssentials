@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.Messa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2FE53127-F29D-46B9-9BB3-CB438E2FCFBE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.MessageBase", "Joanneum.Robotics.Ros.MessageBase\Joanneum.Robotics.Ros.MessageBase.csproj", "{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3} = {2FE53127-F29D-46B9-9BB3-CB438E2FCFBE}

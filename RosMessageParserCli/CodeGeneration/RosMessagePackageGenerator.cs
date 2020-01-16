@@ -19,6 +19,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         
         private string _projectFilePath;
         private readonly IRosPackageNameResolver _packageNameResolver;
+        private readonly TypeNameMapper _typeNameMapper;
 
         public CodeGenerationPackageContext Package { get; }
 
@@ -34,6 +35,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             _packageNameResolver =
                 new UmlRosPackageNameResolver(new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
                     templateEngine));
+
+            _typeNameMapper = new TypeNameMapper(_packageNameResolver);
             
             _data = new ExpandoObject();
         }
@@ -113,12 +116,39 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void CreateMessage(string name, MessageDescriptor message)
         {
+            var hasHeaderField = message.Fields.Any(f =>
+            {
+                if (f.TypeInfo is RosTypeInfo rosType)
+                {
+                    return rosType.HasPackage && 
+                           "std_msgs".Equals(rosType.PackageName) &&
+                           "Header".Equals(rosType.TypeName);
+                }
+
+                return false;
+            });
+
+            var fields = message.Fields.Select(x => new
+            {
+                RosType = x.TypeInfo,
+                RosIdentifier = x.Identifier,
+                Index = message.Items
+                    .Select((item, index) => new { Item = item, Index = index})
+                    .First(f => f.Item == x)
+                    .Index + 1, // Index of this field in serialized message
+                Type = _typeNameMapper.GetTypeName(x.TypeInfo),
+                IsPrimitive = x.TypeInfo.IsPrimitive,
+                IsArray = x.TypeInfo.IsArray,
+                Identifier = x.Identifier.ToPascalCase()
+            });
+            
             var data = new
             {
                 Package = _data.Package,
                 RosName = name,
                 Name = name.ToPascalCase(),
-                Message = message
+                Fields = fields,
+                HasHeaderField = hasHeaderField,
             };
             
             var fileName = $"{name}.cs";
@@ -198,22 +228,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             proc.WaitForExit();
             return proc;
-        }
-    }
-
-    public static class RosPascalCaseConverterStringExtensions
-    {
-        public static string ToPascalCase(this string name)
-        {
-            if (name == null)
-                return null;
-         
-            name = name
-                .Split(new [] {"_"}, StringSplitOptions.RemoveEmptyEntries)
-                .Select(s => char.ToUpperInvariant(s[0]) + s.Substring(1, s.Length - 1))
-                .Aggregate(string.Empty, (s1, s2) => s1 + s2);
-
-            return name;
         }
     }
 }

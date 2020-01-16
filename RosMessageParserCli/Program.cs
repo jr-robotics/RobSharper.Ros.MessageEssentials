@@ -53,23 +53,17 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli
             
             // Add UML Robotics dependencies
             // Package name resolver
-            containerBuilder.Register(context =>
-                {
-                    return new UmlRosPackageNameResolver(
-                        new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
-                            new FileBasedHandlebarsTemplateEngine(TemplatePaths.TemplatesDirectory,
-                                new HandlebarsConfiguration
-                                    {ThrowOnUnresolvedBindingExpression = true})));
-                })
-                .SingleInstance()
-                .As<IRosPackageNameResolver>();
+            // containerBuilder.Register(context =>
+            //     {
+            //         return new UmlRosPackageNameResolver(
+            //             new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
+            //                 new FileBasedHandlebarsTemplateEngine(TemplatePaths.TemplatesDirectory,
+            //                     new HandlebarsConfiguration
+            //                         {ThrowOnUnresolvedBindingExpression = true})));
+            //     })
+            //     .SingleInstance()
+            //     .As<IRosPackageNameResolver>();
 
-            
-            // Template engine configurator
-            containerBuilder.RegisterType<UmlRosTemplateEngineConfigurator>()
-                .UsingConstructor(typeof(IRosPackageNameResolver))
-                .SingleInstance();
-            
             // Template Engine
             containerBuilder.Register(context =>
                 {
@@ -77,9 +71,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli
                     {
                         ThrowOnUnresolvedBindingExpression = true
                     };
-
-                    context.Resolve<UmlRosTemplateEngineConfigurator>()
-                        .Configure(config);
                     
                     return new FileBasedHandlebarsTemplateEngine(TemplatePaths.TemplatesDirectory, config);
                 })

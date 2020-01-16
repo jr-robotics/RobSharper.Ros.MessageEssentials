@@ -1,14 +1,60 @@
 using Uml.Robotics.Ros;
+using Joanneum.Robotics.Ros.MessageBase;
 
 namespace {{Package.Namespace}}
 {
     public class {{Name}} : RosMessage
     {
-        {{#each Message.Fields}}
-        public {{mapType TypeInfo}} {{mapIdentifier Identifier}} { get; set; }
-            {{~#unless TypeInfo.IsPrimitive}} = new {{mapType TypeInfo}}();{{/unless}}
+        public override string MessageType => "{{Package.RosName}}/{{RosName}}";
+        
+        {{#each Fields}}
+        [RosMessageFieldDescriptor({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
+        public {{Type}} {{Identifier}} { get; set; }
+            {{~#unless IsPrimitive}} = new {{Type}}();{{/unless}}
+        
         {{/each}}
 
-        public override string MessageType => "{{Package.RosName}}/{{RosName}}"; 
+        public {{Name}}() : base()
+        {
+        }
+        
+        public {{Name}}(byte[] serializedMessage) : base(serializedMessage)
+        {
+        }
+        
+        public {{Name}}(byte[] serializedMessage, ref int currentIndex) : base(serializedMessage, ref currentIndex)
+        {
+        }
+
+        public override string MD5Sum()
+        {
+            // TODO
+            throw new System.NotImplementedException();
+        }
+
+        public override bool HasHeader()
+        {
+{{#if HasHeaderField}}
+            return true;
+{{else}}
+            return false;
+{{/if}}
+        }
+
+        // Omitted IsMetaType() because it seems that it is not used anywhere.
+        // Whatever IsMetaType() means. It seems that it is indicating, that the message has properties
+        // of an external type (i.e. no primitive ROS type, Message of same package or Type defined in 
+        // MessageBase package.
+
+        // Omitted IsServiceComponent() because this is only true for .srv messages
+
+        public override string MessageDefinition()
+        { 
+            return @"TODO string name
+string type
+ParamDescription[] parameters
+int32 parent
+int32 id"; 
+        }
     }
 }
