@@ -9,8 +9,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines
     public class FileBasedHandlebarsTemplateEngine : IKeyedTemplateEngine
     {
         private readonly Dictionary<string, Func<object, string>> _templates = new Dictionary<string, Func<object, string>>();
-        private string _basePath;
-        private IHandlebars _handlebars;
 
         public string BasePath { get; }
 
@@ -49,7 +47,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines
             
             Configuration = handlebars.Configuration;
             Handlebars = handlebars;
-            _handlebars = handlebars;
         }
 
         public bool IsAvailable(string templateKey)

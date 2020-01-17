@@ -1,3 +1,4 @@
+using System;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
@@ -28,6 +29,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     generator.CreateProject();
                 }
             }
+
+            new HashCode();
 
             return 0;
         }

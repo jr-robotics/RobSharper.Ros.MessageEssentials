@@ -8,6 +8,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     public class RosMessagePackageParser : IRosMessagePackageParser
     {
         private IEnumerable<string> _packageDependencies;
+        private List<Tuple<string, string>> _externalTypeDependencies;
 
         private IEnumerable<KeyValuePair<string, MessageDescriptor>> _messages;
         private IEnumerable<KeyValuePair<string, ActionDescriptor>> _actions;
@@ -25,6 +26,15 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             {
                 ParseMessages();
                 return _packageDependencies;
+            }
+        }
+        
+        public IEnumerable<Tuple<string, string>> ExternalTypeDependencies
+        {
+            get
+            {
+                ParseMessages();
+                return _externalTypeDependencies;
             }
         }
 
@@ -85,6 +95,10 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private void ParseMessagesInternal()
         {
             var packageDependencyCollector = new PackageDependencyCollector();
+            var typeDependencyCollector = new TypeDependencyCollector();
+
+            var collectors = new RosMessageVisitorListenerCollection(new IRosMessageVisitorListener[]
+                {packageDependencyCollector, typeDependencyCollector});
 
             var messages = new List<KeyValuePair<string, MessageDescriptor>>();
             var actions = new List<KeyValuePair<string, ActionDescriptor>>();
@@ -98,21 +112,21 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     {
                         case RosMessageType.Message:
                             var messageParser = new MessageParser(file);
-                            var messageDescriptor = messageParser.Parse(packageDependencyCollector);
+                            var messageDescriptor = messageParser.Parse(collectors);
 
                             messages.Add(
                                 new KeyValuePair<string, MessageDescriptor>(messageFile.Name, messageDescriptor));
                             break;
                         case RosMessageType.Service:
                             var serviceParser = new ServiceParser(file);
-                            var serviceDescriptor = serviceParser.Parse(packageDependencyCollector);
+                            var serviceDescriptor = serviceParser.Parse(collectors);
 
                             services.Add(
                                 new KeyValuePair<string, ServiceDescriptor>(messageFile.Name, serviceDescriptor));
                             break;
                         case RosMessageType.Action:
                             var actionParser = new ActionParser(file);
-                            var actionDescriptor = actionParser.Parse(packageDependencyCollector);
+                            var actionDescriptor = actionParser.Parse(collectors);
 
                             actions.Add(
                                 new KeyValuePair<string, ActionDescriptor>(messageFile.Name, actionDescriptor));
@@ -121,7 +135,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 }
             }
 
-            var packageDependencies = packageDependencyCollector.PackageDependencies.ToList();
+            var packageDependencies = packageDependencyCollector.Dependencies
+                .Where(x => x != Package.Name)
+                .ToList();
+            
+            var typeDependencies = typeDependencyCollector.Dependencies.Values
+                .Where(x => x.Item1 != Package.Name)
+                .ToList();
 
             // Add actionlib dependency
             if (actions.Any() && !packageDependencies.Contains("actionlib_msgs"))
@@ -129,11 +149,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 packageDependencies.Add("actionlib_msgs");
             }
 
-            // Remove self dependency
-            packageDependencies.Remove(Package.Name);
-
-
             _packageDependencies = packageDependencies;
+            _externalTypeDependencies = typeDependencies;
             _messages = messages;
             _actions = actions;
             _services = services;

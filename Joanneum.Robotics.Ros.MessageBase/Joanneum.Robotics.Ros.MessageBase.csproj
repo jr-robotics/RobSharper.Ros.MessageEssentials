@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Uml.Robotics.Ros.MessageBase" Version="1.0.1" />
+      <PackageReference Include="Uml.Robotics.Ros.MessageBase" Version="1.0.7" />
     </ItemGroup>
 
 </Project>

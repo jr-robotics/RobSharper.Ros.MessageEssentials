@@ -28,6 +28,15 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
+        public IEnumerable<Tuple<string, string>> ExternalTypeDependencies
+        {
+            get
+            {
+                ParseMessages();
+                return _innerParser.ExternalTypeDependencies;
+            }
+        }
+
         public IEnumerable<KeyValuePair<string, MessageDescriptor>> Messages
         {
             get

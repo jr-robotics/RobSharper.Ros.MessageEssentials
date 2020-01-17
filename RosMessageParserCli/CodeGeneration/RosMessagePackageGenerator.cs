@@ -18,8 +18,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private readonly dynamic _data;
         
         private string _projectFilePath;
-        private readonly IRosPackageNameResolver _packageNameResolver;
-        private readonly TypeNameMapper _typeNameMapper;
+
+        private readonly NameMapper _nameMapper;
 
         public CodeGenerationPackageContext Package { get; }
 
@@ -32,11 +32,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             _directories = directories ?? throw new ArgumentNullException(nameof(directories));
             _templateEngine = templateEngine ?? throw new ArgumentNullException(nameof(templateEngine));
 
-            _packageNameResolver =
-                new UmlRosPackageNameResolver(new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
-                    templateEngine));
-
-            _typeNameMapper = new TypeNameMapper(_packageNameResolver);
+            _nameMapper = new UmlRoboticsNameMapper(Package.PackageInfo.Name,
+                new SingleKeyTemplateFormatter(TemplatePaths.PackageName, templateEngine));
             
             _data = new ExpandoObject();
         }
@@ -50,14 +47,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             _data.Package.RosName = Package.PackageInfo.Name;
             _data.Package.Version = Package.PackageInfo.Version;
             _data.Package.Name = Package.PackageInfo.Name.ToPascalCase();
-            _data.Package.Namespace = _packageNameResolver.ResolvePackageName(Package.PackageInfo.Name);
+            _data.Package.Namespace = _nameMapper.FormatPackageName(Package.PackageInfo.Name);
         }
 
         public void CreateProject()
         {
             CreateProjectFile();
-            //TODO uncomment - it's to slow for fast debugging ;-)
-            //AddNugetDependencies();
+            AddNugetDependencies();
             
             CreateMessages();
             
@@ -83,16 +79,23 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private void AddNugetDependencies()
         {
             EnsurePackageData();
-            
-            var dependencies = new List<string>();
-            dependencies.Add("Uml.Robotics.Ros.MessageBase");
-            dependencies.AddRange(Package.Parser.PackageDependencies);
-            
-            foreach (var dependency in dependencies)
-            {
-                var packageName = _packageNameResolver.ResolvePackageName(dependency);
 
-                var command = $"add \"{_projectFilePath}\" package {packageName} --no-restore";
+            var messageNugetPackages = Package.Parser
+                .ExternalTypeDependencies
+                .Select(x => _nameMapper.ResolveNugetPackageName(x.Item1, x.Item2))
+                .Distinct()
+                .ToList();
+                
+            // This would be appropriate for Meta Packages
+            // var messageNugetPackages = Package.Parser
+            //     .PackageDependencies
+            //     .Select(x => _messagePackageResolver.ResolveNugetPackageName(x))
+            //     .Distinct()
+            //     .ToList();
+            
+            foreach (var dependency in messageNugetPackages)
+            {
+                var command = $"add \"{_projectFilePath}\" package {dependency} --no-restore";
                 var process = RunDotNet(command);
             }
         }
@@ -116,8 +119,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void CreateMessage(string name, MessageDescriptor message)
         {
-            var hasHeaderField = message.Fields.Any(f => "std_msgs/Header".Equals(f.TypeInfo.ToString()));
-
             var fields = message.Fields.Select(x => new
             {
                 RosType = x.TypeInfo,
@@ -125,11 +126,14 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 Index = message.Items
                     .Select((item, index) => new { Item = item, Index = index})
                     .First(f => f.Item == x)
-                    .Index + 1, // Index of this field in serialized message
+                    .Index + 1, // Index of this field in serialized message (starting at 1)
                 Type = new {
-                    Name = _typeNameMapper.GetTypeName(x.TypeInfo),
+                    InterfaceName = _nameMapper.ResolveInterfacedTypeName(x.TypeInfo),
+                    ConcreteName = _nameMapper.ResolveConcreteTypeName(x.TypeInfo),
                     IsPrimitive = x.TypeInfo.IsPrimitive,
                     IsArray = x.TypeInfo.IsArray,
+                    IsValueType = x.TypeInfo.IsValueType(),
+                    SupportsEqualityComparer = x.TypeInfo.SupportsEqualityComparer()
                 },
                 Identifier = x.Identifier.ToPascalCase()
             });
@@ -140,7 +144,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 RosName = name,
                 Name = name.ToPascalCase(),
                 Fields = fields,
-                HasHeaderField = hasHeaderField,
             };
             
             var fileName = $"{name}.cs";

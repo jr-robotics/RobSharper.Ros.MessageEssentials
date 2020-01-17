@@ -1,16 +1,32 @@
-using Uml.Robotics.Ros;
+using System.IO;
 using Joanneum.Robotics.Ros.MessageBase;
+
+using UmlRoboticsMessages = Messages;
 
 namespace {{Package.Namespace}}
 {
+    [RosMessageTypeDescriptorAttribute("{{Package.RosName}}", "{{RosName}}")]
     public class {{Name}} : RosMessage
     {
-        public override string MessageType => "{{Package.RosName}}/{{RosName}}";
+        private RosMessageTypeInfo _typeInfo;
+
+        private RosMessageTypeInfo TypeInfo
+        {
+            get
+            {
+                if (_typeInfo == null)
+                    _typeInfo = RosMessageTypeInfo.Create(this);
+                
+                return _typeInfo;
+            }
+        }
+
+        public override string MessageType => TypeInfo.RosFullTypeName;
         
         {{#each Fields}}
         [RosMessageFieldDescriptor({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
-        public {{{Type.Name}}} {{Identifier}} { get; set; }
-            {{~#unless Type.IsPrimitive}} = new {{{Type.Name}}}();{{/unless}}
+        public {{{Type.InterfaceName}}} {{Identifier}} { get; set; }
+            {{~#unless Type.IsPrimitive}} = new {{{Type.ConcreteName}}}();{{/unless}}
         
         {{/each}}
 
@@ -28,17 +44,12 @@ namespace {{Package.Namespace}}
 
         public override string MD5Sum()
         {
-            // TODO
-            throw new System.NotImplementedException();
+            return TypeInfo.MD5Sum;
         }
 
         public override bool HasHeader()
         {
-{{#if HasHeaderField}}
-            return true;
-{{else}}
-            return false;
-{{/if}}
+            return TypeInfo.HasHeader;
         }
 
         // Omitted IsMetaType() because it seems that it is not used anywhere.
@@ -49,12 +60,77 @@ namespace {{Package.Namespace}}
         // Omitted IsServiceComponent() because this is only true for .srv messages
 
         public override string MessageDefinition()
-        { 
-            return @"TODO string name
-string type
-ParamDescription[] parameters
-int32 parent
-int32 id"; 
+        {
+            return TypeInfo.MessageDefinition;
+        }
+
+        public override void Deserialize(byte[] serializedMessage, ref int currentIndex)
+        {
+            var ms = new MemoryStream(serializedMessage, currentIndex, serializedMessage.Length - currentIndex, false);
+            var deserialized = RosMessageSerializer.Deserialize<{{Name}}>(ms);
+            
+            currentIndex = serializedMessage.Length;
+
+            {{#each Fields}}
+            {{Identifier}} = deserialized.{{Identifier}};
+            {{/each}}
+        }
+        
+        public override byte[] Serialize(bool partofsomethingelse)
+        {
+            var ms = new MemoryStream();
+            
+            RosMessageSerializer.Serialize(this, ms);
+            return ms.ToArray();
+        }
+        
+        public override void Randomize()
+        {
+            // TODO
+            throw new System.NotImplementedException();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals(({{Name}}) obj);
+        }
+
+        public override bool Equals(RosMessage obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals(({{Name}}) obj);
+        }
+
+        protected bool Equals({{Name}} other)
+        {
+            return
+            {{#each Fields}}
+                {{#if Type.SupportsEqualityComparer}}
+                {{Identifier}} == other.{{Identifier}} &&
+                {{else}}
+                    {{#if Type.IsValueType}}
+                {{Identifier}}.Equals(other.{{Identifier}}) &&
+                    {{else}}
+                Equals({{Identifier}}, other.{{Identifier}}) &&
+                    {{/if}}
+                {{/if}}
+            {{/each}}
+                true;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new SimpleHashCode();
+            hashCode.Add(base.GetHashCode());
+            {{#each Fields}}
+            hashCode.Add({{Identifier}});
+            {{/each}}
+            return hashCode.ToHashCode();
         }
     }
 }

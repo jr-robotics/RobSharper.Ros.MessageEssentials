@@ -6,4 +6,16 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <NoWarn>168;219</NoWarn>
     </PropertyGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="Joanneum.Robotics.Ros.MessageBase" Version="*" />
+    </ItemGroup>
+
+    <!-- For testing only -->
+    <ItemGroup>
+        <Reference Include="Joanneum.Robotics.Ros.MessageBase, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>..\..\..\..\..\..\Joanneum.Robotics.Ros.MessageBase\bin\Debug\netstandard2.0\Joanneum.Robotics.Ros.MessageBase.dll</HintPath>
+        </Reference>
+    </ItemGroup>
 </Project>
