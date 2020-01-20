@@ -28,7 +28,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         // Result of "rosmsg md5"
         public const string ROS_MD5 = "089e88fbddca98397c0f90b12d01c8e0";
 
-        [RosMessageField(1, "int32", "a")]
+        [RosMessageField(1, "int32[]", "a")]
         public IList<int> A { get; set; } = new List<int>();
     }
     

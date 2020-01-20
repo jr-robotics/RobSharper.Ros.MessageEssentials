@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -87,8 +88,11 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
                         if (field.RosType.IsArray)
                         {
-                            //TODO
-                            throw new NotImplementedException();
+                            mappedFieldType = field.RosType.MappedType
+                                .GetInterfaces()
+                                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                                .Select(t => t.GetGenericArguments()[0])
+                                .FirstOrDefault();
                         }
                         else
                         {

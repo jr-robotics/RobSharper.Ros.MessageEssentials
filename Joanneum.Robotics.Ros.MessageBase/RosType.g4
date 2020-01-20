@@ -4,14 +4,15 @@ grammar RosType;
 /* PARSER RULES                                                       */
 /* ------------------------------------------------------------------ */
 
-any_type
-    : type
-    | array_type
+type_input
+    : type EOF
+    | array_type EOF
     ;
 
 type
     : built_in_type
     | ros_type
+    | ros_package_type
     ;
 
 built_in_type
@@ -35,7 +36,10 @@ built_in_type
 
 ros_type
     : IDENTIFIER
-    | IDENTIFIER SLASH IDENTIFIER
+    ;
+
+ros_package_type
+    : IDENTIFIER SLASH IDENTIFIER
     ;
 
 array_type
