@@ -15,20 +15,24 @@ namespace Joanneum.Robotics.Ros.MessageBase
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
             
-            var messageDescriptorAttribute = type.GetCustomAttributes(false)
+            var messageTypeAttribute = type.GetCustomAttributes(false)
                 .OfType<RosMessageTypeAttribute>()
                 .FirstOrDefault();
             
-            if (messageDescriptorAttribute == null)
+            if (messageTypeAttribute == null)
                 throw new NotSupportedException();
             
             var descriptorBuilder = new RosMessageDescriptorBuilder();
+
+            descriptorBuilder.SetRosType(messageTypeAttribute.RosPackage, messageTypeAttribute.RosType);
+            
+            descriptorBuilder.SetMappedType(type);
             
             // Get Fields
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
                 var rosFieldAttribute = property.GetCustomAttributes(false)
-                    .OfType<RosMessageFieldDescriptorAttribute>()
+                    .OfType<RosMessageFieldAttribute>()
                     .FirstOrDefault();
                 
                 if (rosFieldAttribute == null)

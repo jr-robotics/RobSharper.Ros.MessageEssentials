@@ -2,15 +2,15 @@
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
-    public class RosMessageFieldDescriptorAttribute : Attribute
+    public class RosMessageFieldAttribute : Attribute
     {
         public int Index { get; set; }
         public string RosType { get; set; }
         public string RosIdentifier { get; set; }
 
-        public RosMessageFieldDescriptorAttribute() {}
+        public RosMessageFieldAttribute() {}
         
-        public RosMessageFieldDescriptorAttribute(int index, string rosType, string rosIdentifier)
+        public RosMessageFieldAttribute(int index, string rosType, string rosIdentifier)
         {
             Index = index;
             RosType = rosType;
