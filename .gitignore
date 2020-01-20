@@ -412,3 +412,4 @@ fabric.properties
 # ANTLR generated intermediates
 *.interp
 *.tokens
+gen/
