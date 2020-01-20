@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
-    public class RosMessageTypeDescriptorAttribute : Attribute
+    public class RosMessageTypeAttribute : Attribute
     {
         public string RosPackage { get; set; }
         public string RosType { get; set; }
 
-        public RosMessageTypeDescriptorAttribute()
+        public RosMessageTypeAttribute()
         {
         }
 
-        public RosMessageTypeDescriptorAttribute(string rosPackage, string rosType)
+        public RosMessageTypeAttribute(string rosPackage, string rosType)
         {
             RosPackage = rosPackage;
             RosType = rosType;

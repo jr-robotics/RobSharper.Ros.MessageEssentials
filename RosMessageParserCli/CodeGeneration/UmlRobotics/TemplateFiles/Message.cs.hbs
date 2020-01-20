@@ -24,7 +24,7 @@ namespace {{Package.Namespace}}
         public override string MessageType => TypeInfo.RosFullTypeName;
         
         {{#each Fields}}
-        [RosMessageFieldDescriptor({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
+        [RosMessageFieldDescriptor({{Index}}, "{{RosPackageName}}", "{{RosTypeName}}", "{{RosIdentifier}}")]
         public {{{Type.InterfaceName}}} {{Identifier}} { get; set; }
             {{~#unless Type.IsPrimitive}} = new {{{Type.ConcreteName}}}();{{/unless}}
         
