@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
     public class RosMessageDescriptorBuilder
     {
         private IList<RosMessageFieldDescriptor> _fields = new List<RosMessageFieldDescriptor>();
-        private string _rosPackage;
-        private string _rosType;
+        private RosType _rosType;
         private Type _mappedType;
 
         public void AddField(RosMessageFieldDescriptor fieldDescriptor)
@@ -20,13 +17,11 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public RosMessageDescriptor Build()
         {
-            var rosType = RosType.Create(_rosPackage, _rosType, _mappedType);
-            return new RosMessageDescriptor(rosType, _fields);
+            return new RosMessageDescriptor(_rosType, _fields);
         }
 
-        public void SetRosType(string rosPackage, string rosType)
+        public void SetRosType(RosType rosType)
         {   
-            _rosPackage = rosPackage ?? throw new ArgumentNullException(nameof(rosPackage));
             _rosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
         }
 

@@ -24,7 +24,8 @@ namespace Joanneum.Robotics.Ros.MessageBase
             
             var descriptorBuilder = new RosMessageDescriptorBuilder();
 
-            descriptorBuilder.SetRosType(messageTypeAttribute.RosPackage, messageTypeAttribute.RosType);
+            var rosType = RosType.Parse(messageTypeAttribute.RosType);
+            descriptorBuilder.SetRosType(rosType);
             
             descriptorBuilder.SetMappedType(type);
             
@@ -38,9 +39,8 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 if (rosFieldAttribute == null)
                     continue;
 
-                var rosType = RosType.Create(rosFieldAttribute.RosType, property.PropertyType);
-                
-                var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosType, rosFieldAttribute.RosIdentifier);
+                var rosFieldType = RosType.Parse(rosFieldAttribute.RosType);
+                var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property.PropertyType);
                 descriptorBuilder.AddField(fieldDescriptor);
             }
 

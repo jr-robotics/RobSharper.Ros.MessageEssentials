@@ -24,13 +24,16 @@ namespace Joanneum.Robotics.Ros.MessageBase
         public RosType RosType { get; }
         public string RosIdentifier { get; }
         
-        public RosMessageFieldDescriptor(int index, RosType rosType, string rosIdentifier)
+        public Type MappedType { get; }
+        
+        public RosMessageFieldDescriptor(int index, RosType rosType, string rosIdentifier, Type mappedType)
         {
             if (index <= 0) throw new ArgumentOutOfRangeException(nameof(index));
             
             Index = index;
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
             RosIdentifier = rosIdentifier ?? throw new ArgumentNullException(nameof(rosIdentifier));
+            MappedType = mappedType ?? throw new ArgumentNullException(nameof(mappedType));
         }
     }
 }

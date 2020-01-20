@@ -88,7 +88,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
                         if (field.RosType.IsArray)
                         {
-                            mappedFieldType = field.RosType.MappedType
+                            mappedFieldType = field.MappedType
                                 .GetInterfaces()
                                 .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                                 .Select(t => t.GetGenericArguments()[0])
@@ -96,7 +96,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
                         }
                         else
                         {
-                            mappedFieldType = field.RosType.MappedType;
+                            mappedFieldType = field.MappedType;
                         }
                         
                         var typeInfo = GetOrCreateMessageTypeInfo(mappedFieldType);
