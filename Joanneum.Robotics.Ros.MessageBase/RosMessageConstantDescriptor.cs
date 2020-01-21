@@ -21,5 +21,10 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 throw new ArgumentOutOfRangeException(nameof(rosType), $"ROS type {rosType} is no supported constant type");
             }
         }
+
+        public override string ToString()
+        {
+            return $"{RosType} {RosIdentifier}={Value}";
+        }
     }
 }

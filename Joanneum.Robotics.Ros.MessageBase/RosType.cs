@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using Antlr4.Runtime;
 using Joanneum.Robotics.Ros.MessageBase.RosTypeParser;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
-    public class RosType
+    public class RosType : IFormattable
     {
         private RosType(string packageName, string typeName, bool isBuiltIn, bool isArray, int arraySize)
         {
@@ -28,6 +29,39 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public override string ToString()
         {
+            return ToString("F");
+        }
+
+        public string ToString(string format)
+        {
+            return ToString(format, null);
+        }
+        
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            if (string.IsNullOrEmpty(format))
+                format = "F";
+
+            format = format.ToUpperInvariant();
+            bool omitArraySpecifier;
+
+            switch (format)
+            {
+                case "F": //Full
+                    omitArraySpecifier = false;
+                    break;
+                case "T": // Type only
+                    omitArraySpecifier = true;
+                    break;
+                default:
+                    throw new NotSupportedException($"Format {format} is not supported.");
+            }
+            
+            return ToString(omitArraySpecifier);
+        }
+
+        private string ToString(bool omitArraySpecifier)
+        {
             if (_stringValue == null)
             {
                 var sb = new StringBuilder();
@@ -35,25 +69,26 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 if (!string.IsNullOrEmpty(PackageName))
                 {
                     sb.Append(PackageName);
-                    sb.Append(" ");
+                    sb.Append("/");
                 }
 
                 sb.Append(TypeName);
 
-                if (IsArray)
+                if (!omitArraySpecifier && IsArray)
                 {
                     sb.Append("[");
-                    
+
                     if (ArraySize > 0)
                     {
                         sb.Append(ArraySize);
                     }
-                    
+
                     sb.Append("]");
                 }
+
                 _stringValue = sb.ToString();
             }
-            
+
             return _stringValue;
         }
 

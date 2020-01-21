@@ -22,13 +22,6 @@ namespace Joanneum.Robotics.Ros.MessageBase
         {
             get => _rosTypes[rosTypeName];
         }
-        
-        public IMessageTypeInfo GetOrCreateMessageTypeInfo(object rosMessage)
-        {
-            if (rosMessage == null) throw new ArgumentNullException(nameof(rosMessage));
-
-            return GetOrCreateMessageTypeInfo(rosMessage.GetType());
-        }
 
         public IMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
         {
@@ -38,18 +31,17 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 return _messageTypes[type];
 
             
-            MessageTypeInfo messageInfo;
+            RosMessageDescriptor messageDescriptor;
             if (AttributeBasedRosMessageDescriptorFactory.CanCreate(type))
             {
-                var messageDescriptor = AttributeBasedRosMessageDescriptorFactory.Create(type);
-                
-                messageInfo = CreateMessageTypeInfo(messageDescriptor);
+                messageDescriptor = AttributeBasedRosMessageDescriptorFactory.Create(type);
             }
             else
             {
                 throw new NotSupportedException();
             }
             
+            var messageInfo = CreateMessageTypeInfo(messageDescriptor);
             _messageTypes.Add(type, messageInfo);
             _rosTypes.Add(messageInfo.Type.ToString(), messageInfo);
             
@@ -58,103 +50,32 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         private MessageTypeInfo CreateMessageTypeInfo(RosMessageDescriptor messageDescriptor)
         {
-            var md5 = CalculateMd5Sum(messageDescriptor);
-            
-            return new MessageTypeInfo(messageDescriptor, md5);
-        }
-
-        private string CalculateMd5Sum(RosMessageDescriptor messageDescriptor)
-        {
-            var firstElement = true;
-            var md5 = MD5.Create();
-
-            using (var ms = new MemoryStream())
+            var dependencies = new List<IMessageTypeInfo>();
+            foreach (var dependentField in messageDescriptor.Fields)
             {
-                var writer = new StreamWriter(ms, Encoding.ASCII)
-                {
-                    AutoFlush = true
-                };
+                if (dependentField.RosType.IsBuiltIn)
+                    continue;
+                
+                Type mappedFieldType;
 
-                // MD5 of Constants
-                foreach (var constant in messageDescriptor.Constants)
+                if (dependentField.RosType.IsArray)
                 {
-                    if (firstElement)
-                    {
-                        firstElement = false;
-                    }
-                    else
-                    {
-                        writer.Write("\n");
-                    }
-                    
-                    // Only built in types supported for constants
-                    writer.Write(constant.RosType);
-                    writer.Write(" ");
-                    writer.Write(constant.RosIdentifier);
-                    writer.Write("=");
-                    writer.Write(constant.Value);
+                    mappedFieldType = dependentField.MappedType
+                        .GetInterfaces()
+                        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                        .Select(t => t.GetGenericArguments()[0])
+                        .FirstOrDefault();
                 }
-
-                // MD5 Of Fields
-                foreach (var field in messageDescriptor.Fields)
+                else
                 {
-                    if (firstElement)
-                    {
-                        firstElement = false;
-                    }
-                    else
-                    {
-                        writer.Write("\n");
-                    }
-
-                    if (field.RosType.IsBuiltIn)
-                    {
-                        writer.Write(field.RosType);
-                    }
-                    else
-                    {
-                        Type mappedFieldType;
-
-                        if (field.RosType.IsArray)
-                        {
-                            mappedFieldType = field.MappedType
-                                .GetInterfaces()
-                                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                                .Select(t => t.GetGenericArguments()[0])
-                                .FirstOrDefault();
-                        }
-                        else
-                        {
-                            mappedFieldType = field.MappedType;
-                        }
-                        
-                        var typeInfo = GetOrCreateMessageTypeInfo(mappedFieldType);
-                        var typeHash = typeInfo.MD5Sum;
-
-                        writer.Write(typeHash);
-                    }
-                    
-                    writer.Write(" ");
-                    writer.Write(field.RosIdentifier);
+                    mappedFieldType = dependentField.MappedType;
                 }
                 
-                ms.Position = 0;
-                var md5Bytes = md5.ComputeHash(ms);
-                var md5String = ToHexString(md5Bytes);
-
-                return md5String;
-            }
-        }
-
-        private static string ToHexString(byte[] buffer)
-        {
-            var sb = new StringBuilder(buffer.Length * 2);
-            foreach (byte b in buffer)
-            {
-                sb.AppendFormat("{0:x2}", b);
+                var dependency = GetOrCreateMessageTypeInfo(mappedFieldType);
+                dependencies.Add(dependency);
             }
 
-            return sb.ToString();
+            return new MessageTypeInfo(messageDescriptor, dependencies);
         }
     }
 }

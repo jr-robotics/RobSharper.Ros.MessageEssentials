@@ -5,6 +5,12 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
     {
         // Result of "rosmsg md5"
         public const string ROS_MD5 = "6fdbcb03a86043f4030df29cabc53b0c";
+
+        // Result of "gendeps --cat"
+        public const string MESSAGE_DEFINITION = @"int32 CONST_A=13
+int32 CONST_B=12
+int32 fieldA
+int32 fieldB";
         
         [RosMessageField(2, "int32", "CONST_A")]
         public const int CONST_A = 13;
