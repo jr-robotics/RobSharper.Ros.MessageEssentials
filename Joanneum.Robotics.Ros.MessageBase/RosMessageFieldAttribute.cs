@@ -2,6 +2,7 @@
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class RosMessageFieldAttribute : Attribute
     {
         public int Index { get; set; }
