@@ -7,7 +7,6 @@ namespace Joanneum.Robotics.Ros.MessageBase
         public int Index { get;}
         public RosType RosType { get; }
         public string RosIdentifier { get; }
-        
         public Type MappedType { get; }
         
         public RosMessageFieldDescriptor(int index, RosType rosType, string rosIdentifier, Type mappedType)
@@ -16,6 +15,11 @@ namespace Joanneum.Robotics.Ros.MessageBase
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
             RosIdentifier = rosIdentifier ?? throw new ArgumentNullException(nameof(rosIdentifier));
             MappedType = mappedType ?? throw new ArgumentNullException(nameof(mappedType));
+        }
+
+        public override string ToString()
+        {
+            return $"{RosType} {RosIdentifier}";
         }
     }
 }

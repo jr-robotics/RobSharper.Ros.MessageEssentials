@@ -1,16 +1,10 @@
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
-    public interface IMessageTypeInfo
-    {
-        RosType Type { get; }
-        string MD5Sum { get; }
-        bool HasHeader { get; }
-    }
-
     public class MessageTypeInfo : IMessageTypeInfo
     {
         private readonly RosMessageDescriptor _messageDescriptor;
@@ -18,8 +12,9 @@ namespace Joanneum.Robotics.Ros.MessageBase
         public RosType Type => _messageDescriptor.RosType;
 
         public string MD5Sum { get; }
-        public string MessageDefinition { get; }
-        
+
+        public string MessageDefinition => _messageDescriptor.MessageDefinition;
+
         public bool HasHeader { get; }
 
         public MessageTypeInfo(RosMessageDescriptor messageDescriptor, string md5)
@@ -51,6 +46,11 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 hashCode = (hashCode * 397) ^ HasHeader.GetHashCode();
                 return hashCode;
             }
+        }
+
+        public override string ToString()
+        {
+            return Type.ToString();
         }
     }
 }
