@@ -13,6 +13,11 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests
         [InlineData(typeof(SimpleIntArray), SimpleIntArray.ROS_MD5)]
         [InlineData(typeof(NestedSimpleInt), NestedSimpleInt.ROS_MD5)]
         [InlineData(typeof(NestedSimpleIntArray), NestedSimpleIntArray.ROS_MD5)]
+        [InlineData(typeof(Empty), Empty.ROS_MD5)]
+        [InlineData(typeof(LongConstant), LongConstant.ROS_MD5)]
+        [InlineData(typeof(FloatConstant), FloatConstant.ROS_MD5)]
+        [InlineData(typeof(BoolConstant), BoolConstant.ROS_MD5)]
+        [InlineData(typeof(StringConstant), StringConstant.ROS_MD5)]
         public void CreateMessageTypeInfo_with_correct_md5_sum(Type messageType, string expectedMd5Sum)
         {
             var target = new MessageTypeRegistry();

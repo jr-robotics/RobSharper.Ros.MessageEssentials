@@ -11,19 +11,19 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests
         [Fact]
         public void MessageDescriptorFactory_supports_type_with_RosMessageTypeAttribute_generic()
         {
-            RosMessageDescriptorFactory.CanCreate(typeof(Point)).Should().BeTrue();
+            AttributeBasedRosMessageDescriptorFactory.CanCreate(typeof(Point)).Should().BeTrue();
         }
         
         [Fact]
         public void MessageDescriptorFactory_supports_type_with_RosMessageTypeAttribute()
         {
-            RosMessageDescriptorFactory.CanCreate<Point>().Should().BeTrue();
+            AttributeBasedRosMessageDescriptorFactory.CanCreate<Point>().Should().BeTrue();
         }
         
         [Fact]
         public void Can_create_descriptor()
         {
-            var messageDescriptor = RosMessageDescriptorFactory.Create<Point>();
+            var messageDescriptor = AttributeBasedRosMessageDescriptorFactory.Create<Point>();
 
             messageDescriptor.Should().NotBeNull();
         }

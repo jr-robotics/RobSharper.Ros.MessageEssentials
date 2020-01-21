@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
@@ -12,16 +10,22 @@ namespace Joanneum.Robotics.Ros.MessageBase
         
         public IEnumerable<RosMessageFieldDescriptor> Fields { get; }
 
-        public RosMessageDescriptor(RosType rosType, IEnumerable<RosMessageFieldDescriptor> fields)
+        public IEnumerable<RosMessageConstantDescriptor> Constants { get; }
+
+        public RosMessageDescriptor(RosType rosType, IEnumerable<RosMessageFieldDescriptor> fields,
+            IEnumerable<RosMessageConstantDescriptor> constants)
         {
             if (fields == null) throw new ArgumentNullException(nameof(fields));
+            if (constants == null) throw new ArgumentNullException(nameof(constants));
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
 
             Fields = fields
                 .OrderBy(f => f.Index)
                 .ToList();
+
+            Constants = constants
+                .OrderBy(c => c.Index)
+                .ToList();
         }
-
-
     }
 }

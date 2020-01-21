@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,6 +12,16 @@ namespace Joanneum.Robotics.Ros.MessageBase
     {
         private readonly IDictionary<Type, IMessageTypeInfo> _messageTypes = new Dictionary<Type, IMessageTypeInfo>();
         private readonly IDictionary<string, IMessageTypeInfo> _rosTypes = new Dictionary<string, IMessageTypeInfo>();
+
+        public IMessageTypeInfo this[Type mappedType]
+        {
+            get => _messageTypes[mappedType];
+        }
+
+        public IMessageTypeInfo this[string rosTypeName]
+        {
+            get => _rosTypes[rosTypeName];
+        }
         
         public IMessageTypeInfo GetOrCreateMessageTypeInfo(object rosMessage)
         {
@@ -28,9 +39,9 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
             
             MessageTypeInfo messageInfo;
-            if (RosMessageDescriptorFactory.CanCreate(type))
+            if (AttributeBasedRosMessageDescriptorFactory.CanCreate(type))
             {
-                var messageDescriptor = RosMessageDescriptorFactory.Create(type);
+                var messageDescriptor = AttributeBasedRosMessageDescriptorFactory.Create(type);
                 
                 messageInfo = CreateMessageTypeInfo(messageDescriptor);
             }
@@ -64,7 +75,25 @@ namespace Joanneum.Robotics.Ros.MessageBase
                     AutoFlush = true
                 };
 
-                // TODO MD5 of Constants
+                // MD5 of Constants
+                foreach (var constant in messageDescriptor.Constants)
+                {
+                    if (firstElement)
+                    {
+                        firstElement = false;
+                    }
+                    else
+                    {
+                        writer.Write("\n");
+                    }
+                    
+                    // Only built in types supported for constants
+                    writer.Write(constant.RosType);
+                    writer.Write(" ");
+                    writer.Write(constant.RosIdentifier);
+                    writer.Write("=");
+                    writer.Write(constant.Value);
+                }
 
                 // MD5 Of Fields
                 foreach (var field in messageDescriptor.Fields)

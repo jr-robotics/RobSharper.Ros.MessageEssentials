@@ -1,10 +1,12 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
-    public static class RosMessageDescriptorFactory
+    public static class AttributeBasedRosMessageDescriptorFactory
     {
         public static RosMessageDescriptor Create<TMessageType>() where TMessageType : class
         {
@@ -41,13 +43,37 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
                 var rosFieldType = RosType.Parse(rosFieldAttribute.RosType);
                 var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property.PropertyType);
-                descriptorBuilder.AddField(fieldDescriptor);
+                descriptorBuilder.Add(fieldDescriptor);
             }
 
-            // TODO Get Constants
+            // Get Constants
+            foreach (var constant in GetConstants(type))
+            {
+                var rosConstantAttribute = constant.GetCustomAttributes(false)
+                    .OfType<RosMessageFieldAttribute>()
+                    .FirstOrDefault();
+
+                if (rosConstantAttribute == null)
+                    continue;
+
+                var rosConstantType = RosType.Parse(rosConstantAttribute.RosType);
+                var constantValue = constant.GetValue(null);
+                var constantDescriptor = new RosMessageConstantDescriptor(rosConstantAttribute.Index, rosConstantType,
+                    rosConstantAttribute.RosIdentifier, constantValue);
+
+                descriptorBuilder.Add(constantDescriptor);
+            }
             
             
             return descriptorBuilder.Build();
+        }
+
+        private static IEnumerable<FieldInfo> GetConstants(Type type)
+        {
+            return type
+                .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+                .Where(fi => fi.IsLiteral && !fi.IsInitOnly)
+                .ToList();
         }
 
         public static bool CanCreate<TMessageType>() where TMessageType : class
