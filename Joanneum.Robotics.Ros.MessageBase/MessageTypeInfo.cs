@@ -49,7 +49,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
             }
         }
 
-        public bool HasHeader { get; }
+        public bool HasHeader => _messageDescriptor.HasHader;
         
         public MessageTypeInfo(RosMessageDescriptor messageDescriptor, IEnumerable<IMessageTypeInfo> dependencies)
         {
@@ -163,9 +163,14 @@ namespace Joanneum.Robotics.Ros.MessageBase
             }
         }
 
+        public override string ToString()
+        {
+            return Type.ToString();
+        }
+
         protected bool Equals(MessageTypeInfo other)
         {
-            return MD5Sum == other.MD5Sum && MessageDefinition == other.MessageDefinition && HasHeader == other.HasHeader && Equals(Type, other.Type);
+            return Equals(_messageDescriptor, other._messageDescriptor) && Equals(_dependencies, other._dependencies);
         }
 
         public override bool Equals(object obj)
@@ -175,22 +180,13 @@ namespace Joanneum.Robotics.Ros.MessageBase
             if (obj.GetType() != this.GetType()) return false;
             return Equals((MessageTypeInfo) obj);
         }
-        
+
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (Type != null ? Type.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (MD5Sum != null ? MD5Sum.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (MessageDefinition != null ? MessageDefinition.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ HasHeader.GetHashCode();
-                return hashCode;
+                return ((_messageDescriptor != null ? _messageDescriptor.GetHashCode() : 0) * 397) ^ (_dependencies != null ? _dependencies.GetHashCode() : 0);
             }
-        }
-
-        public override string ToString()
-        {
-            return Type.ToString();
         }
 
         private static string ToHexString(byte[] buffer)

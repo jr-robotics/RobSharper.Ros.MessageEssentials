@@ -28,6 +28,8 @@ namespace Joanneum.Robotics.Ros.MessageBase
             }
         }
 
+        public bool HasHader => Fields.Any(f => f.RosType.IsHeader);
+
         public RosMessageDescriptor(RosType rosType, IEnumerable<RosMessageFieldDescriptor> fields,
             IEnumerable<RosMessageConstantDescriptor> constants)
         {

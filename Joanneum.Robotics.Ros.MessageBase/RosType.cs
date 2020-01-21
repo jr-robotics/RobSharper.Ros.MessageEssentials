@@ -25,6 +25,8 @@ namespace Joanneum.Robotics.Ros.MessageBase
         public bool IsArray { get; }
         public int ArraySize { get; }
 
+        public bool IsHeader => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
+
         private string _stringValue;
 
         public override string ToString()
