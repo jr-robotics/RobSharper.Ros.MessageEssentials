@@ -10,6 +10,28 @@ namespace Joanneum.Robotics.Ros.MessageBase
 {
     public class MessageTypeRegistry
     {
+        private static MessageTypeRegistry _instance;
+        public static MessageTypeRegistry Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    lock (typeof(MessageTypeRegistry))
+                    {
+                        if (_instance == null)
+                        {
+                            _instance = new MessageTypeRegistry();
+                        }
+                    }
+                }
+
+                return _instance;
+            }
+            
+            set => _instance = value;
+        }
+
         private readonly IDictionary<Type, IMessageTypeInfo> _messageTypes = new Dictionary<Type, IMessageTypeInfo>();
         private readonly IDictionary<string, IMessageTypeInfo> _rosTypes = new Dictionary<string, IMessageTypeInfo>();
 

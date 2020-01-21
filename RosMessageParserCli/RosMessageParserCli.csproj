@@ -11,7 +11,7 @@
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
       <PackageReference Include="CommandLineParser" Version="2.7.82" />
       <PackageReference Include="Handlebars.Net" Version="1.10.1" />
-      <PackageReference Include="Joanneum.Robotics.Ros.MessageParser" Version="1.0.2" />
+      <PackageReference Include="Joanneum.Robotics.Ros.MessageParser" Version="1.1.1-2-g690c604" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />

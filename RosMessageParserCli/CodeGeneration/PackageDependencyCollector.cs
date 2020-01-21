@@ -8,6 +8,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         public IEnumerable<string> Dependencies => _dependencies;
 
+        
         public override void OnVisitRosType(RosTypeInfo typeInfo)
         {
             if (typeInfo.HasPackage && !_dependencies.Contains(typeInfo.PackageName))

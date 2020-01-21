@@ -70,8 +70,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             var projectFilePath = GetFullQualifiedOutputPath($"{_data.Package.Namespace}.csproj");
             var projectFileContent = _templateEngine.Format(TemplatePaths.ProjectFile, _data.Package);
-
             WriteFile(projectFilePath, projectFileContent);
+
+            var nugetConfigFilePath = GetFullQualifiedOutputPath("nuget.config");
+            var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, null);
+            WriteFile(nugetConfigFilePath, nugetConfigFile);
 
             _projectFilePath = projectFilePath;
         }
@@ -95,7 +98,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             
             foreach (var dependency in messageNugetPackages)
             {
-                var command = $"add \"{_projectFilePath}\" package {dependency} --no-restore";
+                var command = $"add \"{_projectFilePath}\" package {dependency}";
                 var process = RunDotNet(command);
             }
         }
@@ -121,16 +124,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             var fields = message.Fields.Select(x => new
             {
-                RosType = x.TypeInfo,
-                RosIdentifier = x.Identifier,
                 Index = message.Items
                     .Select((item, index) => new { Item = item, Index = index})
                     .First(f => f.Item == x)
                     .Index + 1, // Index of this field in serialized message (starting at 1)
+                RosType = x.TypeInfo,
+                RosIdentifier = x.Identifier,
                 Type = new {
                     InterfaceName = _nameMapper.ResolveInterfacedTypeName(x.TypeInfo),
                     ConcreteName = _nameMapper.ResolveConcreteTypeName(x.TypeInfo),
-                    IsPrimitive = x.TypeInfo.IsPrimitive,
+                    IsBuiltInType = x.TypeInfo.IsBuiltInType,
                     IsArray = x.TypeInfo.IsArray,
                     IsValueType = x.TypeInfo.IsValueType(),
                     SupportsEqualityComparer = x.TypeInfo.SupportsEqualityComparer()

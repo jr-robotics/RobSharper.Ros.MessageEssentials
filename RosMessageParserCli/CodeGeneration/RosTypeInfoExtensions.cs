@@ -4,31 +4,39 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     public static class RosTypeInfoExtensions
     {
-        public static bool SupportsEqualityComparer(this IRosTypeInfo type)
+        public static bool SupportsEqualityComparer(this RosTypeInfo type)
         {
-            if (type.IsArray)
+            if (type.IsArray || !type.IsBuiltInType)
                 return false;
 
-            if (type.IsPrimitive && type is PrimitiveTypeInfo primitiveType)
+            try
             {
-                return (primitiveType.Type.IsPrimitive && primitiveType.Type != typeof(double) && primitiveType.Type != typeof(float) )||
-                    primitiveType.Type == typeof(string);
-            }
+                var typeMapper = BuiltInTypeMapping.Create(type);
 
-            return false;
+                return typeMapper.Type == typeof(string) ||
+                       (typeMapper.Type != typeof(double) && typeMapper.Type != typeof(float));
+            }
+            catch (NotSupportedException)
+            {
+                return false;
+            }
         }
 
-        public static bool IsValueType(this IRosTypeInfo type)
+        public static bool IsValueType(this RosTypeInfo type)
         {
-            if (type.IsArray)
+            if (type.IsArray || !type.IsBuiltInType)
                 return false;
 
-            if (type.IsPrimitive && type is PrimitiveTypeInfo primitiveType)
+            try
             {
-                return primitiveType.Type.IsValueType;
-            }
+                var typeMapper = BuiltInTypeMapping.Create(type);
 
-            return false;
+                return typeMapper.Type.IsValueType;
+            }
+            catch (NotSupportedException)
+            {
+                return false;
+            }
         }
     }
 }

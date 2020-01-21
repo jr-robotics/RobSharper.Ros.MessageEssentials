@@ -11,6 +11,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
 
         public const string PackageName = "PackageNameConvention.hbs";
         public const string ProjectFile = "csproj.hbs";
+        public const string NugetConfigFile = "nuget.config.hbs";
         public const string MessageFile = "Message.cs.hbs";
     }
 }

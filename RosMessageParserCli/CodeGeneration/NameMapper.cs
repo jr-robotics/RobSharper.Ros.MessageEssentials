@@ -39,50 +39,46 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 .Trim();
         }
         
-        public string ResolveConcreteTypeName(IRosTypeInfo type)
+        public string ResolveConcreteTypeName(RosTypeInfo type)
         {
             return ResolveTypeName(type, false);
         }
         
-        public string ResolveInterfacedTypeName(IRosTypeInfo type)
+        public string ResolveInterfacedTypeName(RosTypeInfo type)
         {
             return ResolveTypeName(type, true);
         }
         
-        protected virtual string ResolveTypeName(IRosTypeInfo type, bool useInterface)
+        protected virtual string ResolveTypeName(RosTypeInfo type, bool useInterface)
         {
+            string typeString;
+
+            if (type.IsBuiltInType)
+            {
+                var typeMapper = BuiltInTypeMapping.Create(type);
+                typeString = typeMapper.Type.ToString();
+            }
+            else
+            {
+                var rosPackageName = type.PackageName ?? _packageName;
+                var rosTypeName = type.TypeName;
+
+                typeString = ResolveTypeName(rosPackageName, rosTypeName);
+            }
+
             if (type.IsArray)
             {
-                return ResolveTypeName(type as IRosArrayTypeInfo, useInterface);
+                if (useInterface)
+                {
+                    typeString = $"System.Collections.Generic.IList<{typeString}>";
+                }
+                else
+                {
+                    typeString = $"System.Collections.Generic.List<{typeString}>";
+                }
             }
-            
-            if (type is PrimitiveTypeInfo primitiveType)
-            {
-                return primitiveType.Type.ToString();
-            }
-            else if (type is RosTypeInfo rosType)
-            {
-                var rosPackageName = rosType.PackageName ?? _packageName;
-                var rosTypeName = rosType.TypeName;
 
-                return ResolveTypeName(rosPackageName, rosTypeName);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
-        
-        protected virtual string ResolveTypeName(IRosArrayTypeInfo type, bool useInterface)
-        {
-            if (useInterface)
-            {
-                return $"System.Collections.Generic.IList<{ResolveTypeName(type.GetUnderlyingType(), true)}>";
-            }
-            else
-            {
-                return $"System.Collections.Generic.List<{ResolveTypeName(type.GetUnderlyingType(), false)}>";
-            }
+            return typeString;
         }
 
         protected virtual string ResolveTypeName(string rosPackageName, string rosTypeName)
