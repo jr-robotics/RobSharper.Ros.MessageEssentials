@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 using Antlr4.Runtime;
 using Joanneum.Robotics.Ros.MessageBase.RosTypeParser;
@@ -93,6 +92,33 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
             return _stringValue;
         }
+
+        protected bool Equals(RosType other)
+        {
+            return PackageName == other.PackageName && TypeName == other.TypeName && IsBuiltIn == other.IsBuiltIn && IsArray == other.IsArray && ArraySize == other.ArraySize;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((RosType) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (PackageName != null ? PackageName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (TypeName != null ? TypeName.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ IsBuiltIn.GetHashCode();
+                hashCode = (hashCode * 397) ^ IsArray.GetHashCode();
+                hashCode = (hashCode * 397) ^ ArraySize;
+                return hashCode;
+            }
+        }
+
 
         private static readonly IDictionary<string, RosType> RosTypeCache = new Dictionary<string, RosType>();
         
