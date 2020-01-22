@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics;
 
@@ -122,24 +124,42 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void CreateMessage(string name, MessageDescriptor message)
         {
-            var fields = message.Fields.Select(x => new
-            {
-                Index = message.Items
-                    .Select((item, index) => new { Item = item, Index = index})
-                    .First(f => f.Item == x)
-                    .Index + 1, // Index of this field in serialized message (starting at 1)
-                RosType = x.TypeInfo,
-                RosIdentifier = x.Identifier,
-                Type = new {
-                    InterfaceName = _nameMapper.ResolveInterfacedTypeName(x.TypeInfo),
-                    ConcreteName = _nameMapper.ResolveConcreteTypeName(x.TypeInfo),
-                    IsBuiltInType = x.TypeInfo.IsBuiltInType,
-                    IsArray = x.TypeInfo.IsArray,
-                    IsValueType = x.TypeInfo.IsValueType(),
-                    SupportsEqualityComparer = x.TypeInfo.SupportsEqualityComparer()
-                },
-                Identifier = x.Identifier.ToPascalCase()
-            });
+            var fields = message.Fields
+                .Select(x => new
+                {
+                    Index = message.Items
+                                .Select((item, index) => new {Item = item, Index = index})
+                                .First(f => f.Item == x)
+                                .Index + 1, // Index of this field in serialized message (starting at 1)
+                    RosType = x.TypeInfo,
+                    RosIdentifier = x.Identifier,
+                    Type = new
+                    {
+                        InterfaceName = _nameMapper.ResolveInterfacedTypeName(x.TypeInfo),
+                        ConcreteName = _nameMapper.ResolveConcreteTypeName(x.TypeInfo),
+                        IsBuiltInType = x.TypeInfo.IsBuiltInType,
+                        IsArray = x.TypeInfo.IsArray,
+                        IsValueType = x.TypeInfo.IsValueType(),
+                        SupportsEqualityComparer = x.TypeInfo.SupportsEqualityComparer()
+                    },
+                    Identifier = x.Identifier.ToPascalCase()
+                })
+                .ToList();
+
+            var constants = message.Constants
+                .Select(c => new
+                {
+                    Index = message.Items
+                                .Select((item, index) => new {item, index})
+                                .First(x => x.item == x)
+                                .index + 1,
+                    RosType = c.TypeInfo,
+                    RosIdentifier = c.Identifier,
+                    TypeName = _nameMapper.ResolveConcreteTypeName(c.TypeInfo),
+                    Identifier = c.Identifier,
+                    Value = c.Value is string ? $"\"{c.Value}\"" : c.Value.ToString()
+                })
+                .ToList();
             
             var data = new
             {
@@ -147,6 +167,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 RosName = name,
                 Name = name.ToPascalCase(),
                 Fields = fields,
+                Constants = constants
             };
             
             var fileName = $"{name}.cs";

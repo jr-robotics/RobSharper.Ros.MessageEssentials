@@ -9,6 +9,11 @@ namespace {{Package.Namespace}}
     [RosMessageType("{{Package.RosName}}/{{RosName}}")]
     public class {{Name}} : AbstractRosMessage
     {
+        {{#each Constants}}
+            [RosMessageField({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
+            public const {{TypeName}} {{Identifier}} = {{Value}};
+            
+        {{/each}}
         {{#each Fields}}
         [RosMessageField({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
         public {{{Type.InterfaceName}}} {{Identifier}} { get; set; }
