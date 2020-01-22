@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Autofac;
@@ -69,9 +70,40 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli
                 {
                     var config = new HandlebarsConfiguration
                     {
-                        ThrowOnUnresolvedBindingExpression = true
+                        ThrowOnUnresolvedBindingExpression = true,
                     };
                     
+                    config.Helpers.Add("formatValue", (output, hbContext, arguments) =>
+                    {
+                        object value = arguments[0];
+
+                        if (value is string)
+                        {
+                            output.WriteSafeString("\"");
+                            output.WriteSafeString(value
+                                .ToString()
+                                .Replace("\t", "\\\t")
+                                .Replace("\"", "\\\"")
+                            );
+                            output.WriteSafeString("\"");
+                            return;
+                        }
+
+                        if (value is float)
+                        {
+                            output.WriteSafeString(value);
+                            output.WriteSafeString("f");
+                            return;
+                        }
+
+                        if (value is bool)
+                        {
+                            output.WriteSafeString(string.Format(CultureInfo.InvariantCulture, "{0}", value).ToLowerInvariant());
+                            return;
+                        }
+                        
+                        output.WriteSafeString(value);
+                    });
                     return new FileBasedHandlebarsTemplateEngine(TemplatePaths.TemplatesDirectory, config);
                 })
                 .SingleInstance()

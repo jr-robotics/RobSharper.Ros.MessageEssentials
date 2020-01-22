@@ -151,13 +151,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 {
                     Index = message.Items
                                 .Select((item, index) => new {item, index})
-                                .First(x => x.item == x)
+                                .First(x => x.item == c)
                                 .index + 1,
                     RosType = c.TypeInfo,
                     RosIdentifier = c.Identifier,
                     TypeName = _nameMapper.ResolveConcreteTypeName(c.TypeInfo),
                     Identifier = c.Identifier,
-                    Value = c.Value is string ? $"\"{c.Value}\"" : c.Value.ToString()
+                    Value = c.Value
                 })
                 .ToList();
             
