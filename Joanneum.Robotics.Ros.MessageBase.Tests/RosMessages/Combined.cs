@@ -1,6 +1,6 @@
 namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
 {
-    [RosMessageType("test_msgs/Combined")]
+    [RosMessage("test_msgs/Combined")]
     public class Combined
     {
         // Result of "rosmsg md5"

@@ -1,12 +1,13 @@
 using System.IO;
 using Joanneum.Robotics.Ros.MessageBase;
+using Joanneum.Robotics.Ros.MessageBase.Serialization;
 using Joanneum.Robotics.Ros.MessageBase.UmlRobotics;
 
 using UmlRoboticsMessages = Messages;
 
 namespace {{Package.Namespace}}
 {
-    [RosMessageType("{{Package.RosName}}/{{RosName}}")]
+    [RosMessage("{{Package.RosName}}/{{RosName}}")]
     public class {{Name}} : AbstractRosMessage
     {
         {{#each Constants}}

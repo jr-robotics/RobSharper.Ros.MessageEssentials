@@ -1,6 +1,6 @@
 namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
 {
-    [RosMessageType("geometry_msgs/Point")]
+    [RosMessage("geometry_msgs/Point")]
     public class Point
     {
         [RosMessageField(1, "float64", "x")]

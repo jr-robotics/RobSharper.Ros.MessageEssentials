@@ -18,7 +18,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
             if (type == null) throw new ArgumentNullException(nameof(type));
             
             var messageTypeAttribute = type.GetCustomAttributes(false)
-                .OfType<RosMessageTypeAttribute>()
+                .OfType<RosMessageAttribute>()
                 .FirstOrDefault();
             
             if (messageTypeAttribute == null)
@@ -86,7 +86,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
             if (type == null) throw new ArgumentNullException(nameof(type));
 
             return type
-                .GetCustomAttributes(typeof(RosMessageTypeAttribute), false)
+                .GetCustomAttributes(typeof(RosMessageAttribute), false)
                 .Any();
         }
     }

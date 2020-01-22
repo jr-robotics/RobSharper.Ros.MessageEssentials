@@ -1,6 +1,6 @@
 namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
 {
-    [RosMessageType("test_msgs/Enpty")]
+    [RosMessage("test_msgs/Enpty")]
     public class Empty
     {
         // Result of "rosmsg md5"

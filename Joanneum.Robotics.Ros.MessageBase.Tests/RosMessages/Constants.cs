@@ -1,6 +1,6 @@
 namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
 {
-    [RosMessageType("test_msgs/LongConstant")]
+    [RosMessage("test_msgs/LongConstant")]
     public class LongConstant
     {
         // Result of "rosmsg md5"
@@ -13,7 +13,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public const long MY_CONSTANT = 99;
     }
 
-    [RosMessageType("test_msgs/FloatConstant")]
+    [RosMessage("test_msgs/FloatConstant")]
     public class FloatConstant
     {
         // Result of "rosmsg md5"
@@ -26,7 +26,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public const float MY_CONSTANT = 13.77f;
     }
     
-    [RosMessageType("test_msgs/BoolConstant")]
+    [RosMessage("test_msgs/BoolConstant")]
     public class BoolConstant
     {
         // Result of "rosmsg md5"
@@ -39,7 +39,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public const bool MY_CONSTANT = true;
     }
     
-    [RosMessageType("test_msgs/StringConstant")]
+    [RosMessage("test_msgs/StringConstant")]
     public class StringConstant
     {
         // Result of "rosmsg md5"

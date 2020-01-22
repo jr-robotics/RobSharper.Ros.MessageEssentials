@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
 {
-    [RosMessageType("test_msgs/SimpleInt")]
+    [RosMessage("test_msgs/SimpleInt")]
     public class SimpleInt
     {
         // Result of "rosmsg md5"
@@ -15,7 +15,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public int A { get; set; }
     }
     
-    [RosMessageType("test_msgs/SimpleInt2")]
+    [RosMessage("test_msgs/SimpleInt2")]
     public class SimpleInt2
     {
         // Result of "rosmsg md5"
@@ -28,7 +28,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public int A { get; set; }
     }
 
-    [RosMessageType("test_msgs/SimpleIntArray")]
+    [RosMessage("test_msgs/SimpleIntArray")]
     public class SimpleIntArray
     {
         // Result of "rosmsg md5"
@@ -41,7 +41,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
         public IList<int> A { get; set; } = new List<int>();
     }
     
-    [RosMessageType("test_msgs/NestedSimpleInt")]
+    [RosMessage("test_msgs/NestedSimpleInt")]
     public class NestedSimpleInt
     {
         // Result of "rosmsg md5"
@@ -58,7 +58,7 @@ int32 a";
         public SimpleInt A { get; set; } = new SimpleInt();
     }
 
-    [RosMessageType("test_msgs/NestedSimpleIntArray")]
+    [RosMessage("test_msgs/NestedSimpleIntArray")]
     public class NestedSimpleIntArray
     {
         // Result of "rosmsg md5"
@@ -75,7 +75,7 @@ int32 a";
         public IList<SimpleInt> A { get; set; } = new List<SimpleInt>();
     }
 
-    [RosMessageType("test_msgs/NestedNestedType")]
+    [RosMessage("test_msgs/NestedNestedType")]
     public class NestedNestedType
     {
         // Result of "rosmsg md5"
