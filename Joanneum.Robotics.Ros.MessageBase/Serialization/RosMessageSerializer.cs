@@ -1,7 +1,8 @@
 using System;
 using System.IO;
+using System.Runtime.Serialization;
 
-namespace Joanneum.Robotics.Ros.MessageBase
+namespace Joanneum.Robotics.Ros.MessageBase.Serialization
 {
     public class RosMessageSerializer
     {
