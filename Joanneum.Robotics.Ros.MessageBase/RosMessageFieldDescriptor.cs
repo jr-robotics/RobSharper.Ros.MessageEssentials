@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Text;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
@@ -24,7 +25,9 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public override string ToString()
         {
-            return $"{RosType} {RosIdentifier}={Value}";
+            FormattableString pattern = $"{RosType} {RosIdentifier}={Value}";
+            
+            return pattern.ToString(CultureInfo.InvariantCulture);
         }
     }
 }

@@ -29,8 +29,6 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public bool IsHeaderType => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
 
-        private string _stringValue;
-
         public override string ToString()
         {
             return ToString("F");
@@ -66,34 +64,29 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         private string ToString(bool omitArraySpecifier)
         {
-            if (_stringValue == null)
+            var sb = new StringBuilder();
+
+            if (!string.IsNullOrEmpty(PackageName))
             {
-                var sb = new StringBuilder();
-
-                if (!string.IsNullOrEmpty(PackageName))
-                {
-                    sb.Append(PackageName);
-                    sb.Append("/");
-                }
-
-                sb.Append(TypeName);
-
-                if (!omitArraySpecifier && IsArray)
-                {
-                    sb.Append("[");
-
-                    if (ArraySize > 0)
-                    {
-                        sb.Append(ArraySize);
-                    }
-
-                    sb.Append("]");
-                }
-
-                _stringValue = sb.ToString();
+                sb.Append(PackageName);
+                sb.Append("/");
             }
 
-            return _stringValue;
+            sb.Append(TypeName);
+
+            if (!omitArraySpecifier && IsArray)
+            {
+                sb.Append("[");
+
+                if (ArraySize > 0)
+                {
+                    sb.Append(ArraySize);
+                }
+
+                sb.Append("]");
+            }
+
+            return sb.ToString();
         }
 
         protected bool Equals(RosType other)

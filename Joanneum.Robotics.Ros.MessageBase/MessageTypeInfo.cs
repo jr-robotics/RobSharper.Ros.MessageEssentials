@@ -80,11 +80,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
                     }
                     
                     // Only built in types supported for constants
-                    writer.Write(constant.RosType);
-                    writer.Write(" ");
-                    writer.Write(constant.RosIdentifier);
-                    writer.Write("=");
-                    writer.Write(constant.Value);
+                    writer.Write(constant.ToString());
                 }
 
                 // MD5 Of Fields
