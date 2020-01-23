@@ -15,7 +15,7 @@ namespace Joanneum.Robotics.Ros.MessageBase.Serialization
         
         public MessageTypeRegistry MessageTypeRegistry { get; }
         
-        private RosMessageSerializer(MessageTypeRegistry messageTypeRegistry)
+        public RosMessageSerializer(MessageTypeRegistry messageTypeRegistry)
         {
             MessageTypeRegistry = messageTypeRegistry ?? throw new ArgumentNullException(nameof(messageTypeRegistry));
         }

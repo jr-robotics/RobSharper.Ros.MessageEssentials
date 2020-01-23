@@ -164,8 +164,8 @@ namespace Joanneum.Robotics.Ros.MessageBase.Serialization
             var listType = typeof(List<>)
                 .MakeGenericType(elementType);
             
-            if (!listType.IsAssignableFrom(arrayType))
-                throw new InvalidOperationException($"Cannot assign List<> to type {arrayType}");
+            if (!arrayType.IsAssignableFrom(listType))
+                throw new InvalidOperationException($"Cannot assign {listType} to type {arrayType}");
             
             var result = (IList) Activator.CreateInstance(listType);
 
