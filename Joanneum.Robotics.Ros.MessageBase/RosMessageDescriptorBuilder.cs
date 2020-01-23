@@ -35,7 +35,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public RosMessageDescriptor Build()
         {
-            return new RosMessageDescriptor(_rosType, _fields, _constants);
+            return new RosMessageDescriptor(_rosType, _mappedType, _fields, _constants);
         }
     }
 }

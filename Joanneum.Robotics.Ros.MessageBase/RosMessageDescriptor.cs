@@ -9,6 +9,8 @@ namespace Joanneum.Robotics.Ros.MessageBase
         private string _messageDefinition;
         public RosType RosType { get; }
         
+        public Type Type { get; }
+        
         public IEnumerable<RosMessageFieldDescriptor> Fields { get; }
 
         public IEnumerable<RosMessageConstantDescriptor> Constants { get; }
@@ -30,12 +32,17 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
         public bool HasHader => Fields.Any(f => f.RosType.IsHeaderType);
 
-        public RosMessageDescriptor(RosType rosType, IEnumerable<RosMessageFieldDescriptor> fields,
+        public RosMessageDescriptor(RosType rosType, Type type, IEnumerable<RosMessageFieldDescriptor> fields,
             IEnumerable<RosMessageConstantDescriptor> constants)
         {
-            if (fields == null) throw new ArgumentNullException(nameof(fields));
-            if (constants == null) throw new ArgumentNullException(nameof(constants));
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
+            Type = type ?? throw new ArgumentNullException(nameof(type));
+            
+            if (fields == null)
+                fields = Enumerable.Empty<RosMessageFieldDescriptor>();
+            
+            if (constants == null)
+                constants = Enumerable.Empty<RosMessageConstantDescriptor>();
 
             Fields = fields
                 .OrderBy(f => f.Index)

@@ -15,15 +15,33 @@ namespace Joanneum.Robotics.Ros.MessageBase.Serialization
             return source;
         }
 
+        public static void FromLittleEndian(this byte[] source)
+        {
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(source);
+        }
+
         public static void Write(this Stream s, byte[] buffer)
         {
             s.Write(buffer, 0, buffer.Length);
         }
 
-        public static IRosMessageFormatter FindFormatterFor(this IEnumerable<IRosMessageFormatter> formatters,
-            IMessageTypeInfo messageTypeInfo, object value)
+        public static void Read(this Stream s, byte[] buffer)
         {
-            return formatters.FirstOrDefault(x => x.CanSerialize(messageTypeInfo, value));
+            s.Read(buffer, 0, buffer.Length);
+        }
+
+        public static byte[] ReadBytes(this Stream s, int numBytes)
+        {
+            var buffer = new byte[numBytes];
+            s.Read(buffer);
+
+            return buffer;
+        }
+
+        public static IRosMessageFormatter FindFormatterFor(this IEnumerable<IRosMessageFormatter> formatters, IMessageTypeInfo messageTypeInfo)
+        {
+            return formatters.FirstOrDefault(x => x.CanSerialize(messageTypeInfo));
         }
     }
 }

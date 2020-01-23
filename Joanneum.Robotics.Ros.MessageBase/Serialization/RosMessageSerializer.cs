@@ -20,9 +20,21 @@ namespace Joanneum.Robotics.Ros.MessageBase.Serialization
             MessageTypeRegistry = messageTypeRegistry ?? throw new ArgumentNullException(nameof(messageTypeRegistry));
         }
         
-        public TMessage Deserialize<TMessage>(Stream serializedMessage)
+        public TMessage Deserialize<TMessage>(Stream input)
         {
-            throw new NotImplementedException();
+            return (TMessage) Deserialize(typeof(TMessage), input);
+        }
+
+        public object Deserialize(Type messageType, Stream input)
+        {
+            if (messageType == null) throw new ArgumentNullException(nameof(messageType));
+            if (input == null) throw new ArgumentNullException(nameof(input));
+            
+            var messageTypeInfo = MessageTypeRegistry.GetOrCreateMessageTypeInfo(messageType);
+            var formatter = GetFormatter(messageTypeInfo);
+            var context = new SerializationContext(input, MessageFormatters, MessageTypeRegistry);
+
+            return formatter.Deserialize(context, messageTypeInfo);
         }
 
         public void Serialize(object message, Stream output)
@@ -31,13 +43,20 @@ namespace Joanneum.Robotics.Ros.MessageBase.Serialization
             if (output == null) throw new ArgumentNullException(nameof(output));
 
             var messageTypeInfo = MessageTypeRegistry.GetOrCreateMessageTypeInfo(message.GetType());
-            var formatter = MessageFormatters.FindFormatterFor(messageTypeInfo, message);
+            var formatter = GetFormatter(messageTypeInfo);
+            var context = new SerializationContext(output, MessageFormatters, MessageTypeRegistry);
+            
+            formatter.Serialize(context, messageTypeInfo, message);
+        }
+
+        private IRosMessageFormatter GetFormatter(IMessageTypeInfo messageTypeInfo)
+        {
+            var formatter = MessageFormatters.FindFormatterFor(messageTypeInfo);
 
             if (formatter == null)
                 throw new NotSupportedException($"No formatter for message {messageTypeInfo} found.");
-            
-            var context = new SerializationContext(output, MessageFormatters, MessageTypeRegistry);
-            formatter.Serialize(context, messageTypeInfo, message);
+
+            return formatter;
         }
     }
 }

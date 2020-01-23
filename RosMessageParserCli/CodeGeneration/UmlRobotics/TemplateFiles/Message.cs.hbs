@@ -44,7 +44,7 @@ namespace {{Package.Namespace}}
         public override void Deserialize(byte[] serializedMessage, ref int currentIndex)
         {
             var ms = new MemoryStream(serializedMessage, currentIndex, serializedMessage.Length - currentIndex, false);
-            var deserialized = RosMessageSerializer.Deserialize<{{Name}}>(ms);
+            var deserialized = RosMessageSerializer.Instance.Deserialize<{{Name}}>(ms);
             
             currentIndex = serializedMessage.Length;
 
@@ -57,7 +57,7 @@ namespace {{Package.Namespace}}
         {
             var ms = new MemoryStream();
             
-            RosMessageSerializer.Serialize(this, ms);
+            RosMessageSerializer.Instance.Serialize(this, ms);
             return ms.ToArray();
         }
         
