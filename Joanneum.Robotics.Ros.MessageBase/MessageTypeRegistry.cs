@@ -82,7 +82,9 @@ namespace Joanneum.Robotics.Ros.MessageBase
 
                 if (dependentField.RosType.IsArray)
                 {
-                    mappedFieldType = dependentField.MappedType
+                    mappedFieldType = dependentField
+                        .MappedProperty
+                        .PropertyType
                         .GetInterfaces()
                         .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                         .Select(t => t.GetGenericArguments()[0])
@@ -90,7 +92,9 @@ namespace Joanneum.Robotics.Ros.MessageBase
                 }
                 else
                 {
-                    mappedFieldType = dependentField.MappedType;
+                    mappedFieldType = dependentField
+                        .MappedProperty
+                        .PropertyType;
                 }
                 
                 var dependency = GetOrCreateMessageTypeInfo(mappedFieldType);

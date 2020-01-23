@@ -42,7 +42,7 @@ namespace Joanneum.Robotics.Ros.MessageBase
                     continue;
 
                 var rosFieldType = RosType.Parse(rosFieldAttribute.RosType);
-                var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property.PropertyType);
+                var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property);
                 descriptorBuilder.Add(fieldDescriptor);
             }
 

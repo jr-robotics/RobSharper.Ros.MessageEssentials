@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace Joanneum.Robotics.Ros.MessageBase
 {
@@ -7,14 +8,14 @@ namespace Joanneum.Robotics.Ros.MessageBase
         public int Index { get;}
         public RosType RosType { get; }
         public string RosIdentifier { get; }
-        public Type MappedType { get; }
+        public PropertyInfo MappedProperty { get; }
         
-        public RosMessageFieldDescriptor(int index, RosType rosType, string rosIdentifier, Type mappedType)
+        public RosMessageFieldDescriptor(int index, RosType rosType, string rosIdentifier, PropertyInfo mappedProperty)
         {
             Index = index;
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
             RosIdentifier = rosIdentifier ?? throw new ArgumentNullException(nameof(rosIdentifier));
-            MappedType = mappedType ?? throw new ArgumentNullException(nameof(mappedType));
+            MappedProperty = mappedProperty ?? throw new ArgumentNullException(nameof(mappedProperty));
         }
 
         public override string ToString()
