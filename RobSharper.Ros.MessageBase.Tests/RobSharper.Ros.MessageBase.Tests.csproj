@@ -7,23 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.msbuild" Version="2.8.0" />
         <PackageReference Include="FluentAssertions" Version="5.10.0" />
-        <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-        <PackageReference Include="ReportGenerator" Version="4.4.0" />
         <PackageReference Include="xunit" Version="2.4.0" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     </ItemGroup>
 
-    <!-- Copy test files -->
     <ItemGroup>
-        <Content Include="PackageXmlFiles\*.xml">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\RobSharper.Ros.PackageXml\RobSharper.Ros.PackageXml.csproj" />
+      <ProjectReference Include="..\RobSharper.Ros.MessageBase\RobSharper.Ros.MessageBase.csproj" />
     </ItemGroup>
 
 </Project>

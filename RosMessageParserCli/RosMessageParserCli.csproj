@@ -28,15 +28,14 @@
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Joanneum.Robotics.Ros.PackageXml\Joanneum.Robotics.Ros.PackageXml.csproj" />
-    </ItemGroup>
-
     <!-- Copy templates -->
     <ItemGroup>
         <Content Include="CodeGeneration\UmlRobotics\TemplateFiles\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\RobSharper.Ros.PackageXml\RobSharper.Ros.PackageXml.csproj" />
     </ItemGroup>
 
 </Project>

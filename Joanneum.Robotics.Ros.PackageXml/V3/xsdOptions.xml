@@ -1,6 +1,0 @@
-<xsd xmlns="http://microsoft.com/dotnet/tools/xsd/">
-    <generateClasses 
-            language="C#" 
-            namespace="Joanneum.Robotics.Ros.PackageXml.V3"
-    />
-</xsd>

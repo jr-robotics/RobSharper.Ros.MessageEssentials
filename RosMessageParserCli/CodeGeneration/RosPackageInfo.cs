@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
-using Joanneum.Robotics.Ros.PackageXml;
+using RobSharper.Ros.PackageXml;
 using Microsoft.Extensions.Logging;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration

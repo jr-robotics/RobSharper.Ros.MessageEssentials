@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosMessageParserCli", "RosMessageParserCli\RosMessageParserCli.csproj", "{DA6626D1-3CC2-4C65-A69B-08901434AD12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.PackageXml", "Joanneum.Robotics.Ros.PackageXml\Joanneum.Robotics.Ros.PackageXml.csproj", "{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.PackageXml", "RobSharper.Ros.PackageXml\RobSharper.Ros.PackageXml.csproj", "{8DBBE6C5-9340-4774-AA21-AE31B8D2C0C3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.PackageXml.Tests", "Joanneum.Robotics.Ros.PackageXml.Tests\Joanneum.Robotics.Ros.PackageXml.Tests.csproj", "{1E560131-BDDB-4FD3-9E32-681D0DFED368}"
 EndProject
@@ -10,9 +10,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.Messa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2FE53127-F29D-46B9-9BB3-CB438E2FCFBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.MessageBase", "Joanneum.Robotics.Ros.MessageBase\Joanneum.Robotics.Ros.MessageBase.csproj", "{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase", "RobSharper.Ros.MessageBase\RobSharper.Ros.MessageBase.csproj", "{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Joanneum.Robotics.Ros.MessageBase.Tests", "Joanneum.Robotics.Ros.MessageBase.Tests\Joanneum.Robotics.Ros.MessageBase.Tests.csproj", "{31C92EEC-17B2-460A-8D90-B85D6D77F694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase.Tests", "RobSharper.Ros.MessageBase.Tests\RobSharper.Ros.MessageBase.Tests.csproj", "{31C92EEC-17B2-460A-8D90-B85D6D77F694}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
