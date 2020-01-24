@@ -12,7 +12,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
             return typeInfo is MessageTypeInfo;
         }
         
-        public void Serialize(SerializationContext context, IMessageTypeInfo messageTypeInfo, object o)
+        public void Serialize(SerializationContext context, RosBinaryWriter writer, IMessageTypeInfo messageTypeInfo, object o)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (o == null) throw new ArgumentNullException(nameof(o));
@@ -28,20 +28,21 @@ namespace RobSharper.Ros.MessageBase.Serialization
                 
                 if (field.RosType.IsArray)
                 {
-                    SerializeArray(context, field.RosType, field.MappedProperty.PropertyType, value);
+                    SerializeArray(context, writer, field.RosType, field.MappedProperty.PropertyType, value);
                 }
                 else
                 {
-                    SerializeValue(context, field.RosType, field.MappedProperty.PropertyType, value);
+                    SerializeValue(context, writer, field.RosType, field.MappedProperty.PropertyType, value);
                 }
             }
         }
 
-        private void SerializeValue(SerializationContext context, RosType rosType, Type type, object value)
+        private void SerializeValue(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type type,
+            object value)
         {
             if (rosType.IsBuiltIn)
             {
-                RosBuiltInTypeConverter.WriteBytes(context.Stream, type, value);
+                writer.WriteBuiltInType(type, value);
             }
             else
             {
@@ -57,11 +58,12 @@ namespace RobSharper.Ros.MessageBase.Serialization
                         throw new NotSupportedException($"No formatter for message {typeInfo} found.");
                 }
 
-                formatter.Serialize(context, typeInfo, value);
+                formatter.Serialize(context, writer, typeInfo, value);
             }
         }
 
-        private void SerializeArray(SerializationContext context, RosType rosType, Type type, object value)
+        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type type,
+            object value)
         {
             var collection = value as ICollection;
             
@@ -73,7 +75,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
                     $"Expected array size of {rosType.ArraySize} but found array size of {elementCount}.");
             }
 
-            RosBuiltInTypeConverter.WriteBytes(context.Stream, elementCount);
+            writer.Write(elementCount);
             
             if (elementCount == 0)
                 return;
@@ -86,11 +88,11 @@ namespace RobSharper.Ros.MessageBase.Serialization
             
             foreach (var item in collection)
             {
-                SerializeValue(context, rosType, type, item);
+                SerializeValue(context, writer, rosType, type, item);
             }
         }
 
-        public object Deserialize(SerializationContext context, IMessageTypeInfo messageTypeInfo)
+        public object Deserialize(SerializationContext context, RosBinaryReader reader, IMessageTypeInfo messageTypeInfo)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
@@ -108,11 +110,11 @@ namespace RobSharper.Ros.MessageBase.Serialization
                 object fieldValue;
                 if (field.RosType.IsArray)
                 {
-                    fieldValue = DeserializeArray(context, field.RosType, field.MappedProperty.PropertyType);
+                    fieldValue = DeserializeArray(context, reader, field.RosType, field.MappedProperty.PropertyType);
                 }
                 else
                 {
-                    fieldValue = DeserializeValue(context, field.RosType, field.MappedProperty.PropertyType);
+                    fieldValue = DeserializeValue(context, reader, field.RosType, field.MappedProperty.PropertyType);
                 }
 
                 field.MappedProperty.SetValue(result, fieldValue);
@@ -121,11 +123,11 @@ namespace RobSharper.Ros.MessageBase.Serialization
             return result;
         }
 
-        private object DeserializeValue(SerializationContext context, RosType rosType, Type type)
+        private object DeserializeValue(SerializationContext context, RosBinaryReader reader, RosType rosType, Type type)
         {
             if (rosType.IsBuiltIn)
             {
-                return RosBuiltInTypeConverter.ReadValue(context.Stream, type);
+                return reader.ReadBuiltInType(type);
             }
             else
             {
@@ -141,13 +143,13 @@ namespace RobSharper.Ros.MessageBase.Serialization
                         throw new NotSupportedException($"No formatter for message {typeInfo} found.");
                 }
 
-                return formatter.Deserialize(context, typeInfo);
+                return formatter.Deserialize(context, reader, typeInfo);
             }
         }
 
-        private object DeserializeArray(SerializationContext context, RosType rosType, Type arrayType)
+        private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType, Type arrayType)
         {
-            var length = RosBuiltInTypeConverter.ReadInt32(context.Stream);
+            var length = reader.ReadInt32();
 
             if (rosType.IsFixedSizeArray && rosType.ArraySize != length)
             {
@@ -171,7 +173,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
 
             for (var i = 0; i < length; i++)
             {
-                var item = DeserializeValue(context, rosType, elementType);
+                var item = DeserializeValue(context, reader, rosType, elementType);
                 result.Add(item);
             }
 

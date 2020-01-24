@@ -33,8 +33,9 @@ namespace RobSharper.Ros.MessageBase.Serialization
             var messageTypeInfo = MessageTypeRegistry.GetOrCreateMessageTypeInfo(messageType);
             var formatter = GetFormatter(messageTypeInfo);
             var context = new SerializationContext(input, MessageFormatters, MessageTypeRegistry);
+            var reader = new RosBinaryReader(input);
 
-            return formatter.Deserialize(context, messageTypeInfo);
+            return formatter.Deserialize(context, reader, messageTypeInfo);
         }
 
         public void Serialize(object message, Stream output)
@@ -45,8 +46,9 @@ namespace RobSharper.Ros.MessageBase.Serialization
             var messageTypeInfo = MessageTypeRegistry.GetOrCreateMessageTypeInfo(message.GetType());
             var formatter = GetFormatter(messageTypeInfo);
             var context = new SerializationContext(output, MessageFormatters, MessageTypeRegistry);
+            var writer = new RosBinaryWriter(output);
             
-            formatter.Serialize(context, messageTypeInfo, message);
+            formatter.Serialize(context, writer, messageTypeInfo, message);
         }
 
         private IRosMessageFormatter GetFormatter(IMessageTypeInfo messageTypeInfo)
