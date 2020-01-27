@@ -28,7 +28,7 @@ namespace RobSharper.Ros.MessageBase
         public int ArraySize { get; }
 
         public bool IsDynamicArray => IsArray && ArraySize == 0;
-        public bool IsFixedSizeArray => !IsDynamicArray;
+        public bool IsFixedSizeArray => IsArray && ArraySize > 0;
 
         public bool IsHeaderType => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
         
@@ -190,7 +190,12 @@ namespace RobSharper.Ros.MessageBase
 
             public RosType GetRosType()
             {
-                return new RosType(Package, Type, IsBuiltInType, IsArray, ArraySize);
+                var package = Package;
+
+                if (package == null && "Header".Equals(Type, StringComparison.InvariantCulture))
+                    package = "std_msgs";
+                
+                return new RosType(package, Type, IsBuiltInType, IsArray, ArraySize);
             }
 
 
@@ -216,6 +221,12 @@ namespace RobSharper.Ros.MessageBase
             {
                 IsArray = true;
                 ArraySize = 0;
+            }
+
+            public override void ExitFixed_array_type(RosTypeParser.Fixed_array_typeContext context)
+            {
+                IsArray = true;
+                ArraySize = int.Parse(context.GetChild(2).GetText());
             }
         }
     }
