@@ -10,6 +10,9 @@ namespace RobSharper.Ros.MessageBase
     {
         private RosType(string packageName, string typeName, bool isBuiltIn, bool isArray, int arraySize)
         {
+            if (string.Empty == packageName)
+                packageName = null;
+            
             PackageName = packageName;
             TypeName = typeName;
             IsBuiltIn = isBuiltIn;
@@ -28,6 +31,19 @@ namespace RobSharper.Ros.MessageBase
         public bool IsFixedSizeArray => !IsDynamicArray;
 
         public bool IsHeaderType => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
+        
+        /// <summary>
+        /// Fully qualified ROS type names have package name and type name set or are built in types without a package
+        /// </summary>
+        public bool IsFullQualified => IsBuiltIn || PackageName != null;
+
+        public RosType ToFullQualifiedType(string packageName)
+        {
+            if (IsFullQualified)
+                throw new InvalidOperationException("MakePackagedType is only valid for non packaged and not built in types.");
+
+            return new RosType(packageName, TypeName, IsBuiltIn, IsArray, ArraySize);
+        }
 
         public override string ToString()
         {

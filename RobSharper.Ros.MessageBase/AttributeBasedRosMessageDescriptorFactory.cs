@@ -41,6 +41,13 @@ namespace RobSharper.Ros.MessageBase
                     continue;
 
                 var rosFieldType = RosType.Parse(rosFieldAttribute.RosType);
+                
+                // Add package definition for intra package type refs
+                if (!rosFieldType.IsFullQualified)
+                {
+                    rosFieldType = rosFieldType.ToFullQualifiedType(rosType.PackageName);
+                }
+                
                 var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property);
                 descriptorBuilder.Add(fieldDescriptor);
             }
