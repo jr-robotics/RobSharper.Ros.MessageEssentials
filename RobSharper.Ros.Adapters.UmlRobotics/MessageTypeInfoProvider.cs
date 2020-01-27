@@ -1,5 +1,7 @@
 using System;
 using RobSharper.Ros.MessageBase;
+using Uml.Robotics.Ros;
+using MessageTypeRegistry = RobSharper.Ros.MessageBase.MessageTypeRegistry;
 
 namespace RobSharper.Ros.Adapters.UmlRobotics
 {
@@ -14,7 +16,7 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
             {
                 if (_typeInfo == null)
                 {
-                    _typeInfo = MessageTypeRegistry.Instance
+                    _typeInfo = RobSharperInfrastructure.MessageTypeRegistry
                         .GetOrCreateMessageTypeInfo(_messageType);
                 }
 
@@ -25,6 +27,14 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
         public MessageTypeInfoProvider(Type messageType)
         {
             _messageType = messageType;
+        }
+    }
+    
+    public class MessageTypeInfoProvider<TMessage> : MessageTypeInfoProvider
+        where TMessage : RosMessage
+    {
+        public MessageTypeInfoProvider() : base(typeof(TMessage))
+        {
         }
     }
 }

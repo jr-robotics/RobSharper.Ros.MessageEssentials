@@ -6,8 +6,6 @@ namespace RobSharper.Ros.MessageBase.Serialization
 {
     public class RosMessageSerializer
     {
-        public static RosMessageSerializer Instance { get; set; } = new RosMessageSerializer(MessageTypeRegistry.Instance);
-        
         public IList<IRosMessageFormatter> MessageFormatters { get; } = new List<IRosMessageFormatter>
         {
             new RosMessageFormatter() // Default formatter
