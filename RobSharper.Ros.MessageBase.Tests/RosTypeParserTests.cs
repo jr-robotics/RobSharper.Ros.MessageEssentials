@@ -1,3 +1,5 @@
+using System;
+using System.Runtime.InteropServices;
 using FluentAssertions;
 using Xunit;
 
@@ -54,7 +56,7 @@ namespace RobSharper.Ros.MessageBase.Tests
             type.ArraySize.Should().Be(0);
             type.PackageName.Should().Be("bar_msgs");
             type.TypeName.Should().Be("FooMsg");
-            type.IsBuiltIn.Should().Be(false);
+            type.IsBuiltIn.Should().BeFalse();
             type.IsFullQualified.Should().BeTrue();
             type.IsHeaderType.Should().BeFalse();
             type.ToString().Should().Be(TypeName);
@@ -76,7 +78,7 @@ namespace RobSharper.Ros.MessageBase.Tests
             type.ArraySize.Should().Be(0);
             type.PackageName.Should().BeNull();
             type.TypeName.Should().Be("FooMsg");
-            type.IsBuiltIn.Should().Be(false);
+            type.IsBuiltIn.Should().BeFalse();
             type.IsFullQualified.Should().BeFalse();
             type.IsHeaderType.Should().BeFalse();
             type.ToString().Should().Be(TypeName);
@@ -173,6 +175,24 @@ namespace RobSharper.Ros.MessageBase.Tests
             type.PackageName.Should().BeNull();
             type.IsBuiltIn.Should().BeTrue();
             type.IsFullQualified.Should().BeTrue();
+        }
+
+        [Theory]
+        [InlineData("my_package//Type")]
+        [InlineData("my_package/")]
+        [InlineData("0Type")]
+        [InlineData("Package[]/type")]
+        [InlineData("Type space")]
+        [InlineData("/Type")]
+        [InlineData("[]")]
+        [InlineData("[12]")]
+        [InlineData("Package/[]")]
+        [InlineData("Package/[12]")]
+        public void Invalid_name_thrpws_exception(string name)
+        {
+            Action parse = () => RosType.Parse(name);
+
+            parse.Should().Throw<FormatException>();
         }
     }
 }

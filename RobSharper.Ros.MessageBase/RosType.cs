@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using Joanneum.Robotics.Ros.MessageBase.RosTypeParser;
 
 namespace RobSharper.Ros.MessageBase
@@ -152,7 +153,12 @@ namespace RobSharper.Ros.MessageBase
             var rosTypeListener = new RosTypeListener();
             parser.AddParseListener(rosTypeListener);
 
-            parser.type_input();
+            var parseResult = parser.type_input();
+            
+            if (parseResult.exception != null || rosTypeListener.ErrorOccurred)
+            {
+                throw new FormatException($"ROS type {type} is malformed", parseResult.exception);
+            }
 
             var rosType = rosTypeListener.GetRosType();
 
@@ -187,9 +193,13 @@ namespace RobSharper.Ros.MessageBase
             public string Type { get; private set; }
             public bool IsArray { get; private set; }
             public int ArraySize { get; private set; }
+            public bool ErrorOccurred { get; private set; }
 
             public RosType GetRosType()
             {
+                if (ErrorOccurred || string.IsNullOrEmpty(Type))
+                    throw new InvalidOperationException();
+                
                 var package = Package;
 
                 if (package == null && "Header".Equals(Type, StringComparison.InvariantCulture))
@@ -227,6 +237,11 @@ namespace RobSharper.Ros.MessageBase
             {
                 IsArray = true;
                 ArraySize = int.Parse(context.GetChild(2).GetText());
+            }
+
+            public override void VisitErrorNode(IErrorNode node)
+            {
+                ErrorOccurred = true;
             }
         }
     }
