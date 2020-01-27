@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
-using Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages;
-using RobSharper.Ros.MessageBase;
 using RobSharper.Ros.MessageBase.Serialization;
+using RobSharper.Ros.MessageBase.Tests.RosMessages;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageBase.Tests
+namespace RobSharper.Ros.MessageBase.Tests
 {
     public class SerializationTests
     {

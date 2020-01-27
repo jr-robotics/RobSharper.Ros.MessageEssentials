@@ -3,7 +3,7 @@ using FluentAssertions;
 using RobSharper.Ros.MessageBase.Serialization;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageBase.Tests
+namespace RobSharper.Ros.MessageBase.Tests
 {
     public class SerializationSpikes
     {

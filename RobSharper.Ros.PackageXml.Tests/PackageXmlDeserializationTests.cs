@@ -1,12 +1,9 @@
 using System;
 using System.Linq;
-using System.Xml;
-using System.Xml.Serialization;
 using FluentAssertions;
-using RobSharper.Ros.PackageXml;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.PackageXml.Tests
+namespace RobSharper.Ros.PackageXml.Tests
 {
     public class PackageXmlDeserializationTests
     {

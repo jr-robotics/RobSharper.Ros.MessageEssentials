@@ -1,8 +1,7 @@
 using FluentAssertions;
-using RobSharper.Ros.MessageBase;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageBase.Tests
+namespace RobSharper.Ros.MessageBase.Tests
 {
     public class RosTypeParserTests
     {

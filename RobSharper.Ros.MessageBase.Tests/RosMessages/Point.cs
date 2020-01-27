@@ -1,6 +1,4 @@
-using RobSharper.Ros.MessageBase;
-
-namespace Joanneum.Robotics.Ros.MessageBase.Tests.RosMessages
+namespace RobSharper.Ros.MessageBase.Tests.RosMessages
 {
     [RosMessage("geometry_msgs/Point")]
     public class Point

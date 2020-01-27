@@ -3,7 +3,7 @@ using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
 using Moq;
 using Xunit;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.Tests.CodeGeneration
+namespace RobSharper.Ros.MessageParser.Cli.Tests.CodeGeneration
 {
     public class PackageRegistryMessageParserAdapterTests : IRosMessagePackageParserTests
     {
