@@ -1,15 +1,17 @@
 using System.IO;
-using Joanneum.Robotics.Ros.MessageBase;
-using Joanneum.Robotics.Ros.MessageBase.Serialization;
-using Joanneum.Robotics.Ros.MessageBase.UmlRobotics;
+using RobSharper.Ros.MessageBase;
+using RobSharper.Ros.MessageBase.Serialization;
+using RobSharper.Ros.Adapters.UmlRobotics;
 
-using UmlRoboticsMessages = Messages;
+using UmlRoboticsMessages = Uml.Robotics.Ros.Messages;
 
 namespace {{Package.Namespace}}
 {
     [RosMessage("{{Package.RosName}}/{{RosName}}")]
-    public class {{Name}} : AbstractRosMessage
+    public class {{Name}} : RosMessage
     {
+        private static readonly MessageTypeInfoProvider TypeInfoProvider = new MessageTypeInfoProvider<{{Name}}>();
+
         {{#each Constants}}
         [RosMessageField({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
         public const {{TypeName}} {{Identifier}} = {{formatValue Value}};
@@ -21,6 +23,8 @@ namespace {{Package.Namespace}}
             {{~#unless Type.IsBuiltInType}} = new {{{Type.ConcreteName}}}();{{/unless}}
         
         {{/each}}
+
+        public override string MessageType => TypeInfoProvider.TypeInfo.MessageDescriptor.RosType.ToString();
 
         public {{Name}}() : base()
         {
@@ -34,12 +38,27 @@ namespace {{Package.Namespace}}
         {
         }
 
+        public override string MD5Sum()
+        {
+            return TypeInfoProvider.TypeInfo.MD5Sum;
+        }
+        
+        public override bool HasHeader()
+        {
+            return TypeInfoProvider.TypeInfo.MessageDescriptor.HasHader;
+        }
+        
         // Omitted IsMetaType() because it seems that it is not used anywhere.
         // Whatever IsMetaType() means. It seems that it is indicating, that the message has properties
-        // of an external type (i.e. no primitive ROS type, Message of same package or Type defined in 
+        // of an external type (i.e. no primitive ROS type, Message of same package or Type defined in
         // MessageBase package.
-
+        
         // Omitted IsServiceComponent() because this is only true for .srv messages
+        
+        public override string MessageDefinition()
+        {
+            return TypeInfoProvider.TypeInfo.MessageDefinition;
+        }
 
         public override void Deserialize(byte[] serializedMessage, ref int currentIndex)
         {
