@@ -1,6 +1,8 @@
+using RobSharper.Ros.MessageBase;
 using Uml.Robotics.Ros;
+using MessageTypeRegistry = RobSharper.Ros.MessageBase.MessageTypeRegistry;
 
-namespace RobSharper.Ros.MessageBase.UmlRobotics
+namespace RobSharper.Ros.Adapters.UmlRobotics
 {
     public abstract class AbstractRosMessage : RosMessage
     {

@@ -6,6 +6,6 @@ namespace RobSharper.Ros.MessageBase.Serialization
         
         void Serialize(SerializationContext context, RosBinaryWriter writer, IMessageTypeInfo messageTypeInfo, object o);
         
-        object Deserialize(SerializationContext context, RosBinaryReader writer, IMessageTypeInfo messageTypeInfo);
+        object Deserialize(SerializationContext context, RosBinaryReader reader, IMessageTypeInfo messageTypeInfo);
     }
 }

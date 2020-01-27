@@ -14,7 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase.Tests", "RobSharper.Ros.MessageBase.Tests\RobSharper.Ros.MessageBase.Tests.csproj", "{31C92EEC-17B2-460A-8D90-B85D6D77F694}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase.UmlRobotics", "RobSharper.Ros.MessageBase.UmlRobotics\RobSharper.Ros.MessageBase.UmlRobotics.csproj", "{FF49158E-293C-4FD6-87A1-26EDBF5B9C35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.Adapters.UmlRobotics", "RobSharper.Ros.Adapters.UmlRobotics\RobSharper.Ros.Adapters.UmlRobotics.csproj", "{FF49158E-293C-4FD6-87A1-26EDBF5B9C35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
