@@ -3,7 +3,7 @@ using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
-    public class NameMapper : INugetPackageNameResolver, IPackageNamingConvention, ITypeNameResolver
+    public class NameMapper : INugetPackageNameResolver, IPackageNamingConvention, ITypeNameResolver, IBuiltInTypeChecker
     {
         private readonly string _packageName;
         private readonly ITemplateFormatter _packageNamingConvention;
@@ -21,9 +21,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             return FormatPackageName(rosPackageName);
         }
 
-        public virtual string ResolveNugetPackageName(string rosPackageName, string rosTypeName)
+        public virtual string ResolveNugetPackageName(RosTypeInfo rosType)
         {
-            return ResolveNugetPackageName(rosPackageName);
+            return ResolveNugetPackageName(rosType.PackageName);
         }
 
         public virtual string FormatPackageName(string rosPackageName)
@@ -88,6 +88,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
              
             var packageName = FormatPackageName(rosPackageName);
             return $"{packageName}.{rosTypeName.ToPascalCase()}";
+        }
+
+        public virtual bool IsBuiltInType(RosTypeInfo rosType)
+        {
+            if (rosType == null) throw new ArgumentNullException(nameof(rosType));
+
+            return rosType.IsBuiltInType;
         }
     }
 }

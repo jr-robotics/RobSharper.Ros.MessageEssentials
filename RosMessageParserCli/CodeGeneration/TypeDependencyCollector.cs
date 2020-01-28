@@ -1,20 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     public class TypeDependencyCollector : DefaultRosMessageVisitorListener
     {
-        private readonly Dictionary<string, Tuple<string, string>> _dependencies = new Dictionary<string, Tuple<string, string>>();
-        
-        public IDictionary<string, Tuple<string, string>>  Dependencies => _dependencies;
+        private readonly IEnumerable<string> _ignoredPackages;
+        private readonly ISet<RosTypeInfo> _dependencies = new HashSet<RosTypeInfo>();
+
+        public TypeDependencyCollector(IEnumerable<string> ignoredPackages = null)
+        {
+            _ignoredPackages = ignoredPackages ?? Enumerable.Empty<string>();
+        }
+
+        public ISet<RosTypeInfo>  Dependencies => _dependencies;
         
         public override void OnVisitRosType(RosTypeInfo typeInfo)
         {
-            var key = typeInfo.ToString();
-            if (typeInfo.HasPackage && !_dependencies.ContainsKey(key))
+            if (typeInfo.HasPackage && !_ignoredPackages.Contains(typeInfo.PackageName))
             {
-                _dependencies.Add(key, new Tuple<string, string>(typeInfo.PackageName, typeInfo.TypeName));
+                _dependencies.Add(typeInfo);
             }
         }
     }

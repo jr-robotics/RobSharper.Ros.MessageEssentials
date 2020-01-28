@@ -87,7 +87,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             var messageNugetPackages = Package.Parser
                 .ExternalTypeDependencies
-                .Select(x => _nameMapper.ResolveNugetPackageName(x.Item1, x.Item2))
+                .Select(x => _nameMapper.ResolveNugetPackageName(x))
                 .Distinct()
                 .ToList();
                 
@@ -178,7 +178,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
         
-        private void CreateService(string rosName, ServiceDescriptor service)
+        private void CreateService(RosTypeInfo rosType, ServiceDescriptor service)
         {
             throw new NotImplementedException();
         }
@@ -193,7 +193,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
         
-        private void CreateAction(string rosName, ActionDescriptor action)
+        private void CreateAction(RosTypeInfo rosType, ActionDescriptor action)
         {
             throw new NotImplementedException();
         }

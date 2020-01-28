@@ -55,17 +55,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
             return base.ResolveTypeName(rosPackageName, rosTypeName);
         }
         
-        public override string ResolveNugetPackageName(string rosPackageName, string rosTypeName)
+        public override string ResolveNugetPackageName(RosTypeInfo rosType)
         {
-            if (rosPackageName == null) throw new ArgumentNullException(nameof(rosPackageName));
-            if (rosTypeName == null) throw new ArgumentNullException(nameof(rosTypeName));
+            if (rosType == null) throw new ArgumentNullException(nameof(rosType));
             
-            if (TryGetTypeMapping(rosPackageName, rosTypeName, out var mapping))
+            if (TryGetTypeMapping(rosType.PackageName, rosType.TypeName, out var mapping))
             {
                 return mapping.NugetPackageName;
             }
 
-            return base.ResolveNugetPackageName(rosPackageName, rosTypeName);
+            return base.ResolveNugetPackageName(rosType);
         }
 
         private static bool TryGetTypeMapping(string rosPackageName, string rosTypeName, out RosMessageTypeMapping mapping)

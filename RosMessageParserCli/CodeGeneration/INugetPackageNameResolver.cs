@@ -4,6 +4,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     {
         string ResolveNugetPackageName(string rosPackageName);
         
-        string ResolveNugetPackageName(string rosPackageName, string rosTypeName);
+        string ResolveNugetPackageName(RosTypeInfo rosType);
     }
 }

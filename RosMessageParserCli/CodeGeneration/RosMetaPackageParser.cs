@@ -10,7 +10,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private readonly IBuildPackages _buildPackages;
         private bool _done;
         
-        private IEnumerable<string> _dependencies;
+        private ISet<string> _dependencies;
 
         public RosMetaPackageParser(RosPackageInfo rosPackageInfo, IBuildPackages buildPackages)
         {
@@ -29,17 +29,17 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<Tuple<string, string>> ExternalTypeDependencies => 
-            Enumerable.Empty<Tuple<string, string>>();
+        public IEnumerable<RosTypeInfo> ExternalTypeDependencies =>
+            Enumerable.Empty<RosTypeInfo>();
 
         public IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> Messages =>
             Enumerable.Empty<KeyValuePair<RosTypeInfo, MessageDescriptor>>();
 
-        public IEnumerable<KeyValuePair<string, ActionDescriptor>> Actions =>
-            Enumerable.Empty<KeyValuePair<string, ActionDescriptor>>();
+        public IEnumerable<KeyValuePair<RosTypeInfo, ActionDescriptor>> Actions =>
+            Enumerable.Empty<KeyValuePair<RosTypeInfo, ActionDescriptor>>();
 
-        public IEnumerable<KeyValuePair<string, ServiceDescriptor>> Services =>
-            Enumerable.Empty<KeyValuePair<string, ServiceDescriptor>>();
+        public IEnumerable<KeyValuePair<RosTypeInfo, ServiceDescriptor>> Services =>
+            Enumerable.Empty<KeyValuePair<RosTypeInfo, ServiceDescriptor>>();
         
         public void ParseMessages()
         {
@@ -47,8 +47,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 return;
 
             // Find dependent packages based on packages.xml
-            
-            var items = new List<string>();
+            var dependencies = new HashSet<string>();
 
             foreach (var dependency in _rosPackageInfo.PackageDependencies)
             {
@@ -58,11 +57,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 if (dependency.EndsWith("msgs", StringComparison.InvariantCultureIgnoreCase) ||
                     _buildPackages.Packages.Any(x => x.Name.Equals(dependency, StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    items.Add(dependency);
+                    dependencies.Add(dependency);
                 }
             }
             
-            _dependencies = items;
+            _dependencies = dependencies;
             _done = true;
         }
     }

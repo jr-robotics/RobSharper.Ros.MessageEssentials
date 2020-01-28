@@ -8,11 +8,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     public class RosMessagePackageParser : IRosMessagePackageParser
     {
         private IEnumerable<string> _packageDependencies;
-        private List<Tuple<string, string>> _externalTypeDependencies;
+        private IEnumerable<RosTypeInfo> _externalTypeDependencies;
 
         private IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> _messages;
-        private IEnumerable<KeyValuePair<string, ActionDescriptor>> _actions;
-        private IEnumerable<KeyValuePair<string, ServiceDescriptor>> _services;
+        private IEnumerable<KeyValuePair<RosTypeInfo, ActionDescriptor>> _actions;
+        private IEnumerable<KeyValuePair<RosTypeInfo, ServiceDescriptor>> _services;
         
         private readonly object _lock = new object();
         private bool _done;
@@ -29,7 +29,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
         
-        public IEnumerable<Tuple<string, string>> ExternalTypeDependencies
+        public IEnumerable<RosTypeInfo> ExternalTypeDependencies
         {
             get
             {
@@ -47,7 +47,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, ActionDescriptor>> Actions
+        public IEnumerable<KeyValuePair<RosTypeInfo, ActionDescriptor>> Actions
         {
             get
             {
@@ -56,7 +56,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, ServiceDescriptor>> Services
+        public IEnumerable<KeyValuePair<RosTypeInfo, ServiceDescriptor>> Services
         {
             get
             {
@@ -94,15 +94,15 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void ParseMessagesInternal()
         {
-            var packageDependencyCollector = new PackageDependencyCollector();
-            var typeDependencyCollector = new TypeDependencyCollector();
+            var packageDependencyCollector = new PackageDependencyCollector(new [] { Package.Name });
+            var typeDependencyCollector = new TypeDependencyCollector(new [] { Package.Name });
 
             var collectors = new RosMessageVisitorListenerCollection(new IRosMessageVisitorListener[]
                 {packageDependencyCollector, typeDependencyCollector});
 
             var messages = new List<KeyValuePair<RosTypeInfo, MessageDescriptor>>();
-            var actions = new List<KeyValuePair<string, ActionDescriptor>>();
-            var services = new List<KeyValuePair<string, ServiceDescriptor>>();
+            var actions = new List<KeyValuePair<RosTypeInfo, ActionDescriptor>>();
+            var services = new List<KeyValuePair<RosTypeInfo, ServiceDescriptor>>();
 
             foreach (var messageFile in Package.Messages)
             {
@@ -124,35 +124,27 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                             var serviceDescriptor = serviceParser.Parse(collectors);
 
                             services.Add(
-                                new KeyValuePair<string, ServiceDescriptor>(messageFile.NameWithoutExtension(), serviceDescriptor));
+                                new KeyValuePair<RosTypeInfo, ServiceDescriptor>(rosType, serviceDescriptor));
                             break;
                         case RosMessageType.Action:
                             var actionParser = new ActionParser(fileStream);
                             var actionDescriptor = actionParser.Parse(collectors);
 
                             actions.Add(
-                                new KeyValuePair<string, ActionDescriptor>(messageFile.NameWithoutExtension(), actionDescriptor));
+                                new KeyValuePair<RosTypeInfo, ActionDescriptor>(rosType, actionDescriptor));
                             break;
                     }
                 }
             }
 
-            var packageDependencies = packageDependencyCollector.Dependencies
-                .Where(x => x != Package.Name)
-                .ToList();
-            
-            var typeDependencies = typeDependencyCollector.Dependencies.Values
-                .Where(x => x.Item1 != Package.Name)
-                .ToList();
-
             // Add actionlib dependency
-            if (actions.Any() && !packageDependencies.Contains("actionlib_msgs"))
+            if (actions.Any() && !packageDependencyCollector.Dependencies.Contains("actionlib_msgs"))
             {
-                packageDependencies.Add("actionlib_msgs");
+                packageDependencyCollector.Dependencies.Add("actionlib_msgs");
             }
 
-            _packageDependencies = packageDependencies;
-            _externalTypeDependencies = typeDependencies;
+            _packageDependencies = packageDependencyCollector.Dependencies;
+            _externalTypeDependencies = typeDependencyCollector.Dependencies;
             _messages = messages;
             _actions = actions;
             _services = services;

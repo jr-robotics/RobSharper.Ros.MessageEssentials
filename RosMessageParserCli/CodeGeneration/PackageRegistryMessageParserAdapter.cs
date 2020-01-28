@@ -28,7 +28,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<Tuple<string, string>> ExternalTypeDependencies
+        public IEnumerable<RosTypeInfo> ExternalTypeDependencies
         {
             get
             {
@@ -46,7 +46,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, ActionDescriptor>> Actions
+        public IEnumerable<KeyValuePair<RosTypeInfo, ActionDescriptor>> Actions
         {
             get
             {
@@ -55,7 +55,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, ServiceDescriptor>> Services
+        public IEnumerable<KeyValuePair<RosTypeInfo, ServiceDescriptor>> Services
         {
             get
             {
