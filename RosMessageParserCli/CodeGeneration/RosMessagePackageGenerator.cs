@@ -109,20 +109,12 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             foreach (var message in Package.Parser.Messages)
             {
-                CreateMessage(GetClassName(message.Key), message.Value);
+                // TODO: Check if message type has to be created or is already built in into the ROS framework (e.g. std_msgs/Header)
+                CreateMessage(message.Key, message.Value);
             }
         }
-
-        private static string GetClassName(string filename)
-        {
-            var ext = Path.GetExtension(filename);
-            return filename
-                .Substring(0, filename.Length - ext.Length)
-                .Trim()
-                .ToPascalCase();
-        }
-
-        private void CreateMessage(string name, MessageDescriptor message)
+        
+        private void CreateMessage(RosTypeInfo rosType, MessageDescriptor message)
         {
             var fields = message.Fields
                 .Select(x => new
@@ -160,17 +152,18 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     Value = c.Value
                 })
                 .ToList();
-            
+
+            var className = rosType.TypeName.ToPascalCase();
             var data = new
             {
                 Package = _data.Package,
-                RosName = name,
-                Name = name.ToPascalCase(),
+                RosName = rosType.TypeName,
+                Name = className,
                 Fields = fields,
                 Constants = constants
             };
             
-            var fileName = $"{name}.cs";
+            var fileName = $"{className}.cs";
             var content = _templateEngine.Format(TemplatePaths.MessageFile, data);
 
             WriteFile(fileName, content);
@@ -181,11 +174,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             foreach (var service in Package.Parser.Services)
             {
-                CreateService(GetClassName(service.Key), service.Value);
+                CreateService(service.Key, service.Value);
             }
         }
         
-        private void CreateService(string name, ServiceDescriptor service)
+        private void CreateService(string rosName, ServiceDescriptor service)
         {
             throw new NotImplementedException();
         }
@@ -196,11 +189,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             foreach (var action in Package.Parser.Actions)
             {
-                CreateAction(GetClassName(action.Key), action.Value);
+                CreateAction(action.Key, action.Value);
             }
         }
         
-        private void CreateAction(string name, ActionDescriptor action)
+        private void CreateAction(string rosName, ActionDescriptor action)
         {
             throw new NotImplementedException();
         }

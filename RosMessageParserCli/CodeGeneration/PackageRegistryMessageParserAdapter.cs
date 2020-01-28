@@ -37,7 +37,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, MessageDescriptor>> Messages
+        public IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> Messages
         {
             get
             {

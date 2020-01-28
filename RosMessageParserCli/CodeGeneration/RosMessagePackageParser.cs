@@ -10,7 +10,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         private IEnumerable<string> _packageDependencies;
         private List<Tuple<string, string>> _externalTypeDependencies;
 
-        private IEnumerable<KeyValuePair<string, MessageDescriptor>> _messages;
+        private IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> _messages;
         private IEnumerable<KeyValuePair<string, ActionDescriptor>> _actions;
         private IEnumerable<KeyValuePair<string, ServiceDescriptor>> _services;
         
@@ -38,7 +38,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             }
         }
 
-        public IEnumerable<KeyValuePair<string, MessageDescriptor>> Messages
+        public IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> Messages
         {
             get
             {
@@ -100,36 +100,38 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             var collectors = new RosMessageVisitorListenerCollection(new IRosMessageVisitorListener[]
                 {packageDependencyCollector, typeDependencyCollector});
 
-            var messages = new List<KeyValuePair<string, MessageDescriptor>>();
+            var messages = new List<KeyValuePair<RosTypeInfo, MessageDescriptor>>();
             var actions = new List<KeyValuePair<string, ActionDescriptor>>();
             var services = new List<KeyValuePair<string, ServiceDescriptor>>();
 
             foreach (var messageFile in Package.Messages)
             {
-                using (var file = File.OpenRead(messageFile.FullName))
+                using (var fileStream = File.OpenRead(messageFile.FullName))
                 {
+                    var rosType = RosTypeInfo.CreateRosType(Package.Name, messageFile.NameWithoutExtension());
+                    
                     switch (messageFile.GetRosMessageType())
                     {
                         case RosMessageType.Message:
-                            var messageParser = new MessageParser(file);
+                            var messageParser = new MessageParser(fileStream);
                             var messageDescriptor = messageParser.Parse(collectors);
-
+                            
                             messages.Add(
-                                new KeyValuePair<string, MessageDescriptor>(messageFile.Name, messageDescriptor));
+                                new KeyValuePair<RosTypeInfo, MessageDescriptor>(rosType, messageDescriptor));
                             break;
                         case RosMessageType.Service:
-                            var serviceParser = new ServiceParser(file);
+                            var serviceParser = new ServiceParser(fileStream);
                             var serviceDescriptor = serviceParser.Parse(collectors);
 
                             services.Add(
-                                new KeyValuePair<string, ServiceDescriptor>(messageFile.Name, serviceDescriptor));
+                                new KeyValuePair<string, ServiceDescriptor>(messageFile.NameWithoutExtension(), serviceDescriptor));
                             break;
                         case RosMessageType.Action:
-                            var actionParser = new ActionParser(file);
+                            var actionParser = new ActionParser(fileStream);
                             var actionDescriptor = actionParser.Parse(collectors);
 
                             actions.Add(
-                                new KeyValuePair<string, ActionDescriptor>(messageFile.Name, actionDescriptor));
+                                new KeyValuePair<string, ActionDescriptor>(messageFile.NameWithoutExtension(), actionDescriptor));
                             break;
                     }
                 }

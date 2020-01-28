@@ -32,8 +32,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         public IEnumerable<Tuple<string, string>> ExternalTypeDependencies => 
             Enumerable.Empty<Tuple<string, string>>();
 
-        public IEnumerable<KeyValuePair<string, MessageDescriptor>> Messages =>
-            Enumerable.Empty<KeyValuePair<string, MessageDescriptor>>();
+        public IEnumerable<KeyValuePair<RosTypeInfo, MessageDescriptor>> Messages =>
+            Enumerable.Empty<KeyValuePair<RosTypeInfo, MessageDescriptor>>();
 
         public IEnumerable<KeyValuePair<string, ActionDescriptor>> Actions =>
             Enumerable.Empty<KeyValuePair<string, ActionDescriptor>>();
