@@ -64,6 +64,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             //CreateActions();
             
             // TODO build project
+            BuildProject();
         }
 
         private void CreateProjectFile()
@@ -103,6 +104,12 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 var command = $"add \"{_projectFilePath}\" package {dependency}";
                 var process = RunDotNet(command);
             }
+        }
+
+        private void BuildProject()
+        {
+            var command = $"build \"{_projectFilePath}\" -c Release -v normal";
+            var process = RunDotNet(command);
         }
 
         private void CreateMessages()
