@@ -109,13 +109,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             foreach (var message in Package.Parser.Messages)
             {
-                // TODO: Check if message type has to be created or is already built in into the ROS framework (e.g. std_msgs/Header)
                 CreateMessage(message.Key, message.Value);
             }
         }
         
         private void CreateMessage(RosTypeInfo rosType, MessageDescriptor message)
         {
+            if (_nameMapper.IsBuiltInType(rosType))
+                return;
+
+            
             var fields = message.Fields
                 .Select(x => new
                 {

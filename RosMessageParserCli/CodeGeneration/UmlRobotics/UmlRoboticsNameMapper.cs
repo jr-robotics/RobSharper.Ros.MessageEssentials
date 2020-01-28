@@ -71,5 +71,16 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
         {
             return SpecialRosTypeMappings.TryGetValue($"{rosPackageName}/{rosTypeName}", out mapping);
         }
+
+        public override bool IsBuiltInType(RosTypeInfo rosType)
+        {
+            var builtIn = base.IsBuiltInType(rosType);
+
+            if (builtIn)
+                return true;
+
+            // Uml.Robotics.ROS has more types already defined in its libraries (e.g. Header)
+            return SpecialRosTypeMappings.ContainsKey(rosType.ToString());
+        }
     }
 }
