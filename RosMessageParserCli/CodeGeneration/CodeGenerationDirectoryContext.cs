@@ -64,15 +64,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             ReleaseUnmanagedResources();
         }
         
-        public static string BasePath { get; } = Path.Combine(Path.GetTempPath(), "RosMessageParser");
+        public static string BaseTempPath { get; } = Path.Combine(Path.GetTempPath(), "RobSharper.Ros.MessageGeneration");
         
         public static string GetTempPath(RosPackageInfo packageInfo)
         {
-            var packageSlug = $"{packageInfo.Name}__{packageInfo.Version}"
-                .Replace('.', '_')
-                .ToLowerInvariant();
-
-            return Path.Combine(BasePath, packageSlug);
+            return Path.Combine(BaseTempPath, packageInfo.Name, packageInfo.Version);
         }
 
         public ProjectCodeGenerationDirectoryContext GetPackageTempDir(RosPackageInfo packageInfo)

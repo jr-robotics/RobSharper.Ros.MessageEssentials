@@ -31,4 +31,18 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             return fileInfo.Name.Substring(0, fileInfo.Name.Length - fileInfo.Extension.Length);
         }
     }
+
+    public static class DirectoryInfoExtensions
+    {
+        public static string GetFilePath(this DirectoryInfo directoryInfo, string relativeFilePath)
+        {
+            if (directoryInfo == null) throw new ArgumentNullException(nameof(directoryInfo));
+            if (relativeFilePath == null) throw new ArgumentNullException(nameof(relativeFilePath));
+
+            if (Path.IsPathFullyQualified(relativeFilePath))
+                throw new InvalidOperationException();
+
+            return Path.Combine(directoryInfo.FullName, relativeFilePath);
+        }
+    }
 }

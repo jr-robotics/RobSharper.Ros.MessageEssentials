@@ -63,19 +63,19 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             //CreateServices();
             //CreateActions();
             
-            // TODO build project
             BuildProject();
+            CopyOutput();
         }
 
         private void CreateProjectFile()
         {
             EnsurePackageData();
 
-            var projectFilePath = GetFullQualifiedOutputPath($"{_data.Package.Namespace}.csproj");
+            var projectFilePath = _directories.TempDirectory.GetFilePath($"{_data.Package.Namespace}.csproj");
             var projectFileContent = _templateEngine.Format(TemplatePaths.ProjectFile, _data.Package);
             WriteFile(projectFilePath, projectFileContent);
 
-            var nugetConfigFilePath = GetFullQualifiedOutputPath("nuget.config");
+            var nugetConfigFilePath = _directories.TempDirectory.GetFilePath("nuget.config");
             var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, null);
             WriteFile(nugetConfigFilePath, nugetConfigFile);
 
@@ -110,6 +110,37 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         {
             var command = $"build \"{_projectFilePath}\" -c Release -v normal";
             var process = RunDotNet(command);
+        }
+
+        private void CopyOutput()
+        {
+            if (_options.CreateNugetPackage)
+            {
+                var nupkgFileName = $"{_data.Package.Namespace}.{_data.Package.Version}.nupkg";
+                
+                var nupkgSourceFile = new FileInfo(Path.Combine(_directories.TempDirectory.FullName, "bin", "Release", nupkgFileName));
+                var nupkgDestinationFile = new FileInfo(Path.Combine(_directories.OutputDirectory.FullName, nupkgFileName));
+                
+                ReplaceFiles(nupkgSourceFile, nupkgDestinationFile);
+            }
+
+            if (_options.CreateDll)
+            {
+                var dllFileName = $"{_data.Package.Namespace}.dll";
+                
+                var dllSourceFile = new FileInfo(Path.Combine(_directories.TempDirectory.FullName, "bin", "Release", "netstandard2.0", dllFileName));
+                var dllDestinationFile = new FileInfo(Path.Combine(_directories.OutputDirectory.FullName, dllFileName));
+                
+                ReplaceFiles(dllSourceFile, dllDestinationFile);
+            }
+        }
+
+        private static void ReplaceFiles(FileInfo sourceFile, FileInfo destinationFile)
+        {
+            if (destinationFile.Exists)
+                destinationFile.Delete();
+
+            sourceFile.CopyTo(destinationFile.FullName);
         }
 
         private void CreateMessages()
@@ -173,10 +204,10 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 Constants = constants
             };
             
-            var fileName = $"{className}.cs";
+            var filePath = _directories.TempDirectory.GetFilePath($"{className}.cs");
             var content = _templateEngine.Format(TemplatePaths.MessageFile, data);
 
-            WriteFile(fileName, content);
+            WriteFile(filePath, content);
         }
 
 
@@ -210,18 +241,10 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
         private void WriteFile(string filePath, string content)
         {
-            filePath = GetFullQualifiedOutputPath(filePath);
-            File.WriteAllText(filePath, content);
-        }
-
-        private string GetFullQualifiedOutputPath(string path)
-        {
-            if (!Path.IsPathFullyQualified(path))
-            {
-                path = Path.Combine(_directories.OutputDirectory.FullName, path);
-            }
+            if (!Path.IsPathFullyQualified(filePath))
+                throw new ArgumentException("File path must be fully qualified", nameof(filePath));
             
-            return path;
+            File.WriteAllText(filePath, content);
         }
 
         private static Process RunDotNet(string command)
