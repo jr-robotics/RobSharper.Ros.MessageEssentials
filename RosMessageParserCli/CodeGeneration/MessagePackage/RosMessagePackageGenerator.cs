@@ -72,6 +72,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             var projectFileContent = _templateEngine.Format(TemplatePaths.ProjectFile, _data.Package);
             WriteFile(projectFilePath, projectFileContent);
 
+            // TODO: Add temp nuget directory to nuget config (_directories.NugetTempDirectory)
             var nugetConfigFilePath = _directories.TempDirectory.GetFilePath("nuget.config");
             var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, null);
             WriteFile(nugetConfigFilePath, nugetConfigFile);
@@ -83,18 +84,28 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
         {
             EnsurePackageData();
 
-            var messageNugetPackages = Package.Parser
-                .ExternalTypeDependencies
-                .Select(x => _nameMapper.ResolveNugetPackageName((RosTypeInfo) x))
-                .Distinct()
-                .ToList();
-                
-            // This would be appropriate for Meta Packages
-            // var messageNugetPackages = Package.Parser
-            //     .PackageDependencies
-            //     .Select(x => _messagePackageResolver.ResolveNugetPackageName(x))
-            //     .Distinct()
-            //     .ToList();
+            IList<string> messageNugetPackages;
+            
+            // If package is a meta package use dependencies
+            // form package info (parsed package.xml)
+            // else use real dependencies retrieved form
+            // message files.
+            if (Package.PackageInfo.IsMetaPackage)
+            {
+                messageNugetPackages = Package.Parser
+                    .PackageDependencies
+                    .Select(x => _nameMapper.ResolveNugetPackageName(x))
+                    .Distinct()
+                    .ToList();
+            }
+            else
+            {
+                messageNugetPackages = Package.Parser
+                    .ExternalTypeDependencies
+                    .Select(x => _nameMapper.ResolveNugetPackageName(x))
+                    .Distinct()
+                    .ToList();
+            }
             
             foreach (var dependency in messageNugetPackages)
             {
@@ -108,6 +119,12 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             var nupkgFileName = $"{_data.Package.Namespace}.{_data.Package.Version}.nupkg";
             var nupkgSourceFile = new FileInfo(Path.Combine(_directories.TempDirectory.FullName, "bin", "Release", nupkgFileName));
             
+            // Copy nuget package to temp package source, so it can be consumed by other projects in the current build pipeline
+            var nugetTempDestination = new FileInfo(Path.Combine(_directories.NugetTempDirectory.FullName, nupkgFileName));
+            ReplaceFiles(nupkgSourceFile, nugetTempDestination);
+            
+            
+            // Copy nuget package to output directory if requested
             if (_options.CreateNugetPackage)
             {
                 var nupkgDestinationFile = new FileInfo(Path.Combine(_directories.OutputDirectory.FullName, nupkgFileName));
@@ -115,6 +132,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
                 ReplaceFiles(nupkgSourceFile, nupkgDestinationFile);
             }
 
+            
+            // Copy dll to output directory if requested
             if (_options.CreateDll)
             {
                 var dllFileName = $"{_data.Package.Namespace}.dll";

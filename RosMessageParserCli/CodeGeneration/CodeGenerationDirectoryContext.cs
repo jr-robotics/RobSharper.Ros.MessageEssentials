@@ -7,6 +7,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     public class CodeGenerationDirectoryContext : IDisposable
     {
+        public static string BaseTempPath { get; } = Path.Combine(Path.GetTempPath(), "RobSharper.Ros.MessageGeneration");
+        
         private readonly bool _preserveGeneratedCode;
         private bool _disposed;
 
@@ -14,6 +16,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             new Dictionary<string, ProjectCodeGenerationDirectoryContext>();
 
         public DirectoryInfo OutputDirectory { get; }
+        
+        public DirectoryInfo NugetTempDirectory { get; }
         
 
         public CodeGenerationDirectoryContext(string outputPath, bool preserveGeneratedCode)
@@ -26,6 +30,32 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             if (!OutputDirectory.Exists)
                 OutputDirectory.Create();
+
+            var tempSlug = $"x{Guid.NewGuid():N}";
+            NugetTempDirectory = new DirectoryInfo(Path.Combine(BaseTempPath, "nuget", tempSlug));
+            
+            if (!NugetTempDirectory.Exists)
+                NugetTempDirectory.Create();
+        }
+        
+        public ProjectCodeGenerationDirectoryContext GetPackageTempDir(RosPackageInfo packageInfo)
+        {
+            var tempPath = Path.Combine(BaseTempPath, packageInfo.Name, packageInfo.Version);
+
+            if (_projectTempDirectories.TryGetValue(tempPath, out var context)) 
+                return context;
+            
+            var tempDirectory = new DirectoryInfo(tempPath);
+
+            if (tempDirectory.Exists)
+                tempDirectory.Delete(true);
+
+            tempDirectory.Create();
+
+            context = new ProjectCodeGenerationDirectoryContext(OutputDirectory, tempDirectory, NugetTempDirectory);
+            _projectTempDirectories.Add(tempPath, context);
+
+            return context;
         }
 
         private void ReleaseUnmanagedResources()
@@ -35,17 +65,20 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             try
             {
+                var tasks = new List<Task>();
+                
                 if (!_preserveGeneratedCode)
                 {
-                    var tasks = new List<Task>();
                     foreach (var directory in _projectTempDirectories)
                     {
                         var task = Task.Factory.StartNew(() => directory.Value.TempDirectory.Delete(true));
                         tasks.Add(task);
                     }
-
-                    Task.WaitAll(tasks.ToArray());
                 }
+
+                Task.Factory.StartNew(() => NugetTempDirectory.Delete(true));
+                
+                Task.WaitAll(tasks.ToArray());
             }
             finally
             {
@@ -62,33 +95,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         ~CodeGenerationDirectoryContext()
         {
             ReleaseUnmanagedResources();
-        }
-        
-        public static string BaseTempPath { get; } = Path.Combine(Path.GetTempPath(), "RobSharper.Ros.MessageGeneration");
-        
-        public static string GetTempPath(RosPackageInfo packageInfo)
-        {
-            return Path.Combine(BaseTempPath, packageInfo.Name, packageInfo.Version);
-        }
-
-        public ProjectCodeGenerationDirectoryContext GetPackageTempDir(RosPackageInfo packageInfo)
-        {
-            var tempPath = GetTempPath(packageInfo);
-
-            if (_projectTempDirectories.TryGetValue(tempPath, out var context)) 
-                return context;
-            
-            var tempDirectory = new DirectoryInfo(tempPath);
-
-            if (tempDirectory.Exists)
-                tempDirectory.Delete(true);
-
-            tempDirectory.Create();
-
-            context = new ProjectCodeGenerationDirectoryContext(OutputDirectory, tempDirectory);
-            _projectTempDirectories.Add(tempPath, context);
-
-            return context;
         }
     }
 }
