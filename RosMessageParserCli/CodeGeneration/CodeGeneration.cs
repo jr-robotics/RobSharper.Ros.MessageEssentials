@@ -24,7 +24,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                     var packageDirectories = directories.GetPackageTempDir(package.PackageInfo);
                     var generator = new RosMessagePackageGenerator(package, options, packageDirectories, templateEngine);
 
-                    generator.CreateProject();
+                    generator.Execute();
                 }
             }
 

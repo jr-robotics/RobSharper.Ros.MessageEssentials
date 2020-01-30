@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -9,7 +8,7 @@ using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
 {
-    public class RosMessagePackageGenerator
+    public class RosMessagePackageGenerator : IRosPackageGenerator
     {
         private readonly CodeGenerationOptions _options;
         private readonly ProjectCodeGenerationDirectoryContext _directories;
@@ -50,7 +49,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             _data.Package.Namespace = _nameMapper.FormatPackageName(Package.PackageInfo.Name);
         }
 
-        public void CreateProject()
+        public void Execute()
         {
             CreateProjectFile();
             AddNugetDependencies();
@@ -60,8 +59,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             // TODO create other message types
             //CreateServices();
             //CreateActions();
-            
-            BuildProject();
+
+            DotNetProcess.Build(_projectFilePath);
             CopyOutput();
         }
 
@@ -100,23 +99,17 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             foreach (var dependency in messageNugetPackages)
             {
                 var command = $"add \"{_projectFilePath}\" package {dependency}";
-                var process = RunDotNet(command);
+                var process = DotNetProcess.Execute(command);
             }
-        }
-
-        private void BuildProject()
-        {
-            var command = $"build \"{_projectFilePath}\" -c Release -v normal";
-            var process = RunDotNet(command);
         }
 
         private void CopyOutput()
         {
+            var nupkgFileName = $"{_data.Package.Namespace}.{_data.Package.Version}.nupkg";
+            var nupkgSourceFile = new FileInfo(Path.Combine(_directories.TempDirectory.FullName, "bin", "Release", nupkgFileName));
+            
             if (_options.CreateNugetPackage)
             {
-                var nupkgFileName = $"{_data.Package.Namespace}.{_data.Package.Version}.nupkg";
-                
-                var nupkgSourceFile = new FileInfo(Path.Combine(_directories.TempDirectory.FullName, "bin", "Release", nupkgFileName));
                 var nupkgDestinationFile = new FileInfo(Path.Combine(_directories.OutputDirectory.FullName, nupkgFileName));
                 
                 ReplaceFiles(nupkgSourceFile, nupkgDestinationFile);
@@ -245,32 +238,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             File.WriteAllText(filePath, content);
         }
 
-        private static Process RunDotNet(string command)
-        {
-            const string programName = "dotnet";
-
-            var proc = new Process
-            {
-                StartInfo =
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    FileName = programName,
-                    Arguments = command
-                }
-            };
-            
-            proc.Start();
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                var line = proc.StandardOutput.ReadLine();
-                Console.WriteLine(line);
-            }
-
-            proc.WaitForExit();
-            return proc;
-        }
+        
     }
 }
