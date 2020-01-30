@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage;
 using Moq;
 using Xunit;
 
@@ -49,10 +50,10 @@ namespace RobSharper.Ros.MessageParser.Cli.Tests.CodeGeneration
 
             packageRegistry.Items.Should().NotBeNull();
             packageRegistry.Items.Should().NotBeEmpty();
-
-            packageRegistry.Items.Should().ContainKey("geometry_msgs");
-            packageRegistry.Items.Should().ContainKey("std_msgs");
-            packageRegistry.Items.Should().ContainKey("actionlib_msgs");
+            
+            packageRegistry.Items.Keys.Should().Contain("geometry_msgs");
+            packageRegistry.Items.Keys.Should().Contain("std_msgs");
+            packageRegistry.Items.Keys.Should().Contain("actionlib_msgs");
             packageRegistry.Items.Count.Should().Be(3);
         }
     }

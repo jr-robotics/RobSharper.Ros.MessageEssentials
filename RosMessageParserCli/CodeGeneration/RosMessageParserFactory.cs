@@ -1,3 +1,6 @@
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MetaPackage;
+
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     internal class RosMessageParserFactory

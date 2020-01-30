@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Diagnostics;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
 {
     public class RosMessagePackageGenerator
     {
@@ -88,7 +86,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 
             var messageNugetPackages = Package.Parser
                 .ExternalTypeDependencies
-                .Select(x => _nameMapper.ResolveNugetPackageName(x))
+                .Select(x => _nameMapper.ResolveNugetPackageName((RosTypeInfo) x))
                 .Distinct()
                 .ToList();
                 

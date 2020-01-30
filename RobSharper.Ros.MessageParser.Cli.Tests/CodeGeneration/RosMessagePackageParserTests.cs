@@ -1,4 +1,6 @@
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MetaPackage;
 using Moq;
 
 namespace RobSharper.Ros.MessageParser.Cli.Tests.CodeGeneration

@@ -1,4 +1,5 @@
 using System;
+using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
@@ -16,9 +17,6 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 
                 // Set build order depending on package dependencies
                 context.ReorderPackagesForBuilding();
-
-                // Check external dependencies
-                CheckExternalPackagerDependencies(context);
                 
                 foreach (var package in context.Packages)
                 {
@@ -30,20 +28,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 }
             }
 
-            new HashCode();
-
             return 0;
-        }
-
-        private static void CheckExternalPackagerDependencies(CodeGenerationContext context)
-        {
-            foreach (var package in context.PackageRegistry.Items.Values)
-            {
-                if (package.IsAvailable)
-                    continue;
-                
-                //TODO: Check nuget repo(s). For now we assume that all packages can be loaded on build 
-            }
         }
     }
 }

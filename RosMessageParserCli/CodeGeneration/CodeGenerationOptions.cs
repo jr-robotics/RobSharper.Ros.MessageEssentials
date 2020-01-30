@@ -11,11 +11,11 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         [Option("nuget", Required = false, Default = true)]
         public bool CreateNugetPackage { get; set; }
         
-        [Option("preserve", Required = false, Default = true, HelpText = "Set to true, if you do not want to delete the source files on successful build.")]
+        [Option("preserve", Required = false, Default = false, HelpText = "Set to true, if you do not want to delete the source files on successful build.")]
         public bool PreserveGeneratedCode { get; set; }
         
         
-        [Value(0, MetaName = "PackagePath", HelpText = "ROS package source folder", Required = true)]
+        [Value(0, MetaName = "PackagePath", HelpText = "ROS package(s) source folder", Required = true)]
         public string PackagePath { get; set; }
         
         [Value(1, MetaName = "OutputPath", HelpText = "Output path for generated packages", Required = true)]

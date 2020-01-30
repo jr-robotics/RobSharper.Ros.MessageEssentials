@@ -5,13 +5,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
     public class PackageRegistryMessageParserAdapter : IRosMessagePackageParser
     {
-        private readonly PackageRegistry _packageRegistry;
+        private readonly IPackageRegistry _packageRegistry;
         private readonly IRosMessagePackageParser _innerParser;
 
         private bool _done;
         private readonly object _lock = new object();
 
-        public PackageRegistryMessageParserAdapter(PackageRegistry packageRegistry, IRosMessagePackageParser parser)
+        public PackageRegistryMessageParserAdapter(IPackageRegistry packageRegistry, IRosMessagePackageParser parser)
         {
             _packageRegistry = packageRegistry ?? throw new ArgumentNullException(nameof(packageRegistry));
             _innerParser = parser ?? throw new ArgumentNullException(nameof(parser));

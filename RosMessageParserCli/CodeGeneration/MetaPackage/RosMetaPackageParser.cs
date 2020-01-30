@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
+namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MetaPackage
 {
     public class RosMetaPackageParser : IRosMessagePackageParser
     {

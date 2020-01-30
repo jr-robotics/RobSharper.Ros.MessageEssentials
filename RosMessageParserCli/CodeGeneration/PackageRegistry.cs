@@ -7,7 +7,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
     public class PackageRegistry : IPackageRegistry
     {
         private readonly IBuildPackages _context;
-        public IDictionary<string, PackageRegistryItem> Items { get; } = new Dictionary<string, PackageRegistryItem>();
+        private readonly Dictionary<string, PackageRegistryItem> _items = new Dictionary<string, PackageRegistryItem>();
+
+        public IReadOnlyDictionary<string, PackageRegistryItem> Items => _items;
 
         public PackageRegistry(IBuildPackages context)
         {
@@ -24,9 +26,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
             dependency = new PackageRegistryItem(packageName);
             
             if (_context.Packages.Select(x => x.Name).Contains(dependency.PackageName))
-                dependency.SetIsInBuildPipline();
+                dependency.IsInBuildPipeline = true;
             
-            Items.Add(dependency.PackageName, dependency);
+            _items.Add(dependency.PackageName, dependency);
             return dependency;
         }
     }
