@@ -40,6 +40,9 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
         
         public ProjectCodeGenerationDirectoryContext GetPackageTempDir(RosPackageInfo packageInfo)
         {
+            if (_disposed)
+                throw new ObjectDisposedException("The object is already disposed");
+            
             var tempPath = Path.Combine(BaseTempPath, packageInfo.Name, packageInfo.Version);
 
             if (_projectTempDirectories.TryGetValue(tempPath, out var context)) 
@@ -71,7 +74,19 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 {
                     foreach (var directory in _projectTempDirectories)
                     {
-                        var task = Task.Factory.StartNew(() => directory.Value.TempDirectory.Delete(true));
+                        var task = Task.Factory
+                            .StartNew(() => directory.Value.TempDirectory.Delete(true))
+                            .ContinueWith((t) =>
+                            {
+                                // build folders are created in <TEMP>\PackageId\Version\
+                                // If all versions of a package are deleted, also delete the (empty) package folder.
+                                var packageDirectory = directory.Value.TempDirectory.Parent;
+                                if (packageDirectory.GetDirectories().Length == 0)
+                                {
+                                    packageDirectory.Delete(false);
+                                }
+                            });
+                        
                         tasks.Add(task);
                     }
                 }
@@ -79,6 +94,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 Task.Factory.StartNew(() => NugetTempDirectory.Delete(true));
                 
                 Task.WaitAll(tasks.ToArray());
+                
             }
             finally
             {
