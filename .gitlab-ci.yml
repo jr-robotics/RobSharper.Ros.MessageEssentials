@@ -29,22 +29,6 @@ test-cli:
   tags:
     - docker-executor
 
-test-packagexml:
-  stage: test
-  script:
-    - 'cd Joanneum.Robotics.Ros.PackageXml.Tests'
-    - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[Joanneum.Robotics.Ros.PackageXml.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
-    - 'dotnet $(find ~/.nuget/packages/reportgenerator -name ReportGenerator.dll | head -n1) -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -verbosity:Warning -reporttypes:Html'
-  coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
-  artifacts:
-    paths:
-      - 'Joanneum.Robotics.Ros.PackageXml.Tests/overage'
-      - 'Joanneum.Robotics.Ros.PackageXml.Tests/TestResults/TestResults.xml'
-    reports:
-      junit: 'Joanneum.Robotics.Ros.PackageXml.Tests/TestResults/TestResults.xml'
-  tags:
-    - docker-executor
-
 
 # Create a versioned NuGet package
 # This task is only executed for the branches develop and master as well as version tags

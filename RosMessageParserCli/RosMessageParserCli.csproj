@@ -20,6 +20,7 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
       <PackageReference Include="Microsoft.TestPlatform.TestHost" Version="16.0.1" />
       <PackageReference Include="RobSharper.Ros.MessageParser" Version="2.0.0" />
+      <PackageReference Include="RobSharper.Ros.PackageXml" Version="1.0.0-RC1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,9 +34,6 @@
         <Content Include="CodeGeneration\UmlRobotics\TemplateFiles\*.*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-    </ItemGroup>
-    <ItemGroup>
-      <ProjectReference Include="..\RobSharper.Ros.PackageXml\RobSharper.Ros.PackageXml.csproj" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="MessageParsing" />
