@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics;
+using RobSharper.Ros.MessageParser;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
 {

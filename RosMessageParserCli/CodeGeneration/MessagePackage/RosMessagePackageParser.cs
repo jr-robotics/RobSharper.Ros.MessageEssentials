@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using RobSharper.Ros.MessageParser;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
 {
@@ -113,7 +114,7 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
                     switch (messageFile.GetRosMessageType())
                     {
                         case RosMessageType.Message:
-                            var messageParser = new MessageParser(fileStream);
+                            var messageParser = new RobSharper.Ros.MessageParser.MessageParser(fileStream);
                             var messageDescriptor = messageParser.Parse(collectors);
                             
                             messages.Add(

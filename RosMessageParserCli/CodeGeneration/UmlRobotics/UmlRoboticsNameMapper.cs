@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.TemplateEngines;
+using RobSharper.Ros.MessageParser;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.UmlRobotics
 {

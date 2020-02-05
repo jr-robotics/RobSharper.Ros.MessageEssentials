@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RobSharper.Ros.MessageParser;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
 {

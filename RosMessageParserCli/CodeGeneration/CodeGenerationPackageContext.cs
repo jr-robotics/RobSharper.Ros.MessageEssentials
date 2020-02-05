@@ -1,5 +1,4 @@
 using System;
-using Joanneum.Robotics.Ros.MessageParser.Antlr;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
