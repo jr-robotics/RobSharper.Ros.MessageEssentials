@@ -61,8 +61,19 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             //CreateServices();
             //CreateActions();
 
-            DotNetProcess.Build(_projectFilePath);
+            BuildProject();
             CopyOutput();
+        }
+
+        private void BuildProject()
+        {
+            var proc = DotNetProcess.Build(_projectFilePath);
+
+            if (proc.ExitCode != 0)
+            {
+                // TODO: throw correct exception
+                throw new Exception($"Build process exited with code {proc.ExitCode}");
+            }
         }
 
         private void CreateProjectFile()
@@ -111,7 +122,13 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             foreach (var dependency in messageNugetPackages)
             {
                 var command = $"add \"{_projectFilePath}\" package {dependency}";
-                var process = DotNetProcess.Execute(command);
+                var proc = DotNetProcess.Execute(command);
+                
+                if (proc.ExitCode != 0)
+                {
+                    // TODO: throw correct exception
+                    throw new Exception($"Could not add dependency {dependency}. Process exited with code {proc.ExitCode}");
+                }
             }
         }
 
@@ -149,8 +166,22 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
         private static void ReplaceFiles(FileInfo sourceFile, FileInfo destinationFile)
         {
             if (destinationFile.Exists)
+            {
                 destinationFile.Delete();
+            }
+            else
+            {
+                var destinationDir = destinationFile.Directory;
+                if (destinationDir != null && !destinationDir.Exists)
+                {
+                    destinationDir.Create();
+                }
+            }
 
+            if (!sourceFile.Exists)
+            {
+                throw new InvalidOperationException($"Source file does not exist: {sourceFile}");
+            }
             sourceFile.CopyTo(destinationFile.FullName);
         }
 
