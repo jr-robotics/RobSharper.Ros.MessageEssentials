@@ -43,7 +43,26 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics
         {
         }
 
-        protected override string ResolveTypeName(string rosPackageName, string rosTypeName)
+        public override string GetTypeName(string rosTypeName, DetailedRosMessageType messageType)
+        {
+            if (!messageType.HasFlag(DetailedRosMessageType.Service))
+                return base.GetTypeName(rosTypeName, messageType);
+            
+            
+            var baseName = base.GetTypeName(rosTypeName);
+
+            switch (messageType)
+            {
+                case DetailedRosMessageType.ServiceRequest:
+                    return baseName + ".Request";
+                case DetailedRosMessageType.ServiceResponse:
+                    return baseName + ".Response";
+                default:
+                    throw new NotSupportedException($"MessageType {messageType} is not supported");
+            }
+        }
+
+        protected override string ResolveFullQualifiedName(string rosPackageName, string rosTypeName)
         {
             if (rosPackageName == null) throw new ArgumentNullException(nameof(rosPackageName));
             if (rosTypeName == null) throw new ArgumentNullException(nameof(rosTypeName));
@@ -53,7 +72,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics
                 return mapping.TypeName;
             }
             
-            return base.ResolveTypeName(rosPackageName, rosTypeName);
+            return base.ResolveFullQualifiedName(rosPackageName, rosTypeName);
         }
         
         public override string ResolveNugetPackageName(RosTypeInfo rosType)

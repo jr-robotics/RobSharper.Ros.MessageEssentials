@@ -47,7 +47,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             _data.Package.RosName = Package.PackageInfo.Name;
             _data.Package.Version = Package.PackageInfo.Version;
             _data.Package.Name = Package.PackageInfo.Name.ToPascalCase();
-            _data.Package.Namespace = _nameMapper.FormatPackageName(Package.PackageInfo.Name);
+            _data.Package.Namespace = _nameMapper.GetNamespace(Package.PackageInfo.Name);
         }
 
         public void Execute()
@@ -56,10 +56,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             AddNugetDependencies();
             
             CreateMessages();
-            
-            // TODO create other message types
-            //CreateServices();
-            
+            CreateServices();
             CreateActions();
 
             DotNetProcess.Build(_projectFilePath);
@@ -202,7 +199,13 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
         
         private void CreateService(RosTypeInfo rosType, ServiceDescriptor service)
         {
-            throw new NotImplementedException();
+            if (_nameMapper.IsBuiltInType(rosType))
+                return;
+
+            // TODO: Write service type
+            
+            WriteMessageInternal(rosType, DetailedRosMessageType.ServiceRequest, service.Request);
+            WriteMessageInternal(rosType, DetailedRosMessageType.ServiceResponse, service.Response);
         }
 
         
@@ -217,17 +220,9 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
         
         private void CreateAction(RosTypeInfo rosType, ActionDescriptor action)
         {
-            if (_nameMapper.IsBuiltInType(rosType))
-                return;
-
-            var goalType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Goal");
-            WriteMessageInternal(goalType, DetailedRosMessageType.ActionGoal, action.Goal);
-            
-            var resultType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Result");
-            WriteMessageInternal(resultType, DetailedRosMessageType.ActionResult, action.Result);
-            
-            var feedbackType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Feedback");
-            WriteMessageInternal(feedbackType, DetailedRosMessageType.ActionFeedback, action.Feedback);
+            WriteMessageInternal(rosType, DetailedRosMessageType.ActionGoal, action.Goal);
+            WriteMessageInternal(rosType, DetailedRosMessageType.ActionResult, action.Result);
+            WriteMessageInternal(rosType, DetailedRosMessageType.ActionFeedback, action.Feedback);
         }
 
         private void WriteMessageInternal(RosTypeInfo rosType, DetailedRosMessageType messageType, MessageDescriptor message)
@@ -242,6 +237,29 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             if (_nameMapper.IsBuiltInType(rosType))
                 return;
 
+            var abstractRosTypeName = rosType.TypeName;
+            var concreteRosTypeName = rosType.TypeName;
+
+            switch (messageType)
+            {
+                case DetailedRosMessageType.ActionGoal:
+                    concreteRosTypeName += "Goal";
+                    break;
+                case DetailedRosMessageType.ActionResult:
+                    concreteRosTypeName += "Result";
+                    break;
+                case DetailedRosMessageType.ActionFeedback:
+                    concreteRosTypeName += "Feedback";
+                    break;
+                case DetailedRosMessageType.ServiceRequest:
+                    concreteRosTypeName += "__Request";
+                    break;
+                case DetailedRosMessageType.ServiceResponse:
+                    concreteRosTypeName += "__Response";
+                    break;
+            }
+            
+            
             var fields = message.Fields
                 .Select(x => new
                 {
@@ -253,8 +271,8 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                     RosIdentifier = x.Identifier,
                     Type = new
                     {
-                        InterfaceName = _nameMapper.ResolveInterfacedTypeName(x.TypeInfo),
-                        ConcreteName = _nameMapper.ResolveConcreteTypeName(x.TypeInfo),
+                        InterfaceName = _nameMapper.ResolveFullQualifiedInterfaceName(x.TypeInfo),
+                        ConcreteName = _nameMapper.ResolveFullQualifiedTypeName(x.TypeInfo),
                         IsBuiltInType = x.TypeInfo.IsBuiltInType,
                         IsArray = x.TypeInfo.IsArray,
                         IsValueType = x.TypeInfo.IsValueType(),
@@ -273,18 +291,20 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                                 .index + 1,
                     RosType = c.TypeInfo,
                     RosIdentifier = c.Identifier,
-                    TypeName = _nameMapper.ResolveConcreteTypeName(c.TypeInfo),
+                    TypeName = _nameMapper.ResolveFullQualifiedTypeName(c.TypeInfo),
                     Identifier = c.Identifier,
                     Value = c.Value
                 })
                 .ToList();
 
-            var className = rosType.TypeName.ToPascalCase();
+            var typeName = _nameMapper.GetTypeName(rosType.TypeName, messageType);
             var data = new
             {
                 Package = _data.Package,
-                RosName = rosType.TypeName,
-                Name = className,
+                RosTypeName = concreteRosTypeName,
+                RosAbstractTypeName = rosType.TypeName,
+                TypeName = typeName,
+                AbstractTypeName = _nameMapper.GetTypeName(rosType.TypeName, DetailedRosMessageType.None),
                 Fields = fields,
                 Constants = constants,
                 MessageType = new
@@ -301,7 +321,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                 }
             };
 
-            var filePath = _directories.TempDirectory.GetFilePath($"{className}.cs");
+            var filePath = _directories.TempDirectory.GetFilePath($"{typeName}.cs");
             var content = _templateEngine.Format(TemplatePaths.MessageFile, data);
 
             WriteFile(filePath, content);

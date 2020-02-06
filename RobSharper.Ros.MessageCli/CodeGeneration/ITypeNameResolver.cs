@@ -4,7 +4,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
 {
     public interface ITypeNameResolver
     {
-        string ResolveConcreteTypeName(RosTypeInfo type);
-        string ResolveInterfacedTypeName(RosTypeInfo type);
+        string ResolveFullQualifiedTypeName(RosTypeInfo type);
+        string ResolveFullQualifiedInterfaceName(RosTypeInfo type);
     }
 }

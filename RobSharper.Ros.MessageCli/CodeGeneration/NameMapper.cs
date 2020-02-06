@@ -4,7 +4,7 @@ using RobSharper.Ros.MessageParser;
 
 namespace RobSharper.Ros.MessageCli.CodeGeneration
 {
-    public class NameMapper : INugetPackageNameResolver, IPackageNamingConvention, ITypeNameResolver, IBuiltInTypeChecker
+    public class NameMapper : INugetPackageNameResolver, IResourceNamingConvention, ITypeNameResolver, IBuiltInTypeChecker
     {
         private readonly string _packageName;
         private readonly ITemplateFormatter _packageNamingConvention;
@@ -19,7 +19,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
         {
             if (rosPackageName == null) throw new ArgumentNullException(nameof(rosPackageName));
 
-            return FormatPackageName(rosPackageName);
+            return GetNamespace(rosPackageName);
         }
 
         public virtual string ResolveNugetPackageName(RosTypeInfo rosType)
@@ -27,7 +27,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             return ResolveNugetPackageName(rosType.PackageName);
         }
 
-        public virtual string FormatPackageName(string rosPackageName)
+        public virtual string GetNamespace(string rosPackageName)
         {
             var data = new
             {
@@ -39,18 +39,51 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
                 .Format(data)
                 .Trim();
         }
-        
-        public string ResolveConcreteTypeName(RosTypeInfo type)
+
+        public string GetTypeName(string rosTypeName)
         {
-            return ResolveTypeName(type, false);
+            return GetTypeName(rosTypeName, DetailedRosMessageType.None);
+        }
+
+        public virtual string GetTypeName(string rosTypeName, DetailedRosMessageType messageType)
+        {
+            if (rosTypeName == null) throw new ArgumentNullException(nameof(rosTypeName));
+            
+            var typeName = rosTypeName.ToPascalCase();
+
+            switch (messageType)
+            {
+                case DetailedRosMessageType.ActionGoal:
+                    typeName += "Goal";
+                    break;
+                case DetailedRosMessageType.ActionResult:
+                    typeName += "Result";
+                    break;
+                case DetailedRosMessageType.ActionFeedback:
+                    typeName += "Feedback";
+                    break;
+                case DetailedRosMessageType.ServiceRequest:
+                    typeName += "Request";
+                    break;
+                case DetailedRosMessageType.ServiceResponse:
+                    typeName += "Response";
+                    break;
+            }
+            
+            return typeName;
+        }
+
+        public string ResolveFullQualifiedTypeName(RosTypeInfo type)
+        {
+            return ResolveFullQualifiedName(type, false);
         }
         
-        public string ResolveInterfacedTypeName(RosTypeInfo type)
+        public string ResolveFullQualifiedInterfaceName(RosTypeInfo type)
         {
-            return ResolveTypeName(type, true);
+            return ResolveFullQualifiedName(type, true);
         }
         
-        protected virtual string ResolveTypeName(RosTypeInfo type, bool useInterface)
+        protected virtual string ResolveFullQualifiedName(RosTypeInfo type, bool useInterface)
         {
             string typeString;
 
@@ -64,7 +97,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
                 var rosPackageName = type.PackageName ?? _packageName;
                 var rosTypeName = type.TypeName;
 
-                typeString = ResolveTypeName(rosPackageName, rosTypeName);
+                typeString = ResolveFullQualifiedName(rosPackageName, rosTypeName);
             }
 
             if (type.IsArray)
@@ -82,13 +115,15 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             return typeString;
         }
 
-        protected virtual string ResolveTypeName(string rosPackageName, string rosTypeName)
+        protected virtual string ResolveFullQualifiedName(string rosPackageName, string rosTypeName)
         {
             if (rosPackageName == null) throw new ArgumentNullException(nameof(rosPackageName));
             if (rosTypeName == null) throw new ArgumentNullException(nameof(rosTypeName));
              
-            var packageName = FormatPackageName(rosPackageName);
-            return $"{packageName}.{rosTypeName.ToPascalCase()}";
+            var namespaceName = GetNamespace(rosPackageName);
+            var typeName = GetTypeName(rosTypeName);
+            
+            return $"{namespaceName}.{typeName}";
         }
 
         public virtual bool IsBuiltInType(RosTypeInfo rosType)

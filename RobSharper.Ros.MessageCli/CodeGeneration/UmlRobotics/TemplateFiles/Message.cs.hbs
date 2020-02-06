@@ -8,11 +8,12 @@ using UmlRoboticsMessages = Messages;
 
 namespace {{Package.Namespace}}
 {
-    [RosMessage("{{Package.RosName}}/{{RosName}}")]
     {{#if MessageType.IsMessage}}
-    public class {{Name}} : RosMessage
+    [RosMessage("{{Package.RosName}}/{{RosTypeName}}")]
+    public class {{TypeName}} : RosMessage
     {{/if}}
     {{#if MessageType.IsAction}}
+    [RosMessage("{{Package.RosName}}/{{RosTypeName}}")]
         {{#if MessageType.IsActionGoal}}
     [ActionGoalMessage]
         {{/if}}
@@ -22,10 +23,21 @@ namespace {{Package.Namespace}}
         {{#if MessageType.IsActionFeedback}}
     [ActionFeedbackMessage]
         {{/if}}
-    public class {{Name}} : InnerActionMessage
+    public class {{TypeName}} : InnerActionMessage
+    {{/if}}
+    {{#if MessageType.IsService}}
+    public partial class {{AbstractTypeName}} {
+
+    [RosMessage("{{Package.RosName}}/{{RosTypeName}}")]
+        {{#if MessageType.IsServiceRequest}}
+    public class Request : RosMessage
+        {{/if}}
+        {{#if MessageType.IsServiceResponse}}
+    public class Response : RosMessage
+        {{/if}}
     {{/if}}
     {
-        private static readonly MessageTypeInfoProvider TypeInfoProvider = new MessageTypeInfoProvider<{{Name}}>();
+        private static readonly MessageTypeInfoProvider TypeInfoProvider = new MessageTypeInfoProvider<{{TypeName}}>();
 
         {{#each Constants}}
         [RosMessageField({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
@@ -41,20 +53,52 @@ namespace {{Package.Namespace}}
 
         public override string MessageType => TypeInfoProvider.TypeInfo.MessageDescriptor.RosType.ToString();
 
-        public {{Name}}()
+{{#unless MessageType.IsService}}
+        public {{TypeName}}()
         {
         }
         
-        public {{Name}}(byte[] serializedMessage)
+        public {{TypeName}}(byte[] serializedMessage)
         {
             Deserialize(serializedMessage);
         }
         
-        public {{Name}}(byte[] serializedMessage, ref int currentIndex)
+        public {{TypeName}}(byte[] serializedMessage, ref int currentIndex)
         {
             Deserialize(serializedMessage, ref currentIndex);
         }
-
+{{/unless}}
+{{#if MessageType.IsServiceRequest}}
+        public Request()
+        {
+        }
+    
+        public Request(byte[] serializedMessage)
+        {
+        Deserialize(serializedMessage);
+        }
+    
+        public Request(byte[] serializedMessage, ref int currentIndex)
+        {
+        Deserialize(serializedMessage, ref currentIndex);
+        }
+{{/if}}
+{{#if MessageType.IsServiceResponse}}
+        public Response()
+        {
+        }
+    
+        public Response(byte[] serializedMessage)
+        {
+        Deserialize(serializedMessage);
+        }
+    
+        public Response(byte[] serializedMessage, ref int currentIndex)
+        {
+        Deserialize(serializedMessage, ref currentIndex);
+        }
+{{/if}}
+        
         public override string MD5Sum()
         {
             return TypeInfoProvider.TypeInfo.MD5Sum;
@@ -70,7 +114,15 @@ namespace {{Package.Namespace}}
         // of an external type (i.e. no primitive ROS type, Message of same package or Type defined in
         // MessageBase package.
         
-        // Omitted IsServiceComponent() because this is only true for .srv messages
+        {{#unless MessageType.IsService}}
+        // Omitted IsServiceComponent() because this is only true for .srv messages    
+        {{/unless}}
+        {{#if MessageType.IsService}}
+        public override bool IsServiceComponent()
+        {
+            return true;
+        }
+        {{/if}}
         
         public override string MessageDefinition()
         {
@@ -80,7 +132,7 @@ namespace {{Package.Namespace}}
         public override void Deserialize(byte[] serializedMessage, ref int currentIndex)
         {
             var ms = new MemoryStream(serializedMessage, currentIndex, serializedMessage.Length - currentIndex, false);
-            var deserialized = RobSharperInfrastructure.Serializer.Deserialize<{{Name}}>(ms);
+            var deserialized = RobSharperInfrastructure.Serializer.Deserialize<{{TypeName}}>(ms);
             
             currentIndex = serializedMessage.Length;
 
@@ -107,7 +159,7 @@ namespace {{Package.Namespace}}
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals(({{Name}}) obj);
+            return Equals(({{TypeName}}) obj);
         }
 
         public override bool Equals(RosMessage obj)
@@ -115,10 +167,10 @@ namespace {{Package.Namespace}}
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals(({{Name}}) obj);
+            return Equals(({{TypeName}}) obj);
         }
 
-        protected bool Equals({{Name}} other)
+        protected bool Equals({{TypeName}} other)
         {
             return
             {{#each Fields}}
@@ -145,4 +197,7 @@ namespace {{Package.Namespace}}
             return hashCode.ToHashCode();
         }
     }
+    {{#if MessageType.IsService}}
+    }
+    {{/if}}
 }
