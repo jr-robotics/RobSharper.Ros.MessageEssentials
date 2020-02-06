@@ -119,7 +119,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                 catch (ProcessFailedException e)
                 {
                     throw new DependencyNotFoundException(dependency,
-                        $"Could not add dependency {dependency}. Process exited with code {e.ExitCode}", e);
+                        $"Could not add dependency {dependency}.", e);
                 }
             }
         }
