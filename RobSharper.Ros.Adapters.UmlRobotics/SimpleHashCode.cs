@@ -1,4 +1,4 @@
-namespace RobSharper.Ros.MessageBase
+namespace RobSharper.Ros.Adapters.UmlRobotics
 {
     public struct SimpleHashCode
     {
