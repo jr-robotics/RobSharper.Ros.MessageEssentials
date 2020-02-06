@@ -9,7 +9,21 @@ using UmlRoboticsMessages = Messages;
 namespace {{Package.Namespace}}
 {
     [RosMessage("{{Package.RosName}}/{{RosName}}")]
+    {{#if MessageType.IsMessage}}
     public class {{Name}} : RosMessage
+    {{/if}}
+    {{#if MessageType.IsAction}}
+        {{#if MessageType.IsActionGoal}}
+    [ActionGoalMessage]
+        {{/if}}
+        {{#if MessageType.IsActionResult}}
+    [ActionResultMessage]
+        {{/if}}
+        {{#if MessageType.IsActionFeedback}}
+    [ActionFeedbackMessage]
+        {{/if}}
+    public class {{Name}} : InnerActionMessage
+    {{/if}}
     {
         private static readonly MessageTypeInfoProvider TypeInfoProvider = new MessageTypeInfoProvider<{{Name}}>();
 
@@ -27,16 +41,18 @@ namespace {{Package.Namespace}}
 
         public override string MessageType => TypeInfoProvider.TypeInfo.MessageDescriptor.RosType.ToString();
 
-        public {{Name}}() : base()
+        public {{Name}}()
         {
         }
         
-        public {{Name}}(byte[] serializedMessage) : base(serializedMessage)
+        public {{Name}}(byte[] serializedMessage)
         {
+            Deserialize(serializedMessage);
         }
         
-        public {{Name}}(byte[] serializedMessage, ref int currentIndex) : base(serializedMessage, ref currentIndex)
+        public {{Name}}(byte[] serializedMessage, ref int currentIndex)
         {
+            Deserialize(serializedMessage, ref currentIndex);
         }
 
         public override string MD5Sum()

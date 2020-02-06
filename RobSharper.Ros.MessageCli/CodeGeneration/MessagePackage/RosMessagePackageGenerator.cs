@@ -59,7 +59,8 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             
             // TODO create other message types
             //CreateServices();
-            //CreateActions();
+            
+            CreateActions();
 
             DotNetProcess.Build(_projectFilePath);
             CopyOutput();
@@ -188,10 +189,59 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
         
         private void CreateMessage(RosTypeInfo rosType, MessageDescriptor message)
         {
+            WriteMessageInternal(rosType, DetailedRosMessageType.Message, message);
+        }
+
+        private void CreateServices()
+        {
+            foreach (var service in Package.Parser.Services)
+            {
+                CreateService(service.Key, service.Value);
+            }
+        }
+        
+        private void CreateService(RosTypeInfo rosType, ServiceDescriptor service)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+
+        private void CreateActions()
+        {
+            foreach (var action in Package.Parser.Actions)
+            {
+                CreateAction(action.Key, action.Value);
+            }
+        }
+        
+        private void CreateAction(RosTypeInfo rosType, ActionDescriptor action)
+        {
             if (_nameMapper.IsBuiltInType(rosType))
                 return;
 
+            var goalType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Goal");
+            WriteMessageInternal(goalType, DetailedRosMessageType.ActionGoal, action.Goal);
             
+            var resultType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Result");
+            WriteMessageInternal(resultType, DetailedRosMessageType.ActionResult, action.Result);
+            
+            var feedbackType = RosTypeInfo.CreateRosType(rosType.PackageName, rosType.TypeName + "Feedback");
+            WriteMessageInternal(feedbackType, DetailedRosMessageType.ActionFeedback, action.Feedback);
+        }
+
+        private void WriteMessageInternal(RosTypeInfo rosType, DetailedRosMessageType messageType, MessageDescriptor message)
+        {
+            if (messageType == DetailedRosMessageType.None || 
+                messageType == DetailedRosMessageType.Action ||
+                messageType == DetailedRosMessageType.Service)
+            {
+                throw new ArgumentException($"message type is not detailed enough", nameof(messageType));
+            }
+            
+            if (_nameMapper.IsBuiltInType(rosType))
+                return;
+
             var fields = message.Fields
                 .Select(x => new
                 {
@@ -236,44 +286,27 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                 RosName = rosType.TypeName,
                 Name = className,
                 Fields = fields,
-                Constants = constants
+                Constants = constants,
+                MessageType = new
+                {
+                    MessageType = (int) messageType,
+                    IsMessage = messageType.HasFlag(DetailedRosMessageType.Message),
+                    IsAction = messageType.HasFlag(DetailedRosMessageType.Action),
+                    IsActionGoal = messageType.HasFlag(DetailedRosMessageType.ActionGoal),
+                    IsActionResult = messageType.HasFlag(DetailedRosMessageType.ActionResult),
+                    IsActionFeedback = messageType.HasFlag(DetailedRosMessageType.ActionFeedback),
+                    IsService = messageType.HasFlag(DetailedRosMessageType.Service),
+                    IsServiceRequest =  messageType.HasFlag(DetailedRosMessageType.ServiceRequest),
+                    IsServiceResponse = messageType.HasFlag(DetailedRosMessageType.ServiceResponse)
+                }
             };
-            
+
             var filePath = _directories.TempDirectory.GetFilePath($"{className}.cs");
             var content = _templateEngine.Format(TemplatePaths.MessageFile, data);
 
             WriteFile(filePath, content);
         }
-
-
-        private void CreateServices()
-        {
-            foreach (var service in Package.Parser.Services)
-            {
-                CreateService(service.Key, service.Value);
-            }
-        }
         
-        private void CreateService(RosTypeInfo rosType, ServiceDescriptor service)
-        {
-            throw new NotImplementedException();
-        }
-
-        
-
-        private void CreateActions()
-        {
-            foreach (var action in Package.Parser.Actions)
-            {
-                CreateAction(action.Key, action.Value);
-            }
-        }
-        
-        private void CreateAction(RosTypeInfo rosType, ActionDescriptor action)
-        {
-            throw new NotImplementedException();
-        }
-
         private void WriteFile(string filePath, string content)
         {
             if (!Path.IsPathFullyQualified(filePath))
