@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Text;
 
 namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
 {
@@ -22,17 +23,44 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration
                 }
             };
             
-            proc.Start();
-            while (!proc.StandardOutput.EndOfStream)
+            var procOutput = new StringBuilder();
+            try
             {
-                var line = proc.StandardOutput.ReadLine();
-                Console.WriteLine(line);
-            }
+                proc.Start();
+            
+                while (!proc.StandardOutput.EndOfStream)
+                {
+                    var line = proc.StandardOutput.ReadLine();
 
-            proc.WaitForExit();
+                    procOutput.AppendLine(line);
+                    Console.WriteLine(line);
+                }
+
+                proc.WaitForExit();
+            }
+            catch (Exception e)
+            {
+                throw NewProcessFailedException(proc, procOutput, e);
+            }
+            
+            if (!proc.HasExited || proc.ExitCode != 0)
+            {
+                throw NewProcessFailedException(proc, procOutput, null);
+            }
+            
             return proc;
         }
-        
+
+        private static ProcessFailedException NewProcessFailedException(Process proc, StringBuilder procOutput,
+            Exception exception)
+        {
+            var exitCode = proc.HasExited ? proc.ExitCode : 0;
+            var processFailedException = new ProcessFailedException(proc.StartInfo.FileName, proc.StartInfo.Arguments,
+                proc.HasExited, exitCode, procOutput.ToString(), exception);
+            
+            return processFailedException;
+        }
+
         public static Process Build(string projectFilePath)
         {
             var command = $"build \"{projectFilePath}\" -c Release -v normal";

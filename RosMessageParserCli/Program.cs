@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CommandLine;

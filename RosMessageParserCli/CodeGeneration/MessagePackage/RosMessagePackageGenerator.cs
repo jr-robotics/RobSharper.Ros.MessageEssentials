@@ -61,19 +61,8 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             //CreateServices();
             //CreateActions();
 
-            BuildProject();
+            DotNetProcess.Build(_projectFilePath);
             CopyOutput();
-        }
-
-        private void BuildProject()
-        {
-            var proc = DotNetProcess.Build(_projectFilePath);
-
-            if (proc.ExitCode != 0)
-            {
-                // TODO: throw correct exception
-                throw new Exception($"Build process exited with code {proc.ExitCode}");
-            }
         }
 
         private void CreateProjectFile()
@@ -122,12 +111,15 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
             foreach (var dependency in messageNugetPackages)
             {
                 var command = $"add \"{_projectFilePath}\" package {dependency}";
-                var proc = DotNetProcess.Execute(command);
-                
-                if (proc.ExitCode != 0)
+
+                try
                 {
-                    // TODO: throw correct exception
-                    throw new Exception($"Could not add dependency {dependency}. Process exited with code {proc.ExitCode}");
+                    DotNetProcess.Execute(command);
+                }
+                catch (ProcessFailedException e)
+                {
+                    throw new DependencyNotFoundException(dependency,
+                        $"Could not add dependency {dependency}. Process exited with code {e.ExitCode}", e);
                 }
             }
         }
@@ -290,5 +282,32 @@ namespace Joanneum.Robotics.Ros.MessageParser.Cli.CodeGeneration.MessagePackage
         }
 
         
+    }
+
+    public class DependencyNotFoundException : Exception
+    {
+        private readonly string _dependency;
+
+        public string Dependency => _dependency;
+
+        public DependencyNotFoundException() : base()
+        {
+            
+        }
+        
+        public DependencyNotFoundException(string dependency) : base()
+        {
+            _dependency = dependency;
+        }
+        
+        public DependencyNotFoundException(string dependency, string message) : base(message)
+        {
+            _dependency = dependency;
+        }
+        
+        public DependencyNotFoundException(string dependency, string message, Exception innerException) : base(message, innerException)
+        {
+            _dependency = dependency;
+        }
     }
 }
