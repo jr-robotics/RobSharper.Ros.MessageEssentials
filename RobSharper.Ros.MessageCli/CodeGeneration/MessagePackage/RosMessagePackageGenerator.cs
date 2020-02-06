@@ -174,6 +174,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             {
                 throw new InvalidOperationException($"Source file does not exist: {sourceFile}");
             }
+            
             sourceFile.CopyTo(destinationFile.FullName);
         }
 

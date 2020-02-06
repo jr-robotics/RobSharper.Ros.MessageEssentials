@@ -24,12 +24,16 @@ namespace RobSharper.Ros.MessageCli
             {
                 LoggingHelper.Factory = serviceProvider.Resolve<ILoggerFactory>();
                 
-                CommandLine.Parser.Default.ParseArguments<CodeGenerationOptions>(args)
+                CommandLine.Parser.Default.ParseArguments<CodeGenerationOptions, PlaceholderOptions>(args)
                     .MapResult(
                         (CodeGenerationOptions options) =>
                         {
                             var templateEngine = serviceProvider.Resolve<IKeyedTemplateFormatter>();
                             return CodeGeneration.CodeGeneration.Execute(options, templateEngine);
+                        },
+                        (PlaceholderOptions options) =>
+                        {
+                            return 1;
                         },
                         errs => 1
                     );
@@ -134,5 +138,10 @@ namespace RobSharper.Ros.MessageCli
 
             return configuration;
         }
+    }
+
+    [Verb("placeholder0815", HelpText = "This is just a placeholder so that build must be set as argument", Hidden = true)]
+    public class PlaceholderOptions
+    {
     }
 }
