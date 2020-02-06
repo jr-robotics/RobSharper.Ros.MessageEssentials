@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RosMessageParserCli", "RosMessageParserCli\RosMessageParserCli.csproj", "{DA6626D1-3CC2-4C65-A69B-08901434AD12}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageCli", "RobSharper.Ros.MessageCli\RobSharper.Ros.MessageCli.csproj", "{DA6626D1-3CC2-4C65-A69B-08901434AD12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageParser.Cli.Tests", "RobSharper.Ros.MessageParser.Cli.Tests\RobSharper.Ros.MessageParser.Cli.Tests.csproj", "{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageCli.Tests", "RobSharper.Ros.MessageCli.Tests\RobSharper.Ros.MessageCli.Tests.csproj", "{C0B88FC7-4AB3-44DD-A3D3-2FC6FA59D0F3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2FE53127-F29D-46B9-9BB3-CB438E2FCFBE}"
 EndProject
