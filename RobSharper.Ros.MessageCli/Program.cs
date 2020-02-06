@@ -28,8 +28,9 @@ namespace RobSharper.Ros.MessageCli
                     .MapResult(
                         (CodeGenerationOptions options) =>
                         {
+                            var buildConfig = configuration.GetSection("Build");
                             var templateEngine = serviceProvider.Resolve<IKeyedTemplateFormatter>();
-                            return CodeGeneration.CodeGeneration.Execute(options, templateEngine);
+                            return CodeGeneration.CodeGeneration.Execute(options, templateEngine, buildConfig);
                         },
                         (PlaceholderOptions options) =>
                         {
