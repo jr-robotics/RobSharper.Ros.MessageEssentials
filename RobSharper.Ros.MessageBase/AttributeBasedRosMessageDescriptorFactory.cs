@@ -28,8 +28,6 @@ namespace RobSharper.Ros.MessageBase
             var rosType = RosType.Parse(messageTypeAttribute.RosType);
             descriptorBuilder.SetRosType(rosType);
             
-            descriptorBuilder.SetMappedType(type);
-            
             // Get Fields
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {

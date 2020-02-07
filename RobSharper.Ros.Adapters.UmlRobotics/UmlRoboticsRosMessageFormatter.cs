@@ -10,12 +10,12 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
     /// </summary>
     public class UmlRoboticsRosMessageFormatter : IRosMessageFormatter
     {
-        public bool CanSerialize(IMessageTypeInfo typeInfo)
+        public bool CanSerialize(IRosMessageTypeInfo typeInfo)
         {
-            return  typeof(RosMessage).IsAssignableFrom(typeInfo.MessageDescriptor.Type);
+            return  typeof(RosMessage).IsAssignableFrom(typeInfo.Type);
         }
 
-        public void Serialize(SerializationContext context, RosBinaryWriter writer, IMessageTypeInfo messageTypeInfo, object o)
+        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o)
         {
             if (writer == null) throw new ArgumentNullException(nameof(writer));
             if (o == null) throw new ArgumentNullException(nameof(o));
@@ -28,11 +28,11 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
             writer.Write(serializedMessage);
         }
 
-        public object Deserialize(SerializationContext context, RosBinaryReader reader, IMessageTypeInfo messageTypeInfo)
+        public object Deserialize(SerializationContext context, RosBinaryReader reader, IRosMessageTypeInfo messageTypeInfo)
         {
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
             
-            var result = (RosMessage) Activator.CreateInstance(messageTypeInfo.MessageDescriptor.Type);
+            var result = (RosMessage) Activator.CreateInstance(messageTypeInfo.Type);
 
             var currentPosition = reader.BaseStream.Position;
             var bytesRead = 0;

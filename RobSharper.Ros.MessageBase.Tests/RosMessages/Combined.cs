@@ -11,6 +11,12 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
 int32 CONST_B=12
 int32 fieldA
 int32 fieldB";
+
+        // Result of "gendeps --cat"
+        public const string FULL_MESSAGE_DEFINITION = @"int32 CONST_A=13
+int32 CONST_B=12
+int32 fieldA
+int32 fieldB";
         
         [RosMessageField(2, "int32", "CONST_A")]
         public const int CONST_A = 13;

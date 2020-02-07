@@ -5,20 +5,13 @@ namespace RobSharper.Ros.MessageBase
 {
     public class RosMessageDescriptorBuilder
     {
+        private RosType _rosType;
         private readonly IList<RosMessageFieldDescriptor> _fields = new List<RosMessageFieldDescriptor>();
         private readonly IList<RosMessageConstantDescriptor> _constants = new List<RosMessageConstantDescriptor>();
-        private RosType _rosType;
-        private Type _mappedType;
-
 
         public void SetRosType(RosType rosType)
         {   
             _rosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
-        }
-
-        public void SetMappedType(Type type)
-        {
-            _mappedType = type ?? throw new ArgumentNullException(nameof(type));
         }
 
         public void Add(RosMessageConstantDescriptor constantDescriptor)
@@ -35,7 +28,7 @@ namespace RobSharper.Ros.MessageBase
 
         public RosMessageDescriptor Build()
         {
-            return new RosMessageDescriptor(_rosType, _mappedType, _fields, _constants);
+            return new RosMessageDescriptor(_rosType, _fields, _constants);
         }
     }
 }

@@ -7,19 +7,24 @@ using System.Text;
 
 namespace RobSharper.Ros.MessageBase
 {
-    public class MessageTypeInfo : IMessageTypeInfo
+    public class RosMessageTypeInfo : IRosMessageTypeInfo
     {
         private readonly RosMessageDescriptor _messageDescriptor;
-        private readonly IEnumerable<IMessageTypeInfo> _dependencies;
+        private readonly IEnumerable<IRosMessageTypeInfo> _dependencies;
         
         private string _md5Sum;
-        private string _messageDefinition;
 
-        public RosType Type => _messageDescriptor.RosType;
+        public RosType RosType => _messageDescriptor.RosType;
+
+        public Type Type { get; }
 
         public RosMessageDescriptor MessageDescriptor => _messageDescriptor;
+        
+        public IEnumerable<IRosMessageTypeInfo> Dependencies => _dependencies;
 
-        public IEnumerable<IMessageTypeInfo> Dependencies => _dependencies;
+        public string MessageDefinition => _messageDescriptor.MessageDefinition;
+
+        public bool HasHeader => _messageDescriptor.HasHader;
 
         public string MD5Sum
         {
@@ -33,24 +38,10 @@ namespace RobSharper.Ros.MessageBase
                 return _md5Sum;
             }
         }
-
-        public string MessageDefinition
-        {
-            get
-            {
-                if (_messageDefinition == null)
-                {
-                    _messageDefinition = CreateMessageDefinition();
-                }
-                
-                return _messageDefinition;
-            }
-        }
-
-        public bool HasHeader => _messageDescriptor.HasHader;
         
-        public MessageTypeInfo(RosMessageDescriptor messageDescriptor, IEnumerable<IMessageTypeInfo> dependencies)
+        public RosMessageTypeInfo(Type mappedMessageType, RosMessageDescriptor messageDescriptor, IEnumerable<IRosMessageTypeInfo> dependencies)
         {
+            Type = mappedMessageType ?? throw new ArgumentNullException(nameof(mappedMessageType));
             _messageDescriptor = messageDescriptor ?? throw new ArgumentNullException(nameof(messageDescriptor));
             _dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
         }
@@ -113,7 +104,7 @@ namespace RobSharper.Ros.MessageBase
                 else
                 {
                     var typeInfo = _dependencies
-                        .First(x => x.MessageDescriptor.RosType.ToString("T") == field.RosType.ToString("T"));
+                        .First(x => x.RosType.ToString("T") == field.RosType.ToString("T"));
 
                     var typeHash = typeInfo.MD5Sum;
 
@@ -125,48 +116,12 @@ namespace RobSharper.Ros.MessageBase
             }
         }
 
-        private string CreateMessageDefinition()
-        {
-            var dependencies = new List<IMessageTypeInfo>();
-            CollectDependencies(this, dependencies);
-            
-            var sb = new StringBuilder();
-
-            sb.Append(_messageDescriptor.MessageDefinition);
-
-            foreach (var dependency in dependencies)
-            {
-                sb.Append("\n================================================================================\n");
-                
-                sb.Append("MSG: ");
-                sb.Append(dependency.MessageDescriptor.RosType);
-                sb.Append("\n");
-                sb.Append(dependency.MessageDescriptor.MessageDefinition);
-            }
-
-            return sb.ToString();
-        }
-
-        private void CollectDependencies(IMessageTypeInfo messageType, List<IMessageTypeInfo> dependencies)
-        {
-            foreach (var candidate in messageType.Dependencies)
-            {
-                var candidateType = candidate.MessageDescriptor.RosType.ToString("T");
-                
-                if (dependencies.Any(x => x.MessageDescriptor.RosType.ToString("T") == candidateType))
-                    continue;
-
-                dependencies.Add(candidate);
-                CollectDependencies(candidate, dependencies);
-            }
-        }
-
         public override string ToString()
         {
-            return Type.ToString();
+            return RosType.ToString();
         }
 
-        protected bool Equals(MessageTypeInfo other)
+        protected bool Equals(RosMessageTypeInfo other)
         {
             return Equals(_messageDescriptor, other._messageDescriptor) && Equals(_dependencies, other._dependencies);
         }
@@ -176,7 +131,7 @@ namespace RobSharper.Ros.MessageBase
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((MessageTypeInfo) obj);
+            return Equals((RosMessageTypeInfo) obj);
         }
 
         public override int GetHashCode()
@@ -185,20 +140,6 @@ namespace RobSharper.Ros.MessageBase
             {
                 return ((_messageDescriptor != null ? _messageDescriptor.GetHashCode() : 0) * 397) ^ (_dependencies != null ? _dependencies.GetHashCode() : 0);
             }
-        }
-    }
-
-    internal static class ByteArrayExtensions
-    {
-        public static string ToHexString(this byte[] buffer)
-        {
-            var sb = new StringBuilder(buffer.Length * 2);
-            foreach (byte b in buffer)
-            {
-                sb.AppendFormat("{0:x2}", b);
-            }
-
-            return sb.ToString();
         }
     }
 }

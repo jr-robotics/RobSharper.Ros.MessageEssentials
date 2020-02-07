@@ -7,17 +7,17 @@ namespace RobSharper.Ros.MessageBase.Serialization
 {
     public class RosMessageFormatter : IRosMessageFormatter
     {
-        public bool CanSerialize(IMessageTypeInfo typeInfo)
+        public bool CanSerialize(IRosMessageTypeInfo typeInfo)
         {
-            return typeInfo is MessageTypeInfo;
+            return typeInfo is RosMessageTypeInfo;
         }
         
-        public void Serialize(SerializationContext context, RosBinaryWriter writer, IMessageTypeInfo messageTypeInfo, object o)
+        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (o == null) throw new ArgumentNullException(nameof(o));
 
-            if (!(messageTypeInfo is MessageTypeInfo messageInfo))
+            if (!(messageTypeInfo is RosMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
             var fields = messageInfo.MessageDescriptor.Fields;
@@ -92,16 +92,16 @@ namespace RobSharper.Ros.MessageBase.Serialization
             }
         }
 
-        public object Deserialize(SerializationContext context, RosBinaryReader reader, IMessageTypeInfo messageTypeInfo)
+        public object Deserialize(SerializationContext context, RosBinaryReader reader, IRosMessageTypeInfo messageTypeInfo)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
             
-            if (!(messageTypeInfo is MessageTypeInfo messageInfo))
+            if (!(messageTypeInfo is RosMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
             
-            var result = Activator.CreateInstance(messageInfo.MessageDescriptor.Type);
+            var result = Activator.CreateInstance(messageInfo.Type);
             
             var fields = messageInfo.MessageDescriptor.Fields;
             

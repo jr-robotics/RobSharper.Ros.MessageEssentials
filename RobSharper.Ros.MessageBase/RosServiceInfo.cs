@@ -2,42 +2,43 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 
 namespace RobSharper.Ros.MessageBase
 {
     public class RosServiceInfo : IRosServiceInfo
     {
-        private string _md5Sum;
-        private readonly MessageTypeInfo _request;
-        private readonly MessageTypeInfo _response;
-
+        private readonly Lazy<string> _md5Sum;
+        
         public RosType Type { get; }
 
-        public IMessageTypeInfo Request => _request;
+        public IRosMessageTypeInfo Request { get; }
 
-        public IMessageTypeInfo Response => _response;
-        
-        public string MD5Sum
+        public IRosMessageTypeInfo Response { get; }
+
+        public string MD5Sum => _md5Sum.Value;
+
+        public RosServiceInfo(RosType type, IRosMessageTypeInfo request, IRosMessageTypeInfo response, string md5Sum)
+            : this(type, request, response, new Lazy<string>(() => md5Sum))
         {
-            get
-            {
-                if (_md5Sum == null)
-                {
-                    _md5Sum = CalculateMd5Sum();
-                }
-                
-                return _md5Sum;
-            }
+            
         }
-
-        public RosServiceInfo(RosType type, MessageTypeInfo request, MessageTypeInfo response)
+        
+        public RosServiceInfo(RosType type, IRosMessageTypeInfo request, IRosMessageTypeInfo response, Lazy<string> md5Sum)
         {
             Type = type ?? throw new ArgumentNullException(nameof(type));
-            _request = request ?? throw new ArgumentNullException(nameof(request));
-            _response = response ?? throw new ArgumentNullException(nameof(response));
+            Request = request ?? throw new ArgumentNullException(nameof(request));
+            Response = response ?? throw new ArgumentNullException(nameof(response));
+            _md5Sum = md5Sum ?? throw new ArgumentNullException(nameof(md5Sum));
+        }
+        
+        public static RosServiceInfo Create(RosType type, RosMessageTypeInfo request, RosMessageTypeInfo response)
+        {
+            var md5 = new Lazy<string>(() => CalculateMd5Sum(request, response), LazyThreadSafetyMode.None);
+            return new RosServiceInfo(type, request, response, md5);
         }
 
-        private string CalculateMd5Sum()
+        private static string CalculateMd5Sum(RosMessageTypeInfo request, RosMessageTypeInfo response)
         {
             var md5 = MD5.Create();
 
@@ -45,8 +46,8 @@ namespace RobSharper.Ros.MessageBase
             {
                 var writer = new StreamWriter(ms, Encoding.ASCII);
 
-                _request.WriteHashFields(writer);
-                _response.WriteHashFields(writer);
+                request.WriteHashFields(writer);
+                response.WriteHashFields(writer);
 
                 writer.Flush();
                 

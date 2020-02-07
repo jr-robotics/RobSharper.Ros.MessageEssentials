@@ -9,6 +9,9 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
         public const string ROS_MD5 = "5c9fb1a886e81e3162a5c87bf55c072b";
 
         // Result of "rosmsg show"
+        public const string FULL_MESSAGE_DEFINITION = "int32 a";
+
+        // Result of "rosmsg show"
         public const string MESSAGE_DEFINITION = "int32 a";
         
         [RosMessageField(1, "int32", "a")]
@@ -23,6 +26,9 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
 
         // Result of "gendeps --cat"
         public const string MESSAGE_DEFINITION = "int32 a";
+
+        // Result of "gendeps --cat"
+        public const string FULL_MESSAGE_DEFINITION = "int32 a";
         
         [RosMessageField(1, "int32", "a")]
         public int A { get; set; }
@@ -37,6 +43,9 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
         // Result of "gendeps --cat"
         public const string MESSAGE_DEFINITION = "int32[] a";
 
+        // Result of "gendeps --cat"
+        public const string FULL_MESSAGE_DEFINITION = "int32[] a";
+
         [RosMessageField(1, "int32[]", "a")]
         public IList<int> A { get; set; } = new List<int>();
     }
@@ -47,9 +56,11 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
         // Result of "rosmsg md5"
         public const string ROS_MD5 = "175e714d79cfd44e31c6b462f722c1e5";
 
+        public const string MESSAGE_DEFINITION = @"test_msgs/SimpleInt a";
+
         // DEVIATED Result of "gendeps --cat"
         // gendeps uses no package name vor intra package types and header type
-        public const string MESSAGE_DEFINITION = @"test_msgs/SimpleInt a
+        public const string FULL_MESSAGE_DEFINITION = @"test_msgs/SimpleInt a
 ================================================================================
 MSG: test_msgs/SimpleInt
 int32 a";
@@ -64,9 +75,11 @@ int32 a";
         // Result of "rosmsg md5"
         public const string ROS_MD5 = "175e714d79cfd44e31c6b462f722c1e5";
 
+        public const string MESSAGE_DEFINITION = @"test_msgs/SimpleInt[] a";
+        
         // DEVIATED Result of "gendeps --cat"
         // gendeps uses no package name vor intra package types and header type
-        public const string MESSAGE_DEFINITION = @"test_msgs/SimpleInt[] a
+        public const string FULL_MESSAGE_DEFINITION = @"test_msgs/SimpleInt[] a
 ================================================================================
 MSG: test_msgs/SimpleInt
 int32 a";
@@ -82,7 +95,16 @@ int32 a";
         public const string ROS_MD5 = "3f8549369bb554ed39ebd1f74ac7ef00";
 
         // Result of "gendeps --cat"
-        public const string MESSAGE_DEFINITION = @"";
+        public const string MESSAGE_DEFINITION = @"test_msgs/NestedSimpleInt nestedField";
+
+        // Result of "gendeps --cat"
+        public const string FULL_MESSAGE_DEFINITION = @"test_msgs/NestedSimpleInt nestedField
+================================================================================
+MSG: test_msgs/NestedSimpleInt
+test_msgs/SimpleInt a
+================================================================================
+MSG: test_msgs/SimpleInt
+int32 a";
 
         [RosMessageField(1, "test_msgs/NestedSimpleInt", "nestedField")]
         public NestedSimpleInt NestedField { get; set; } = new NestedSimpleInt();

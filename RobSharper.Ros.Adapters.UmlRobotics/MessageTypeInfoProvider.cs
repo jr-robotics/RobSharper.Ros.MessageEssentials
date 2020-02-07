@@ -8,9 +8,9 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
     public class MessageTypeInfoProvider
     {
         private readonly Type _messageType;
-        private IMessageTypeInfo _typeInfo;
+        private IRosMessageTypeInfo _typeInfo;
 
-        public IMessageTypeInfo TypeInfo
+        public IRosMessageTypeInfo TypeInfo
         {
             get
             {

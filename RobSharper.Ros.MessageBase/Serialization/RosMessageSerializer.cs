@@ -49,7 +49,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
             formatter.Serialize(context, writer, messageTypeInfo, message);
         }
 
-        private IRosMessageFormatter GetFormatter(IMessageTypeInfo messageTypeInfo)
+        private IRosMessageFormatter GetFormatter(IRosMessageTypeInfo messageTypeInfo)
         {
             var formatter = MessageFormatters.FindFormatterFor(messageTypeInfo);
 

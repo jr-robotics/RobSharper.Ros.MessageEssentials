@@ -8,5 +8,8 @@ namespace RobSharper.Ros.MessageBase.Tests.RosMessages
 
         // Result of "rosmsg show"
         public const string MESSAGE_DEFINITION = "";
+        
+        // Result of "rosmsg show"
+        public const string FULL_MESSAGE_DEFINITION = "";
     }
 }

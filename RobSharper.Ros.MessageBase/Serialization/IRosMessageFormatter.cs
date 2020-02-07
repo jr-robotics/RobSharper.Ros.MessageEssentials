@@ -2,10 +2,10 @@ namespace RobSharper.Ros.MessageBase.Serialization
 {
     public interface IRosMessageFormatter
     {
-        bool CanSerialize(IMessageTypeInfo typeInfo);
+        bool CanSerialize(IRosMessageTypeInfo typeInfo);
         
-        void Serialize(SerializationContext context, RosBinaryWriter writer, IMessageTypeInfo messageTypeInfo, object o);
+        void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o);
         
-        object Deserialize(SerializationContext context, RosBinaryReader reader, IMessageTypeInfo messageTypeInfo);
+        object Deserialize(SerializationContext context, RosBinaryReader reader, IRosMessageTypeInfo messageTypeInfo);
     }
 }

@@ -39,7 +39,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
             return buffer;
         }
 
-        public static IRosMessageFormatter FindFormatterFor(this IEnumerable<IRosMessageFormatter> formatters, IMessageTypeInfo messageTypeInfo)
+        public static IRosMessageFormatter FindFormatterFor(this IEnumerable<IRosMessageFormatter> formatters, IRosMessageTypeInfo messageTypeInfo)
         {
             return formatters.FirstOrDefault(x => x.CanSerialize(messageTypeInfo));
         }

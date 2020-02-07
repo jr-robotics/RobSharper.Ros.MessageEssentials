@@ -6,20 +6,20 @@ namespace RobSharper.Ros.MessageBase
 {
     public class MessageTypeRegistry
     {
-        private readonly IDictionary<Type, IMessageTypeInfo> _messageTypes = new Dictionary<Type, IMessageTypeInfo>();
-        private readonly IDictionary<string, IMessageTypeInfo> _rosTypes = new Dictionary<string, IMessageTypeInfo>();
+        private readonly IDictionary<Type, IRosMessageTypeInfo> _messageTypes = new Dictionary<Type, IRosMessageTypeInfo>();
+        private readonly IDictionary<string, IRosMessageTypeInfo> _rosTypes = new Dictionary<string, IRosMessageTypeInfo>();
 
-        public IMessageTypeInfo this[Type mappedType]
+        public IRosMessageTypeInfo this[Type mappedType]
         {
             get => _messageTypes[mappedType];
         }
 
-        public IMessageTypeInfo this[string rosTypeName]
+        public IRosMessageTypeInfo this[string rosTypeName]
         {
             get => _rosTypes[rosTypeName];
         }
 
-        public IMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
+        public IRosMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
@@ -37,16 +37,17 @@ namespace RobSharper.Ros.MessageBase
                 throw new NotSupportedException();
             }
             
-            var messageInfo = CreateMessageTypeInfo(messageDescriptor);
-            _messageTypes.Add(type, messageInfo);
-            _rosTypes.Add(messageInfo.Type.ToString(), messageInfo);
+            var messageInfo = CreateMessageTypeInfo(type, messageDescriptor);
+            
+            _messageTypes.Add(messageInfo.Type, messageInfo);
+            _rosTypes.Add(messageInfo.RosType.ToString(), messageInfo);
             
             return messageInfo;
         }
 
-        private MessageTypeInfo CreateMessageTypeInfo(RosMessageDescriptor messageDescriptor)
+        private RosMessageTypeInfo CreateMessageTypeInfo(Type mappedType, RosMessageDescriptor messageDescriptor)
         {
-            var dependencies = new List<IMessageTypeInfo>();
+            var dependencies = new List<IRosMessageTypeInfo>();
             foreach (var dependentField in messageDescriptor.Fields)
             {
                 if (dependentField.RosType.IsBuiltIn)
@@ -75,7 +76,7 @@ namespace RobSharper.Ros.MessageBase
                 dependencies.Add(dependency);
             }
 
-            return new MessageTypeInfo(messageDescriptor, dependencies);
+            return new RosMessageTypeInfo(mappedType, messageDescriptor, dependencies);
         }
     }
 }

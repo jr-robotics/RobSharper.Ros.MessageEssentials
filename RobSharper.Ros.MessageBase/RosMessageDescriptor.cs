@@ -7,9 +7,8 @@ namespace RobSharper.Ros.MessageBase
     public class RosMessageDescriptor
     {
         private string _messageDefinition;
-        public RosType RosType { get; }
         
-        public Type Type { get; }
+        public RosType RosType { get; }
         
         public IEnumerable<RosMessageFieldDescriptor> Fields { get; }
 
@@ -32,11 +31,10 @@ namespace RobSharper.Ros.MessageBase
 
         public bool HasHader => Fields.Any(f => f.RosType.IsHeaderType);
 
-        public RosMessageDescriptor(RosType rosType, Type type, IEnumerable<RosMessageFieldDescriptor> fields,
+        public RosMessageDescriptor(RosType rosType, IEnumerable<RosMessageFieldDescriptor> fields,
             IEnumerable<RosMessageConstantDescriptor> constants)
         {
             RosType = rosType ?? throw new ArgumentNullException(nameof(rosType));
-            Type = type ?? throw new ArgumentNullException(nameof(type));
             
             if (fields == null)
                 fields = Enumerable.Empty<RosMessageFieldDescriptor>();
