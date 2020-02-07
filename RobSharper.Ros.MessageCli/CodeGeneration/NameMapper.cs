@@ -4,7 +4,7 @@ using RobSharper.Ros.MessageParser;
 
 namespace RobSharper.Ros.MessageCli.CodeGeneration
 {
-    public class NameMapper : INugetPackageNameResolver, IResourceNamingConvention, ITypeNameResolver, IBuiltInTypeChecker
+    public class NameMapper : INugetPackageNameResolver, IResourceNamingConvention, ITypeNameResolver, IBuiltInTypeChecker, IRosNamingConvention
     {
         private readonly string _packageName;
         private readonly ITemplateFormatter _packageNamingConvention;
@@ -131,6 +131,28 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             if (rosType == null) throw new ArgumentNullException(nameof(rosType));
 
             return rosType.IsBuiltInType;
+        }
+
+        public virtual string GetRosTypeName(string rosTypeName, DetailedRosMessageType messageType)
+        {
+            switch (messageType)
+            {
+                case DetailedRosMessageType.None:
+                case DetailedRosMessageType.Message:
+                    return rosTypeName;
+                case DetailedRosMessageType.ActionGoal:
+                    return rosTypeName + "Goal";
+                case DetailedRosMessageType.ActionResult:
+                    return rosTypeName + "Result";
+                case DetailedRosMessageType.ActionFeedback:
+                    return rosTypeName + "Feedback";
+                case DetailedRosMessageType.ServiceRequest:
+                    return rosTypeName + "Request";
+                case DetailedRosMessageType.ServiceResponse:
+                    return rosTypeName + "Response";
+                default:
+                    throw new NotSupportedException($"Message type {messageType} is not supported.");
+            }
         }
     }
 }

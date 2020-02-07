@@ -237,29 +237,6 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             if (_nameMapper.IsBuiltInType(rosType))
                 return;
 
-            var abstractRosTypeName = rosType.TypeName;
-            var concreteRosTypeName = rosType.TypeName;
-
-            switch (messageType)
-            {
-                case DetailedRosMessageType.ActionGoal:
-                    concreteRosTypeName += "Goal";
-                    break;
-                case DetailedRosMessageType.ActionResult:
-                    concreteRosTypeName += "Result";
-                    break;
-                case DetailedRosMessageType.ActionFeedback:
-                    concreteRosTypeName += "Feedback";
-                    break;
-                case DetailedRosMessageType.ServiceRequest:
-                    concreteRosTypeName += "__Request";
-                    break;
-                case DetailedRosMessageType.ServiceResponse:
-                    concreteRosTypeName += "__Response";
-                    break;
-            }
-            
-            
             var fields = message.Fields
                 .Select(x => new
                 {
@@ -301,7 +278,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             var data = new
             {
                 Package = _data.Package,
-                RosTypeName = concreteRosTypeName,
+                RosTypeName = _nameMapper.GetRosTypeName(rosType.TypeName, messageType),
                 RosAbstractTypeName = rosType.TypeName,
                 TypeName = typeName,
                 AbstractTypeName = _nameMapper.GetTypeName(rosType.TypeName, DetailedRosMessageType.None),

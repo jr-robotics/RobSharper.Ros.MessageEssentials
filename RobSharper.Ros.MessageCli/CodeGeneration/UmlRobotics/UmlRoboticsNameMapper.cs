@@ -102,5 +102,18 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics
             // Uml.Robotics.ROS has more types already defined in its libraries (e.g. Header)
             return SpecialRosTypeMappings.ContainsKey(rosType.ToString());
         }
+
+        public override string GetRosTypeName(string rosTypeName, DetailedRosMessageType messageType)
+        {
+            switch (messageType)
+            {
+                case DetailedRosMessageType.ServiceRequest:
+                    return rosTypeName + "__Request";
+                case DetailedRosMessageType.ServiceResponse:
+                    return rosTypeName + "__Response";
+                default:
+                    return base.GetRosTypeName(rosTypeName, messageType);
+            }
+        }
     }
 }
