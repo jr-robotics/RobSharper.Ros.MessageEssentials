@@ -1,4 +1,6 @@
 using System;
+using System.Security.Cryptography;
+using System.Text;
 using FluentAssertions;
 using RobSharper.Ros.MessageBase.Tests.RosMessages;
 using Xunit;
@@ -29,6 +31,31 @@ namespace RobSharper.Ros.MessageBase.Tests
 
             typeInfo.MD5Sum.Should().NotBeNull();
             typeInfo.MD5Sum.Should().Be(expectedMd5Sum);
+        }
+
+        [Fact]
+        public void TestMd5()
+        {
+            var expected = "ec93cdecbd8062d761aa52b7c90cd44b";
+            var msg = "time time"
+                      + "string[] name\n"
+                      + "float64[] position\n"
+                      + "float64[] velocity\n"
+                      + "float64[] acceleration";
+            
+            var md5 = MD5.Create();
+            var bytes = md5.ComputeHash(Encoding.ASCII.GetBytes(msg));
+            
+            var sb = new StringBuilder(bytes.Length * 2);
+            foreach (byte b in bytes)
+            {
+                sb.AppendFormat("{0:x2}", b);
+            }
+
+            var actual =  sb.ToString();
+
+            Assert.Equal(expected, actual);
+
         }
 
         [Theory]

@@ -57,70 +57,74 @@ namespace RobSharper.Ros.MessageBase
 
         private string CalculateMd5Sum()
         {
-            var firstElement = true;
             var md5 = MD5.Create();
 
             using (var ms = new MemoryStream())
             {
-                var writer = new StreamWriter(ms, Encoding.ASCII)
-                {
-                    AutoFlush = true
-                };
+                var writer = new StreamWriter(ms, Encoding.ASCII);
 
-                // MD5 of Constants
-                foreach (var constant in _messageDescriptor.Constants)
-                {
-                    if (firstElement)
-                    {
-                        firstElement = false;
-                    }
-                    else
-                    {
-                        writer.Write("\n");
-                    }
-                    
-                    // Only built in types supported for constants
-                    writer.Write(constant.ToString());
-                }
+                WriteHashFields(writer);
+                writer.Flush();
 
-                // MD5 Of Fields
-                foreach (var field in _messageDescriptor.Fields)
-                {
-                    if (firstElement)
-                    {
-                        firstElement = false;
-                    }
-                    else
-                    {
-                        writer.Write("\n");
-                    }
-
-                    if (field.RosType.IsBuiltIn)
-                    {
-                        writer.Write(field.RosType);
-                    }
-                    else
-                    {
-                        var typeInfo = _dependencies
-                            .First(x => x.MessageDescriptor.RosType.ToString("T") == field.RosType.ToString("T"));
-                        
-                        var typeHash = typeInfo.MD5Sum;
-
-                        writer.Write(typeHash);
-                    }
-                    
-                    writer.Write(" ");
-                    writer.Write(field.RosIdentifier);
-                }
-                
                 ms.Position = 0;
                 var md5Bytes = md5.ComputeHash(ms);
-                var md5String = ToHexString(md5Bytes);
+                var md5String = md5Bytes.ToHexString();
 
                 return md5String;
             }
         }
-        
+
+        public void WriteHashFields(StreamWriter writer)
+        {
+            var firstElement = true;
+            
+            // MD5 of Constants
+            foreach (var constant in _messageDescriptor.Constants)
+            {
+                if (firstElement)
+                {
+                    firstElement = false;
+                }
+                else
+                {
+                    writer.Write("\n");
+                }
+
+                // Only built in types supported for constants
+                writer.Write(constant.ToString());
+            }
+
+            // MD5 Of Fields
+            foreach (var field in _messageDescriptor.Fields)
+            {
+                if (firstElement)
+                {
+                    firstElement = false;
+                }
+                else
+                {
+                    writer.Write("\n");
+                }
+
+                if (field.RosType.IsBuiltIn)
+                {
+                    writer.Write(field.RosType);
+                }
+                else
+                {
+                    var typeInfo = _dependencies
+                        .First(x => x.MessageDescriptor.RosType.ToString("T") == field.RosType.ToString("T"));
+
+                    var typeHash = typeInfo.MD5Sum;
+
+                    writer.Write(typeHash);
+                }
+
+                writer.Write(" ");
+                writer.Write(field.RosIdentifier);
+            }
+        }
+
         private string CreateMessageDefinition()
         {
             var dependencies = new List<IMessageTypeInfo>();
@@ -182,8 +186,11 @@ namespace RobSharper.Ros.MessageBase
                 return ((_messageDescriptor != null ? _messageDescriptor.GetHashCode() : 0) * 397) ^ (_dependencies != null ? _dependencies.GetHashCode() : 0);
             }
         }
+    }
 
-        private static string ToHexString(byte[] buffer)
+    internal static class ByteArrayExtensions
+    {
+        public static string ToHexString(this byte[] buffer)
         {
             var sb = new StringBuilder(buffer.Length * 2);
             foreach (byte b in buffer)
