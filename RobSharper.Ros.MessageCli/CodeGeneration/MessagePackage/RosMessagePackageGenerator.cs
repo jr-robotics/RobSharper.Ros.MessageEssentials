@@ -48,6 +48,15 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             _data.Package.Version = Package.PackageInfo.Version;
             _data.Package.Name = Package.PackageInfo.Name.ToPascalCase();
             _data.Package.Namespace = _nameMapper.GetNamespace(Package.PackageInfo.Name);
+            _data.Package.Description = Package.PackageInfo.Description;
+            _data.Package.HasDescription = !string.IsNullOrEmpty(Package.PackageInfo.Description);
+            _data.Package.ProjectUrl = Package.PackageInfo.ProjectUrl;
+            _data.Package.HasProjectUrl = !string.IsNullOrEmpty(Package.PackageInfo.ProjectUrl);
+            _data.Package.RepositoryUrl = Package.PackageInfo.RepositoryUrl;
+            _data.Package.HasRepositoryUrl = !string.IsNullOrEmpty(Package.PackageInfo.RepositoryUrl);
+            _data.Package.Authors = Package.PackageInfo.Authors;
+            _data.Package.HasAuthors = Package.PackageInfo.Authors != null && Package.PackageInfo.Authors.Any();
+            _data.Package.AuthorsString = string.Join(";", Package.PackageInfo.Authors ?? Enumerable.Empty<string>());
         }
 
         public void Execute()

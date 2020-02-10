@@ -8,6 +8,7 @@
         <PackageVersion>1.0.9</PackageVersion>
         <AssemblyName>RobSharper.Ros.MessageBase</AssemblyName>
         <RootNamespace>RobSharper.Ros.MessageBase</RootNamespace>
+        <PackageTags>ROS;RobSharper;RobSharper.Ros;ROS.Messages;</PackageTags>
     </PropertyGroup>
 
     <ItemGroup>

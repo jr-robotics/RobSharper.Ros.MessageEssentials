@@ -12,6 +12,10 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
         public string Name { get; }
         public string Version { get; }
         public bool IsMetaPackage { get; }
+        public string Description { get; }
+        public string ProjectUrl { get; }
+        public string RepositoryUrl { get; }
+        public IEnumerable<string> Authors { get; }
 
         private readonly List<string> _packageDependencies;
 
@@ -43,12 +47,18 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             }
         }
 
-        public RosPackageInfo(DirectoryInfo packageDirectory, string name, string version, IEnumerable<string> packageDependencies, bool isMetaPackage)
+        public RosPackageInfo(DirectoryInfo packageDirectory, string name, string version,
+            IEnumerable<string> packageDependencies, bool isMetaPackage, string description = null,
+            IEnumerable<string> authors = null, string projectUrl = null, string repositoryUrl = null)
         {
             PackageDirectory = packageDirectory ?? throw new ArgumentNullException(nameof(packageDirectory));
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Version = version ?? throw new ArgumentNullException(nameof(version));
             IsMetaPackage = isMetaPackage;
+            Description = description;
+            ProjectUrl = projectUrl;
+            RepositoryUrl = repositoryUrl;
+            Authors = authors ?? Enumerable.Empty<string>();
 
             _packageDependencies = new List<string>();
             
@@ -82,63 +92,27 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
 
                 try
                 {
-                    var formatVersion = PackageXmlReader.GetFormatVersion(packageXmlPath);
+                    var package = PackageXmlReader.ReadPackageXml(packageXmlPath);
+
+                    var authors = package.Maintainers
+                        .Union(package.Authors)
+                        .Distinct()
+                        .Select(x => x.ToString())
+                        .ToList();
+
+                    var projectUrl = package.Urls?.FirstOrDefault(x => x.Type == PackageUrlType.Website)?.Url;
+                    var repositoryUrl = package.Urls?.FirstOrDefault(x => x.Type == PackageUrlType.Repository)?.Url;
                     
-                    IEnumerable<string> dependentPackages;
-                    string name;
-                    string packageVersion;
-                    bool isMetaPackage;
-
-                    switch (formatVersion)
-                    {
-                        case 1:
-                            var v1Package = PackageXmlReader.ReadV1PackageXml(packageXmlPath);
-
-                            name = v1Package.name;
-                            packageVersion = v1Package.version;
-                            
-                            dependentPackages = v1Package.Items
-                                .Select(x => x.Value)
-                                .Where(x => x != null);
-                            
-                            isMetaPackage = v1Package.export?.Any != null && v1Package.export.Any.Any(x =>
-                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
-                            
-                            break;
-                        case 2:
-                            var v2Package = PackageXmlReader.ReadV2PackageXml(packageXmlPath);
-                            
-                            name = v2Package.name;
-                            packageVersion = v2Package.version;
-                            
-                            dependentPackages = v2Package.Items
-                                .Select(x => x.Value)
-                                .Where(x => x != null);
-                            
-                            isMetaPackage = v2Package.export?.Any != null && v2Package.export.Any.Any(x =>
-                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
-                            
-                            break;
-                        case 3:
-                            var v3Package = PackageXmlReader.ReadV3PackageXml(packageXmlPath);
-
-                            name = v3Package.name;
-                            packageVersion = v3Package.version;
-                            
-                            dependentPackages = v3Package.Items
-                                .Select(x => x.Value)
-                                .Where(x => x != null);
-                            
-                            isMetaPackage = v3Package.export?.Any != null && v3Package.export.Any.Any(x =>
-                                                "metapackage".Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
-                            
-                            break;
-                        default:
-                            throw new NotSupportedException();
-                    }
-                   
                     var packageDirectory = new DirectoryInfo(packageRootPath);
-                    return new RosPackageInfo(packageDirectory, name, packageVersion, dependentPackages, isMetaPackage);
+                    return new RosPackageInfo(packageDirectory,
+                        package.Name, 
+                        package.Version, 
+                        package.PackageDependencies, 
+                        package.IsMetaPackage,
+                        package.Description,
+                        authors,
+                        projectUrl,
+                        repositoryUrl);
                 }
                 catch (Exception e)
                 {
