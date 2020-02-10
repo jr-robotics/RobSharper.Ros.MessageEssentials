@@ -55,9 +55,12 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             CreateProjectFile();
             AddNugetDependencies();
             
-            CreateMessages();
-            CreateServices();
-            CreateActions();
+            if (!Package.PackageInfo.IsMetaPackage)
+            {
+                CreateMessages();
+                CreateServices();
+                CreateActions();
+            }
 
             DotNetProcess.Build(_projectFilePath);
             CopyOutput();
@@ -71,9 +74,13 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             var projectFileContent = _templateEngine.Format(TemplatePaths.ProjectFile, _data.Package);
             WriteFile(projectFilePath, projectFileContent);
 
-            // TODO: Add temp nuget directory to nuget config (_directories.NugetTempDirectory)
+            var nugetConfig = new
+            {
+                TempNugetFolder = _directories.NugetTempDirectory.FullName
+            };
+            
             var nugetConfigFilePath = _directories.TempDirectory.GetFilePath("nuget.config");
-            var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, null);
+            var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, nugetConfig);
             WriteFile(nugetConfigFilePath, nugetConfigFile);
 
             _projectFilePath = projectFilePath;
