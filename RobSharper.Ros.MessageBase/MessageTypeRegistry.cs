@@ -45,7 +45,7 @@ namespace RobSharper.Ros.MessageBase
             return messageInfo;
         }
 
-        private RosMessageTypeInfo CreateMessageTypeInfo(Type mappedType, RosMessageDescriptor messageDescriptor)
+        private IRosMessageTypeInfo CreateMessageTypeInfo(Type mappedType, RosMessageDescriptor messageDescriptor)
         {
             var dependencies = new List<IRosMessageTypeInfo>();
             foreach (var dependentField in messageDescriptor.Fields)
@@ -76,7 +76,7 @@ namespace RobSharper.Ros.MessageBase
                 dependencies.Add(dependency);
             }
 
-            return new RosMessageTypeInfo(mappedType, messageDescriptor, dependencies);
+            return new DescriptorBasedMessageTypeInfo(mappedType, messageDescriptor, dependencies);
         }
     }
 }

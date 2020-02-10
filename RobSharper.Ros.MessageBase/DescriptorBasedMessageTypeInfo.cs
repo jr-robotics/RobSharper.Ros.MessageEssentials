@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RobSharper.Ros.MessageBase
 {
-    public class RosMessageTypeInfo : IRosMessageTypeInfo
+    public class DescriptorBasedMessageTypeInfo : IRosMessageTypeInfo
     {
         private readonly RosMessageDescriptor _messageDescriptor;
         private readonly IEnumerable<IRosMessageTypeInfo> _dependencies;
@@ -39,7 +39,7 @@ namespace RobSharper.Ros.MessageBase
             }
         }
         
-        public RosMessageTypeInfo(Type mappedMessageType, RosMessageDescriptor messageDescriptor, IEnumerable<IRosMessageTypeInfo> dependencies)
+        public DescriptorBasedMessageTypeInfo(Type mappedMessageType, RosMessageDescriptor messageDescriptor, IEnumerable<IRosMessageTypeInfo> dependencies)
         {
             Type = mappedMessageType ?? throw new ArgumentNullException(nameof(mappedMessageType));
             _messageDescriptor = messageDescriptor ?? throw new ArgumentNullException(nameof(messageDescriptor));
@@ -65,7 +65,7 @@ namespace RobSharper.Ros.MessageBase
             }
         }
 
-        public void WriteHashFields(StreamWriter writer)
+        internal void WriteHashFields(StreamWriter writer)
         {
             var firstElement = true;
             
@@ -121,7 +121,7 @@ namespace RobSharper.Ros.MessageBase
             return RosType.ToString();
         }
 
-        protected bool Equals(RosMessageTypeInfo other)
+        protected bool Equals(DescriptorBasedMessageTypeInfo other)
         {
             return Equals(_messageDescriptor, other._messageDescriptor) && Equals(_dependencies, other._dependencies);
         }
@@ -131,7 +131,7 @@ namespace RobSharper.Ros.MessageBase
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((RosMessageTypeInfo) obj);
+            return Equals((DescriptorBasedMessageTypeInfo) obj);
         }
 
         public override int GetHashCode()

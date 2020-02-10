@@ -9,7 +9,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
     {
         public bool CanSerialize(IRosMessageTypeInfo typeInfo)
         {
-            return typeInfo is RosMessageTypeInfo;
+            return typeInfo is DescriptorBasedMessageTypeInfo;
         }
         
         public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o)
@@ -17,7 +17,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (o == null) throw new ArgumentNullException(nameof(o));
 
-            if (!(messageTypeInfo is RosMessageTypeInfo messageInfo))
+            if (!(messageTypeInfo is DescriptorBasedMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
             var fields = messageInfo.MessageDescriptor.Fields;
@@ -97,7 +97,7 @@ namespace RobSharper.Ros.MessageBase.Serialization
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
             
-            if (!(messageTypeInfo is RosMessageTypeInfo messageInfo))
+            if (!(messageTypeInfo is DescriptorBasedMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
             
