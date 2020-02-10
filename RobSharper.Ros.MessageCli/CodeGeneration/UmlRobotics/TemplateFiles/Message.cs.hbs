@@ -37,7 +37,7 @@ namespace {{Package.Namespace}}
         {{/if}}
     {{/if}}
     {
-        private static readonly MessageTypeInfoProvider TypeInfoProvider = new MessageTypeInfoProvider<{{TypeName}}>();
+        internal static readonly DescriptorBasedMessageTypeInfoProvider TypeInfoProvider = new DescriptorBasedMessageTypeInfoProvider<{{TypeName}}>();
 
         {{#each Constants}}
         [RosMessageField({{Index}}, "{{RosType}}", "{{RosIdentifier}}")]
@@ -51,7 +51,7 @@ namespace {{Package.Namespace}}
         
         {{/each}}
 
-        public override string MessageType => TypeInfoProvider.TypeInfo.MessageDescriptor.RosType.ToString();
+        public override string MessageType => TypeInfoProvider.TypeInfo.RosType.ToString();
 
 {{#unless MessageType.IsService}}
         public {{TypeName}}()

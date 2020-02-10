@@ -8,6 +8,8 @@ namespace RobSharper.Ros.MessageBase
     {
         private readonly IDictionary<Type, IRosMessageTypeInfo> _messageTypes = new Dictionary<Type, IRosMessageTypeInfo>();
         private readonly IDictionary<string, IRosMessageTypeInfo> _rosTypes = new Dictionary<string, IRosMessageTypeInfo>();
+        
+        public IList<IRosMessageTypeInfoFactory> RosMessageTypeInfoFactories { get; }
 
         public IRosMessageTypeInfo this[Type mappedType]
         {
@@ -19,6 +21,37 @@ namespace RobSharper.Ros.MessageBase
             get => _rosTypes[rosTypeName];
         }
 
+        public MessageTypeRegistry()
+        {
+            RosMessageTypeInfoFactories = new List<IRosMessageTypeInfoFactory>
+            {
+                new AttributedMessageTypeInfoFactory(this)
+            };
+        }
+
+        public bool IsRegistered(Type messageType)
+        {
+            return _messageTypes.ContainsKey(messageType);
+        }
+
+        public bool IsRegistered(RosType rosMessageType)
+        {
+            return IsRegistered(rosMessageType.ToString());
+        }
+        
+        public bool IsRegistered(string rosMessageType)
+        {
+            return _rosTypes.ContainsKey(rosMessageType);
+        }
+
+        public void RegisterMessageTypeInfo(IRosMessageTypeInfo messageTypeInfo)
+        {
+            if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
+            
+            _messageTypes.Add(messageTypeInfo.Type, messageTypeInfo);
+            _rosTypes.Add(messageTypeInfo.RosType.ToString(), messageTypeInfo);
+        }
+
         public IRosMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
@@ -26,57 +59,52 @@ namespace RobSharper.Ros.MessageBase
             if (_messageTypes.ContainsKey(type))
                 return _messageTypes[type];
 
+            var factoryCandidates = RosMessageTypeInfoFactories
+                .Where(f => f.CanCreate(type))
+                .ToList();
             
-            RosMessageDescriptor messageDescriptor;
-            if (AttributeBasedRosMessageDescriptorFactory.CanCreate(type))
+            if (!factoryCandidates.Any())
+                throw new NotSupportedException($"No registered factory supports {type}");
+            
+            
+            IRosMessageTypeInfo messageTypeInfo = null;
+            var exceptions = new List<Exception>();
+            
+            foreach (var typeInfoFactory in factoryCandidates)
             {
-                messageDescriptor = AttributeBasedRosMessageDescriptorFactory.Create(type);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-            
-            var messageInfo = CreateMessageTypeInfo(type, messageDescriptor);
-            
-            _messageTypes.Add(messageInfo.Type, messageInfo);
-            _rosTypes.Add(messageInfo.RosType.ToString(), messageInfo);
-            
-            return messageInfo;
-        }
-
-        private IRosMessageTypeInfo CreateMessageTypeInfo(Type mappedType, RosMessageDescriptor messageDescriptor)
-        {
-            var dependencies = new List<IRosMessageTypeInfo>();
-            foreach (var dependentField in messageDescriptor.Fields)
-            {
-                if (dependentField.RosType.IsBuiltIn)
-                    continue;
-                
-                Type mappedFieldType;
-
-                if (dependentField.RosType.IsArray)
+                try
                 {
-                    mappedFieldType = dependentField
-                        .MappedProperty
-                        .PropertyType
-                        .GetInterfaces()
-                        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                        .Select(t => t.GetGenericArguments()[0])
-                        .FirstOrDefault();
+                    messageTypeInfo = typeInfoFactory.Create(type);
+                    break;
                 }
-                else
+                catch (Exception e)
                 {
-                    mappedFieldType = dependentField
-                        .MappedProperty
-                        .PropertyType;
+                    var ex = new RosMessageTypeInfoCreationException($"Could not create message type info for type {type}",
+                        type, typeInfoFactory.GetType(), e);
+                    
+                    exceptions.Add(e);
+                }
+            }
+
+            if (messageTypeInfo == null)
+            {
+                Exception innerException = null;
+
+                if (exceptions.Count == 1)
+                {
+                    innerException = exceptions.First();
+                }
+                else if (exceptions.Count > 0)
+                {
+                    innerException = new AggregateException(exceptions);
                 }
                 
-                var dependency = GetOrCreateMessageTypeInfo(mappedFieldType);
-                dependencies.Add(dependency);
+                throw new NotSupportedException($"No registered factory supports {type}", innerException);
             }
 
-            return new DescriptorBasedMessageTypeInfo(mappedType, messageDescriptor, dependencies);
+            RegisterMessageTypeInfo(messageTypeInfo);
+
+            return messageTypeInfo;
         }
     }
 }

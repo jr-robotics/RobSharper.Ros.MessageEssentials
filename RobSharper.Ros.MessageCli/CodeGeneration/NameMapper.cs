@@ -139,6 +139,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             {
                 case DetailedRosMessageType.None:
                 case DetailedRosMessageType.Message:
+                case DetailedRosMessageType.Service:
                     return rosTypeName;
                 case DetailedRosMessageType.ActionGoal:
                     return rosTypeName + "Goal";

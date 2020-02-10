@@ -13,5 +13,6 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics
         public const string ProjectFile = "csproj.hbs";
         public const string NugetConfigFile = "nuget.config.hbs";
         public const string MessageFile = "Message.cs.hbs";
+        public const string ServiceFile = "Service.cs.hbs";
     }
 }

@@ -202,13 +202,12 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             if (_nameMapper.IsBuiltInType(rosType))
                 return;
 
-            // TODO: Write service type
+            WriteServiceInternal(rosType);
             
             WriteMessageInternal(rosType, DetailedRosMessageType.ServiceRequest, service.Request);
             WriteMessageInternal(rosType, DetailedRosMessageType.ServiceResponse, service.Response);
         }
 
-        
 
         private void CreateActions()
         {
@@ -303,6 +302,37 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
 
             WriteFile(filePath, content);
         }
+
+        private void WriteServiceInternal(RosTypeInfo serviceType)
+        {
+            var typeName = _nameMapper.GetTypeName(serviceType.TypeName, DetailedRosMessageType.Service);
+            
+            var data = new
+            {
+                Package = _data.Package,
+                ServiceType = new
+                {
+                    RosTypeName = _nameMapper.GetRosTypeName(serviceType.TypeName, DetailedRosMessageType.Service),
+                    TypeName = typeName
+                },
+                RequestType = new
+                {
+                    RosTypeName = _nameMapper.GetRosTypeName(serviceType.TypeName, DetailedRosMessageType.ServiceRequest),
+                    TypeName = _nameMapper.GetTypeName(serviceType.TypeName, DetailedRosMessageType.ServiceRequest)
+                },
+                ResponseType = new
+                {
+                    RosTypeName = _nameMapper.GetRosTypeName(serviceType.TypeName, DetailedRosMessageType.ServiceResponse),
+                    TypeName = _nameMapper.GetTypeName(serviceType.TypeName, DetailedRosMessageType.ServiceResponse)
+                }
+            };
+            
+
+            var filePath = _directories.TempDirectory.GetFilePath($"{typeName}.cs");
+            var content = _templateEngine.Format(TemplatePaths.ServiceFile, data);
+
+            WriteFile(filePath, content);
+        }
         
         private void WriteFile(string filePath, string content)
         {
@@ -313,32 +343,5 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
         }
 
         
-    }
-
-    public class DependencyNotFoundException : Exception
-    {
-        private readonly string _dependency;
-
-        public string Dependency => _dependency;
-
-        public DependencyNotFoundException() : base()
-        {
-            
-        }
-        
-        public DependencyNotFoundException(string dependency) : base()
-        {
-            _dependency = dependency;
-        }
-        
-        public DependencyNotFoundException(string dependency, string message) : base(message)
-        {
-            _dependency = dependency;
-        }
-        
-        public DependencyNotFoundException(string dependency, string message, Exception innerException) : base(message, innerException)
-        {
-            _dependency = dependency;
-        }
     }
 }

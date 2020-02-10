@@ -57,6 +57,8 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics
                     return baseName + ".Request";
                 case DetailedRosMessageType.ServiceResponse:
                     return baseName + ".Response";
+                case DetailedRosMessageType.Service:
+                    return baseName;
                 default:
                     throw new NotSupportedException($"MessageType {messageType} is not supported");
             }

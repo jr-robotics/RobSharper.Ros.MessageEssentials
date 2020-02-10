@@ -141,5 +141,41 @@ namespace RobSharper.Ros.MessageBase
                 return ((_messageDescriptor != null ? _messageDescriptor.GetHashCode() : 0) * 397) ^ (_dependencies != null ? _dependencies.GetHashCode() : 0);
             }
         }
+
+
+        public static DescriptorBasedMessageTypeInfo Create(Type mappedType,
+            RosMessageDescriptor messageDescriptor, MessageTypeRegistry registry)
+        {
+            var dependencies = new List<IRosMessageTypeInfo>();
+            foreach (var dependentField in messageDescriptor.Fields)
+            {
+                if (dependentField.RosType.IsBuiltIn)
+                    continue;
+                
+                Type mappedFieldType;
+
+                if (dependentField.RosType.IsArray)
+                {
+                    mappedFieldType = dependentField
+                        .MappedProperty
+                        .PropertyType
+                        .GetInterfaces()
+                        .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                        .Select(t => t.GetGenericArguments()[0])
+                        .FirstOrDefault();
+                }
+                else
+                {
+                    mappedFieldType = dependentField
+                        .MappedProperty
+                        .PropertyType;
+                }
+                
+                var dependency = registry.GetOrCreateMessageTypeInfo(mappedFieldType);
+                dependencies.Add(dependency);
+            }
+
+            return new DescriptorBasedMessageTypeInfo(mappedType, messageDescriptor, dependencies);
+        }
     }
 }

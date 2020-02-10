@@ -13,7 +13,7 @@ namespace RobSharper.Ros.MessageBase
         
         private string _md5Sum;
 
-        public RosType Type { get; }
+        public RosType RosType { get; }
 
         public IRosMessageTypeInfo Request => _request;
 
@@ -31,10 +31,10 @@ namespace RobSharper.Ros.MessageBase
                 return _md5Sum;
             }
         }
-        
+
         public DescriptorBasedRosServiceInfo(RosType type, DescriptorBasedMessageTypeInfo request, DescriptorBasedMessageTypeInfo response)
         {
-            Type = type ?? throw new ArgumentNullException(nameof(type));
+            RosType = type ?? throw new ArgumentNullException(nameof(type));
             _request = request ?? throw new ArgumentNullException(nameof(request));
             _response = response ?? throw new ArgumentNullException(nameof(response));
         }
