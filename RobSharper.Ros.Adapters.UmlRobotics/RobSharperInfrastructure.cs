@@ -19,6 +19,9 @@ namespace RobSharper.Ros.Adapters.UmlRobotics
                         if (_messageTypeRegistry == null)
                         {
                             _messageTypeRegistry = new MessageTypeRegistry();
+                            
+                            // Configure support for UML.Robotics.RosMessage classes
+                            _messageTypeRegistry.RosMessageTypeInfoFactories.Add(new UmlRoboticsMessageTypeInfoFactory());
                         }
                     }
                 }

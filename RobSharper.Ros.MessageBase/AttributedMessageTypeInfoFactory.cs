@@ -16,7 +16,7 @@ namespace RobSharper.Ros.MessageBase
             return AttributeBasedRosMessageDescriptorFactory.CanCreate(messageType);
         }
 
-        public DescriptorBasedMessageTypeInfo Create(Type messageType)
+        public IRosMessageTypeInfo Create(Type messageType)
         {
             var descriptor = AttributeBasedRosMessageDescriptorFactory.Create(messageType);
             var messageInfo = DescriptorBasedMessageTypeInfo.Create(messageType, descriptor, _typeRegistry);
