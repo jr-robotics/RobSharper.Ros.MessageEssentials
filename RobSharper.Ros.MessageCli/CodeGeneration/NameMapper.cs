@@ -32,7 +32,6 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
             var data = new
             {
                 Name = rosPackageName,
-                PascalName = rosPackageName.ToPascalCase()
             };
 
             return _packageNamingConvention
@@ -49,7 +48,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
         {
             if (rosTypeName == null) throw new ArgumentNullException(nameof(rosTypeName));
             
-            var typeName = rosTypeName.ToPascalCase();
+            var typeName = rosTypeName.Trim();
 
             switch (messageType)
             {

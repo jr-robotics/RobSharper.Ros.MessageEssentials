@@ -261,7 +261,7 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
                         IsValueType = x.TypeInfo.IsValueType(),
                         SupportsEqualityComparer = x.TypeInfo.SupportsEqualityComparer()
                     },
-                    Identifier = x.Identifier.ToPascalCase()
+                    Identifier = x.Identifier
                 })
                 .ToList();
 
