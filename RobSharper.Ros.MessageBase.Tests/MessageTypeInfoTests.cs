@@ -83,31 +83,5 @@ namespace RobSharper.Ros.MessageBase.Tests
             typeInfo.MessageDefinition.Should().NotBeNull();
             typeInfo.MessageDefinition.Should().Be(expectedMessageDefinition);
         }
-        
-        [Theory]
-        [InlineData(typeof(SimpleInt), SimpleInt.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(SimpleInt2), SimpleInt2.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(SimpleIntArray), SimpleIntArray.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(NestedSimpleInt), NestedSimpleInt.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(NestedSimpleIntArray), NestedSimpleIntArray.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(Empty), Empty.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(LongConstant), LongConstant.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(FloatConstant), FloatConstant.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(BoolConstant), BoolConstant.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(StringConstant), StringConstant.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(Combined), Combined.FULL_MESSAGE_DEFINITION)]
-        [InlineData(typeof(NestedNestedType), NestedNestedType.FULL_MESSAGE_DEFINITION)]
-        public void MessageTypeInfo_has_correct_full_message_definition(Type messageType, string expectedMessageDefinition)
-        {
-            expectedMessageDefinition = expectedMessageDefinition?.Replace("\r\n", "\n");
-            
-            var target = new MessageTypeRegistry();
-            var typeInfo = target.GetOrCreateMessageTypeInfo(messageType);
-
-            typeInfo.Should().NotBeNull();
-
-            typeInfo.MessageDefinition.Should().NotBeNull();
-            typeInfo.GetFullTypeDefinition().Should().Be(expectedMessageDefinition);
-        }
     }
 }

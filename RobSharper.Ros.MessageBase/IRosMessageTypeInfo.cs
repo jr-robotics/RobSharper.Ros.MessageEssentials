@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace RobSharper.Ros.MessageBase
 {
@@ -12,7 +11,5 @@ namespace RobSharper.Ros.MessageBase
         string MD5Sum { get; }
         
         string MessageDefinition { get; }
-        
-        IEnumerable<IRosMessageTypeInfo> Dependencies { get; }
     }
 }
