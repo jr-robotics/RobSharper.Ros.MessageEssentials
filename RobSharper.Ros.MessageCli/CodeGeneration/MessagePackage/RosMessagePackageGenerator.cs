@@ -32,8 +32,8 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             _directories = directories ?? throw new ArgumentNullException(nameof(directories));
             _templateEngine = templateEngine ?? throw new ArgumentNullException(nameof(templateEngine));
 
-            _nameMapper = new UmlRoboticsNameMapper(Package.PackageInfo.Name,
-                new SingleKeyTemplateFormatter(TemplatePaths.PackageName, templateEngine));
+            var namespaceTemplate = (options.RootNamespace + ".{{Name}}").TrimStart('.');
+            _nameMapper = new UmlRoboticsNameMapper(Package.PackageInfo.Name, new StaticHandlebarsTemplateFormatter(namespaceTemplate));
             
             _data = new ExpandoObject();
         }
@@ -83,11 +83,13 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration.MessagePackage
             var projectFileContent = _templateEngine.Format(TemplatePaths.ProjectFile, _data.Package);
             WriteFile(projectFilePath, projectFileContent);
 
+            
             var nugetConfig = new
             {
-                TempNugetFolder = _directories.NugetTempDirectory.FullName
+                TempNugetFolder = _directories.NugetTempDirectory.FullName,
+                NugetSources = _options.NugetFeedXmlSources
             };
-            
+
             var nugetConfigFilePath = _directories.TempDirectory.GetFilePath("nuget.config");
             var nugetConfigFile = _templateEngine.Format(TemplatePaths.NugetConfigFile, nugetConfig);
             WriteFile(nugetConfigFilePath, nugetConfigFile);

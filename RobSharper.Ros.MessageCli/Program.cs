@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using CommandLine;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using RobSharper.Ros.MessageCli.CodeGeneration;
 using RobSharper.Ros.MessageCli.CodeGeneration.TemplateEngines;
 using RobSharper.Ros.MessageCli.CodeGeneration.UmlRobotics;
+using RobSharper.Ros.MessageCli.Configuration;
 
 namespace RobSharper.Ros.MessageCli
 {
@@ -23,21 +25,35 @@ namespace RobSharper.Ros.MessageCli
             using (var serviceProvider = CreateContainer(configuration))
             {
                 LoggingHelper.Factory = serviceProvider.Resolve<ILoggerFactory>();
+
+                var commandLineParser = new Parser(settings =>
+                {
+                    settings.HelpWriter = Console.Error;
+                    settings.CaseInsensitiveEnumValues = true;
+                });
                 
-                CommandLine.Parser.Default.ParseArguments<CodeGenerationOptions, PlaceholderOptions>(args)
+                commandLineParser.ParseArguments<CodeGenerationOptions, ConfigurationOptions>(args)
                     .MapResult(
                         (CodeGenerationOptions options) =>
                         {
-                            var buildConfig = configuration.GetSection("Build");
+                            var config = configuration.GetSection("Build");
+                            var configObject = new CodeGenerationConfiguration();
+                            config.Bind(configObject);
+                            
+                            options.SetDefaultBuildAction(configObject.DefaultBuildAction);
+                            options.SetDefaultRootNamespace(configObject.RootNamespace);
+                            options.NugetFeedXmlSources = configObject.NugetFeeds?
+                                .Select(f => f.GetXmlString())
+                                .ToList() ?? Enumerable.Empty<string>();
+                            
                             var templateEngine = serviceProvider.Resolve<IKeyedTemplateFormatter>();
-                            return CodeGeneration.CodeGeneration.Execute(options, templateEngine, buildConfig);
+                            return CodeGeneration.CodeGeneration.Execute(options, templateEngine);
                         },
-                        (PlaceholderOptions options) =>
+                        (ConfigurationOptions options) =>
                         {
-                            return 1;
+                            return ConfigurationProgram.Execute(options);
                         },
-                        errs => 1
-                    );
+                        errs => 1);
             }
         }
 
@@ -54,20 +70,6 @@ namespace RobSharper.Ros.MessageCli
             var containerBuilder = new ContainerBuilder();
             
             containerBuilder.Populate(services);
-
-            
-            // Add UML Robotics dependencies
-            // Package name resolver
-            // containerBuilder.Register(context =>
-            //     {
-            //         return new UmlRosPackageNameResolver(
-            //             new SingleKeyTemplateFormatter(TemplatePaths.PackageName,
-            //                 new FileBasedHandlebarsTemplateEngine(TemplatePaths.TemplatesDirectory,
-            //                     new HandlebarsConfiguration
-            //                         {ThrowOnUnresolvedBindingExpression = true})));
-            //     })
-            //     .SingleInstance()
-            //     .As<IRosPackageNameResolver>();
 
             // Template Engine
             containerBuilder.Register(context =>
@@ -129,6 +131,7 @@ namespace RobSharper.Ros.MessageCli
                 configuration = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
+                    .AddJsonFile("config.json")
                     .Build();
             }
             catch (Exception)
@@ -139,10 +142,5 @@ namespace RobSharper.Ros.MessageCli
 
             return configuration;
         }
-    }
-
-    [Verb("placeholder0815", HelpText = "This is just a placeholder so that build must be set as argument", Hidden = true)]
-    public class PlaceholderOptions
-    {
     }
 }

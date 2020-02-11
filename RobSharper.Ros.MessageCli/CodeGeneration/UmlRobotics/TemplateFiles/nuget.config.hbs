@@ -2,13 +2,21 @@
 <configuration>
     <packageSources>
         <!-- LINUX DEV TEMP -->
+        <!--
         <add key="RobSharperMessageBaseBuildFolderBrgLinux" value="/home/brg/dev/ros-message-parser-cli/RobSharper.Ros.MessageBase/bin/Debug" />
         <add key="RobSharperRosUmlAdapterBuildFolderBrgLinux" value="/home/brg/dev/ros-message-parser-cli/RobSharper.Ros.Adapters.UmlRobotics/bin/Debug" />
+        -->
         <!-- WINDOWS DEV TEMP -->
         <add key="RobSharperMessageBaseBuildFolderBrgWindows" value="D:\BRG\DEV\RosMessageParserCli\RobSharper.Ros.MessageBase\bin\Debug" />
         <add key="RobSharperRosUmlAdapterBuildFolderBrgWindows" value="D:\BRG\DEV\RosMessageParserCli\RobSharper.Ros.Adapters.UmlRobotics\bin\Debug" />
+        <add key="StdMsgs_BRG" value="D:\BRG\DEV\RosMessageParserCli\RobSharper.Ros.MessageCli\bin\Debug\netcoreapp2.1\generated-output\std_msgs" />
         
         <add key="RobSharper Temp" value="{{TempNugetFolder}}" />
+        
+        {{#each NugetSources}}
+        {{{this}}}
+        {{/each}}
+        
         <add key="ROB Baget" value="http://robv005:33333/v3/index.json" protocolVersion="3" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
     </packageSources>

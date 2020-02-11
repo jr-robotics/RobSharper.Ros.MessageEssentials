@@ -6,14 +6,8 @@ namespace RobSharper.Ros.MessageCli.CodeGeneration
 {
     public static partial class CodeGeneration
     {
-        public static int Execute(CodeGenerationOptions options, IKeyedTemplateFormatter templateEngine,
-            IConfigurationSection configSection)
+        public static int Execute(CodeGenerationOptions options, IKeyedTemplateFormatter templateEngine)
         {
-            var configuration = new BuildConfiguration();
-            configSection.Bind(configuration);
-
-            options.SetDefaultBuildAction(configuration);
-            
             var context = CodeGenerationContext.Create(options.PackagePath);
 
             using (var directories = new CodeGenerationDirectoryContext(options.OutputPath, options.PreserveGeneratedCode))

@@ -1,0 +1,14 @@
+{
+  "Build": {
+    "DefaultBuildAction": "nupkg",
+    "RootNamespace": "Uml.Robotics.Ros.Messages",
+    "UseDefaultNugetConfiguration": true,
+    "NugetFeeds": [
+      {
+        "Name": "nuget.org",
+        "Source": "https://api.nuget.org/v3/index.json",
+        "ProtocolVersion": 3
+      }
+    ]
+  }
+}
