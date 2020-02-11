@@ -48,7 +48,7 @@ namespace RobSharper.Ros.MessageCli.Configuration
 
         public ConfigurationElements ConfigurationElement { get; set; }
 
-        [Value(2, MetaName = "Command", HelpText = "show | set | add | remove", Required = false)]
+        [Value(2, MetaName = "Command", HelpText = "show (default) | set | add | remove", Required = false)]
         public string CommandString
         {
             get => _commandString;

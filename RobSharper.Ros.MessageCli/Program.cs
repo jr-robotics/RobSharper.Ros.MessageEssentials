@@ -129,7 +129,6 @@ namespace RobSharper.Ros.MessageCli
             try
             {
                 configuration = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
                     .AddJsonFile("appsettings.json")
                     .AddJsonFile("config.json")
                     .Build();
