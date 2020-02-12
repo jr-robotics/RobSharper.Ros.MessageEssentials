@@ -6,9 +6,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageCli.T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2FE53127-F29D-46B9-9BB3-CB438E2FCFBE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase", "RobSharper.Ros.MessageBase\RobSharper.Ros.MessageBase.csproj", "{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageEssentials", "RobSharper.Ros.MessageEssentials\RobSharper.Ros.MessageEssentials.csproj", "{7BEB82E4-21FA-4EED-AF69-2D50ACA5BB96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageBase.Tests", "RobSharper.Ros.MessageBase.Tests\RobSharper.Ros.MessageBase.Tests.csproj", "{31C92EEC-17B2-460A-8D90-B85D6D77F694}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.MessageEssentials.Tests", "RobSharper.Ros.MessageEssentials.Tests\RobSharper.Ros.MessageEssentials.Tests.csproj", "{31C92EEC-17B2-460A-8D90-B85D6D77F694}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobSharper.Ros.Adapters.UmlRobotics", "RobSharper.Ros.Adapters.UmlRobotics\RobSharper.Ros.Adapters.UmlRobotics.csproj", "{FF49158E-293C-4FD6-87A1-26EDBF5B9C35}"
 EndProject

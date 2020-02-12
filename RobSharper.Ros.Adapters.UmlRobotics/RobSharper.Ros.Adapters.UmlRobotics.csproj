@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RobSharper.Ros.MessageBase\RobSharper.Ros.MessageBase.csproj" />
+      <PackageReference Include="Uml.Robotics.Ros.MessageBase" Version="1.0.7" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Uml.Robotics.Ros.MessageBase" Version="1.0.7" />
+      <ProjectReference Include="..\RobSharper.Ros.MessageEssentials\RobSharper.Ros.MessageEssentials.csproj" />
     </ItemGroup>
 
 </Project>

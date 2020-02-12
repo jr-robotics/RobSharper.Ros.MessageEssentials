@@ -1,6 +1,6 @@
 using System;
-using RobSharper.Ros.MessageBase;
-using RobSharper.Ros.MessageBase.Serialization;
+using RobSharper.Ros.MessageEssentials;
+using RobSharper.Ros.MessageEssentials.Serialization;
 using Uml.Robotics.Ros;
 
 namespace RobSharper.Ros.Adapters.UmlRobotics

@@ -1,5 +1,5 @@
 using System;
-using RobSharper.Ros.MessageBase;
+using RobSharper.Ros.MessageEssentials;
 using Uml.Robotics.Ros;
 
 namespace RobSharper.Ros.Adapters.UmlRobotics
