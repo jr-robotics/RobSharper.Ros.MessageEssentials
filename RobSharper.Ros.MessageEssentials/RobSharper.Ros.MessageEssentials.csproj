@@ -5,7 +5,13 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>Guido Breitenhuber</Authors>
         <Copyright>JOANNEUM RESEARCH Forschungsgesellschaft mbH</Copyright>
-        <PackageVersion>1.0.9</PackageVersion>
+        <PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+        <Description>
+            RobSharper.Ros.MessageEssentials contains 
+            Attribute definitions for ROS Message/Service/Action POCOs,
+            Formatters for serializing ROS messages,
+            Helpers for retrieving ROS message MD5 hashes and ROS message definitions.
+        </Description>
         <PackageTags>ROS;RobSharper;RobSharper.Ros;ROS.Messages;</PackageTags>
     </PropertyGroup>
 
