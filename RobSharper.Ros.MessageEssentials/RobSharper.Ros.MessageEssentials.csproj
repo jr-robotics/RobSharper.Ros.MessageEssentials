@@ -13,6 +13,7 @@
             Helpers for retrieving ROS message MD5 hashes and ROS message definitions.
         </Description>
         <PackageTags>ROS;RobSharper;RobSharper.Ros;ROS.Messages;</PackageTags>
+        <NoWarn>3021</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>

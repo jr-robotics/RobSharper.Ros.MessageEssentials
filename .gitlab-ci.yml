@@ -22,7 +22,7 @@ test MessageEssentials:
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
     paths:
-      - 'RobSharper.Ros.MessageEssentials.Tests/overage'
+      - 'RobSharper.Ros.MessageEssentials.Tests/coverage'
       - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
     reports:
       junit: 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
