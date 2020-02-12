@@ -11,6 +11,8 @@
             Formatters for serializing ROS messages,
             Helpers for retrieving ROS message MD5 hashes and ROS message definitions.
         </Description>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://robotics-git.joanneum.at/RobSharper/ROS/RobSharper.Ros.MessageEssentials.git</RepositoryUrl>
         <PackageTags>ROS;RobSharper;RobSharper.Ros;ROS.Messages;</PackageTags>
         <NoWarn>3021</NoWarn>
     </PropertyGroup>
