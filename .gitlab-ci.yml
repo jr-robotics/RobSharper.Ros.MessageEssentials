@@ -1,4 +1,4 @@
-image: mcr.microsoft.com/dotnet/core/sdk:2.1
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
 
 stages:
   - build
@@ -42,7 +42,7 @@ nuget-pack:
     - 'export X_CI_VERSION=$(git describe | cut -c 2-)'
     - 'echo Publishing version $X_CI_VERSION'
     - 'cd RobSharper.Ros.MessageEssentials'
-    - 'dotnet pack -c Release -o ../nuget/ /p:Version=$X_CI_VERSION'
+    - 'dotnet pack -c Release -o ../nuget/ --include-symbols --include-source /p:Version=$X_CI_VERSION'
   artifacts:
     paths:
       - 'nuget'
