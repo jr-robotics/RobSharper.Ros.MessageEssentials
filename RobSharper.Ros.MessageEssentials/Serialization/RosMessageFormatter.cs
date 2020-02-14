@@ -24,15 +24,15 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             
             foreach (var field in fields)
             {
-                var value = field.MappedProperty.GetValue(o);
+                var value = field.GetValue(o);
                 
                 if (field.RosType.IsArray)
                 {
-                    SerializeArray(context, writer, field.RosType, field.MappedProperty.PropertyType, value);
+                    SerializeArray(context, writer, field.RosType, field.Type, value);
                 }
                 else
                 {
-                    SerializeValue(context, writer, field.RosType, field.MappedProperty.PropertyType, value);
+                    SerializeValue(context, writer, field.RosType, field.Type, value);
                 }
             }
         }
@@ -110,14 +110,14 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 object fieldValue;
                 if (field.RosType.IsArray)
                 {
-                    fieldValue = DeserializeArray(context, reader, field.RosType, field.MappedProperty.PropertyType);
+                    fieldValue = DeserializeArray(context, reader, field.RosType, field.Type);
                 }
                 else
                 {
-                    fieldValue = DeserializeValue(context, reader, field.RosType, field.MappedProperty.PropertyType);
+                    fieldValue = DeserializeValue(context, reader, field.RosType, field.Type);
                 }
 
-                field.MappedProperty.SetValue(result, fieldValue);
+                field.SetValue(result, fieldValue);
             }
 
             return result;

@@ -60,6 +60,14 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                     A = 15,
                     B = 44
                 }
+            },
+            
+            new object[]
+            {
+                new SimpleIntField()
+                {
+                    A = 555
+                }
             }
             
             // Null is not supported. Should this be the case?

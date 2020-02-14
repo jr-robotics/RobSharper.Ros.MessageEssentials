@@ -157,8 +157,7 @@ namespace RobSharper.Ros.MessageEssentials
                 if (dependentField.RosType.IsArray)
                 {
                     mappedFieldType = dependentField
-                        .MappedProperty
-                        .PropertyType
+                        .Type
                         .GetInterfaces()
                         .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                         .Select(t => t.GetGenericArguments()[0])
@@ -166,9 +165,7 @@ namespace RobSharper.Ros.MessageEssentials
                 }
                 else
                 {
-                    mappedFieldType = dependentField
-                        .MappedProperty
-                        .PropertyType;
+                    mappedFieldType = dependentField.Type;
                 }
                 
                 var dependency = registry.GetOrCreateMessageTypeInfo(mappedFieldType);

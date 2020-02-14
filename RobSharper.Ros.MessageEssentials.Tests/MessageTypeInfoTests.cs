@@ -11,9 +11,11 @@ namespace RobSharper.Ros.MessageEssentials.Tests
     {
         [Theory]
         [InlineData(typeof(SimpleInt), SimpleInt.ROS_MD5)]
+        [InlineData(typeof(SimpleIntField), SimpleIntField.ROS_MD5)]
         [InlineData(typeof(SimpleInt2), SimpleInt2.ROS_MD5)]
         [InlineData(typeof(SimpleIntArray), SimpleIntArray.ROS_MD5)]
         [InlineData(typeof(NestedSimpleInt), NestedSimpleInt.ROS_MD5)]
+        [InlineData(typeof(NestedSimpleIntField), NestedSimpleIntField.ROS_MD5)]
         [InlineData(typeof(NestedSimpleIntArray), NestedSimpleIntArray.ROS_MD5)]
         [InlineData(typeof(Empty), Empty.ROS_MD5)]
         [InlineData(typeof(LongConstant), LongConstant.ROS_MD5)]
@@ -60,9 +62,11 @@ namespace RobSharper.Ros.MessageEssentials.Tests
 
         [Theory]
         [InlineData(typeof(SimpleInt), SimpleInt.MESSAGE_DEFINITION)]
+        [InlineData(typeof(SimpleIntField), SimpleIntField.MESSAGE_DEFINITION)]
         [InlineData(typeof(SimpleInt2), SimpleInt2.MESSAGE_DEFINITION)]
         [InlineData(typeof(SimpleIntArray), SimpleIntArray.MESSAGE_DEFINITION)]
         [InlineData(typeof(NestedSimpleInt), NestedSimpleInt.MESSAGE_DEFINITION)]
+        [InlineData(typeof(NestedSimpleIntField), NestedSimpleIntField.MESSAGE_DEFINITION)]
         [InlineData(typeof(NestedSimpleIntArray), NestedSimpleIntArray.MESSAGE_DEFINITION)]
         [InlineData(typeof(Empty), Empty.MESSAGE_DEFINITION)]
         [InlineData(typeof(LongConstant), LongConstant.MESSAGE_DEFINITION)]
