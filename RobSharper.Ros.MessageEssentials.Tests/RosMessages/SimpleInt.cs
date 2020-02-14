@@ -18,6 +18,21 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         public int A { get; set; }
     }
     
+    [RosMessage("test_msgs/SimpleIntField")]
+    public class SimpleIntField
+    {
+        // Result of "rosmsg md5"
+        public const string ROS_MD5 = "5c9fb1a886e81e3162a5c87bf55c072b";
+
+        // Result of "rosmsg show"
+        public const string FULL_MESSAGE_DEFINITION = "int32 a";
+
+        // Result of "rosmsg show"
+        public const string MESSAGE_DEFINITION = "int32 a";
+
+        [RosMessageField(1, "int32", "a")] public int A;
+    }
+    
     [RosMessage("test_msgs/SimpleInt2")]
     public class SimpleInt2
     {
@@ -67,6 +82,25 @@ int32 a";
 
         [RosMessageField(1, "test_msgs/SimpleInt", "a")]
         public SimpleInt A { get; set; } = new SimpleInt();
+    }
+    
+    [RosMessage("test_msgs/NestedSimpleIntField")]
+    public class NestedSimpleIntField
+    {
+        // Result of "rosmsg md5"
+        public const string ROS_MD5 = "175e714d79cfd44e31c6b462f722c1e5";
+
+        public const string MESSAGE_DEFINITION = @"test_msgs/SimpleIntField a";
+
+        // DEVIATED Result of "gendeps --cat"
+        // gendeps uses no package name vor intra package types and header type
+        public const string FULL_MESSAGE_DEFINITION = @"test_msgs/SimpleIntField a
+================================================================================
+MSG: test_msgs/SimpleIntField
+int32 a";
+
+        [RosMessageField(1, "test_msgs/SimpleIntField", "a")]
+        public SimpleIntField A = new SimpleIntField();
     }
 
     [RosMessage("test_msgs/NestedSimpleIntArray")]

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace RobSharper.Ros.MessageEssentials.Tests
 {
-    public class SerializationSpikes
+    public class RosBinarySerializationTests
     {
         [Fact]
         public void CanWriteAndReadInt()

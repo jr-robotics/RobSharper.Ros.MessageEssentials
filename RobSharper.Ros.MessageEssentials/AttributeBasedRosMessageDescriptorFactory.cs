@@ -28,25 +28,37 @@ namespace RobSharper.Ros.MessageEssentials
             var rosType = RosType.Parse(messageTypeAttribute.RosType);
             descriptorBuilder.SetRosType(rosType);
             
-            // Get Fields
+            // Get Fields from properties
             foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                var rosFieldAttribute = property.GetCustomAttributes(false)
-                    .OfType<RosMessageFieldAttribute>()
-                    .FirstOrDefault();
+                var rosFieldAttribute = GetRosMessageFieldAttribute(property);
                 
                 if (rosFieldAttribute == null)
                     continue;
 
-                var rosFieldType = RosType.Parse(rosFieldAttribute.RosType);
+                var rosFieldType = GetRosFieldType(rosFieldAttribute.RosType, rosType.PackageName);
+                var rosIdentifier = rosFieldAttribute.RosIdentifier ?? property.Name;
+
+                var fieldDescriptor = new PropertyRosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType,
+                    rosIdentifier, property);
                 
-                // Add package definition for intra package type refs
-                if (!rosFieldType.IsFullQualified)
-                {
-                    rosFieldType = rosFieldType.ToFullQualifiedType(rosType.PackageName);
-                }
+                descriptorBuilder.Add(fieldDescriptor);
+            }
+            
+            // Get Fields from fields
+            foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var rosFieldAttribute = GetRosMessageFieldAttribute(field);
                 
-                var fieldDescriptor = new RosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType, rosFieldAttribute.RosIdentifier, property);
+                if (rosFieldAttribute == null)
+                    continue;
+
+                var rosFieldType = GetRosFieldType(rosFieldAttribute.RosType, rosType.PackageName);
+                var rosIdentifier = rosFieldAttribute.RosIdentifier ?? field.Name;
+
+                var fieldDescriptor = new FieldRosMessageFieldDescriptor(rosFieldAttribute.Index, rosFieldType,
+                    rosIdentifier, field);
+                
                 descriptorBuilder.Add(fieldDescriptor);
             }
 
@@ -70,6 +82,27 @@ namespace RobSharper.Ros.MessageEssentials
             
             
             return descriptorBuilder.Build();
+        }
+
+        private static RosType GetRosFieldType(string rosType, string fallbackPackage)
+        {
+            var rosFieldType = RosType.Parse(rosType);
+
+            // Add package definition for intra package type refs
+            if (!rosFieldType.IsFullQualified)
+            {
+                rosFieldType = rosFieldType.ToFullQualifiedType(fallbackPackage);
+            }
+
+            return rosFieldType;
+        }
+
+        private static RosMessageFieldAttribute GetRosMessageFieldAttribute(MemberInfo member)
+        {
+            var rosFieldAttribute = member.GetCustomAttributes(false)
+                .OfType<RosMessageFieldAttribute>()
+                .FirstOrDefault();
+            return rosFieldAttribute;
         }
 
         private static IEnumerable<FieldInfo> GetConstants(Type type)
