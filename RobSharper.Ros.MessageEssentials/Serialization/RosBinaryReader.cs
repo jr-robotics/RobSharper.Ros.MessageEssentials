@@ -103,11 +103,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 },
 
                 {
-                    typeof(short),
+                    typeof(sbyte),
                     reader => reader.ReadByte()
                 },
                 {
-                    typeof(sbyte),
+                    typeof(short),
                     reader => reader.ReadInt16()
                 },
                 {
