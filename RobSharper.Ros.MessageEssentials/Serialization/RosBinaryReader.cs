@@ -152,11 +152,16 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 }
             };
 
-        private (uint, uint) ReadRosTime()
+        private DateTime ReadRosTime()
         {
             var secs = base.ReadUInt32();
             var nsecs = base.ReadUInt32();
-            return (secs, nsecs);
+            
+            var dateTime = new DateTime();
+            dateTime = dateTime.AddSeconds(secs);
+            dateTime = dateTime.AddMilliseconds(nsecs / 1000000.0);
+            
+            return dateTime;
         }
 
         public object ReadBuiltInType(Type type)
