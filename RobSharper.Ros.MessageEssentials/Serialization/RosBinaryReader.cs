@@ -145,8 +145,37 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     typeof(string),
                     reader => reader.ReadString()
+                },
+                {
+                    typeof(DateTime),
+                    reader => reader.ReadRosTime()
+                },
+                {
+                    typeof(TimeSpan),
+                    reader => reader.ReadRosDuration()
                 }
             };
+
+        private DateTime ReadRosTime()
+        {
+            var secs = base.ReadUInt32();
+            var nsecs = base.ReadUInt32();
+            
+            var dateTime = new DateTime(1970,1,1,0,0,0,0,System.DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(secs);
+            dateTime = dateTime.AddMilliseconds(nsecs / 1000000.0);
+            
+            return dateTime;
+        }
+
+        private TimeSpan ReadRosDuration()
+        {
+            var secs = base.ReadInt32();
+            var nsecs = base.ReadInt32();
+            
+            var timeSpan = new TimeSpan(0,0,0,secs, nsecs / 1000000);
+            return timeSpan;
+        }
 
         public object ReadBuiltInType(Type type)
         {
