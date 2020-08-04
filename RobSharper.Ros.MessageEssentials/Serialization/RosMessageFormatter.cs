@@ -149,14 +149,13 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType, Type arrayType)
         {
-            var length = reader.ReadInt32();
-
-            if (rosType.IsFixedSizeArray && rosType.ArraySize != length)
-            {
-                throw new InvalidOperationException(
-                    $"Expected array size of {rosType.ArraySize} but found array size of {length}.");
-            }
+            int length;
             
+            if (rosType.IsFixedSizeArray)
+                length = rosType.ArraySize;
+            else
+                length = reader.ReadInt32();
+
             var elementType = arrayType
                 .GetInterfaces()
                 .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
