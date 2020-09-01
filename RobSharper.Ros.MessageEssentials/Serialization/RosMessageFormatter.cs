@@ -11,8 +11,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             return typeInfo is DescriptorBasedMessageTypeInfo;
         }
-        
-        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o)
+
+        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo,
+            object o)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (o == null) throw new ArgumentNullException(nameof(o));
@@ -21,11 +22,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 throw new NotSupportedException();
 
             var fields = messageInfo.MessageDescriptor.Fields;
-            
+
             foreach (var field in fields)
             {
                 var value = field.GetValue(o);
-                
+
                 if (field.RosType.IsArray)
                 {
                     SerializeArray(context, writer, field.RosType, field.Type, value);
@@ -48,7 +49,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             {
                 var typeInfo = context.MessageTypeRegistry.GetOrCreateMessageTypeInfo(type);
                 IRosMessageFormatter formatter = this;
-                
+
                 // If this serializer cannot serialize the object search for serializer who can do it
                 if (!CanSerialize(typeInfo))
                 {
@@ -66,45 +67,49 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             object value)
         {
             var collection = value as ICollection;
-            
+
             var elementCount = collection?.Count ?? 0;
 
-            if (rosType.IsFixedSizeArray && rosType.ArraySize != elementCount)
+            if (rosType.IsFixedSizeArray)
             {
-                throw new InvalidOperationException(
-                    $"Expected array size of {rosType.ArraySize} but found array size of {elementCount}.");
+                if (rosType.ArraySize != elementCount)
+                    throw new InvalidOperationException(
+                        $"Expected array size of {rosType.ArraySize} but found array size of {elementCount}.");
             }
-
-            writer.Write(elementCount);
+            else
+            {
+                writer.Write(elementCount);    
+            }
             
             if (elementCount == 0)
                 return;
-            
+
             type = type
                 .GetInterfaces()
                 .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
                 .Select(t => t.GetGenericArguments()[0])
                 .FirstOrDefault();
-            
+
             foreach (var item in collection)
             {
                 SerializeValue(context, writer, rosType, type, item);
             }
         }
 
-        public object Deserialize(SerializationContext context, RosBinaryReader reader, IRosMessageTypeInfo messageTypeInfo)
+        public object Deserialize(SerializationContext context, RosBinaryReader reader,
+            IRosMessageTypeInfo messageTypeInfo)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
-            
+
             if (!(messageTypeInfo is DescriptorBasedMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
-            
+
             var result = Activator.CreateInstance(messageInfo.Type);
-            
+
             var fields = messageInfo.MessageDescriptor.Fields;
-            
+
             foreach (var field in fields)
             {
                 object fieldValue;
@@ -123,7 +128,8 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             return result;
         }
 
-        private object DeserializeValue(SerializationContext context, RosBinaryReader reader, RosType rosType, Type type)
+        private object DeserializeValue(SerializationContext context, RosBinaryReader reader, RosType rosType,
+            Type type)
         {
             if (rosType.IsBuiltIn)
             {
@@ -133,7 +139,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             {
                 var typeInfo = context.MessageTypeRegistry.GetOrCreateMessageTypeInfo(type);
                 IRosMessageFormatter formatter = this;
-                
+
                 // If this serializer cannot serialize the object search for serializer who can do it
                 if (!CanSerialize(typeInfo))
                 {
@@ -147,10 +153,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
         }
 
-        private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType, Type arrayType)
+        private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType,
+            Type arrayType)
         {
             int length;
-            
+
             if (rosType.IsFixedSizeArray)
                 length = rosType.ArraySize;
             else
@@ -164,10 +171,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             var listType = typeof(List<>)
                 .MakeGenericType(elementType);
-            
+
             if (!arrayType.IsAssignableFrom(listType))
                 throw new InvalidOperationException($"Cannot assign {listType} to type {arrayType}");
-            
+
             var result = (IList) Activator.CreateInstance(listType);
 
             for (var i = 0; i < length; i++)
