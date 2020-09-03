@@ -35,11 +35,11 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 var writer = new RosBinaryWriter(s);
                 var reader = new RosBinaryReader(s);
 
-                writer.Write("ASDF");
+                writer.Write("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxASDF");
 
                 s.Position = 0;
 
-                reader.ReadString().Should().Be("ASDF");
+                reader.ReadString().Should().Be("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxASDF");
             }
         }
     }
