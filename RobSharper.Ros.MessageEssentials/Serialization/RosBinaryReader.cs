@@ -8,10 +8,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
     public class RosBinaryReader : BinaryReader
     {
         private LittleEndianStream _stream;
-        
+
         private int _stringLengthIndex = -1;
         private byte[] _stringLength;
-        
+
 
         public RosBinaryReader(Stream input) : base(new LittleEndianStream(input), Encoding.ASCII, true)
         {
@@ -20,11 +20,13 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override byte ReadByte()
         {
-            if (_stringLengthIndex >= 0)
+            if (_stringLengthIndex >= 0 && _stringLengthIndex < 5)
             {
-                return _stringLength[_stringLengthIndex];
+                var length = _stringLength[_stringLengthIndex];
+                _stringLengthIndex++;
+                return length;
             }
-            
+
             return base.ReadByte();
         }
 
@@ -65,7 +67,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     _stringLengthIndex = 0;
                     _stringLength = Get7BitEncodedInt(ReadInt32());
-                    
+
                     return base.ReadString();
                 }
                 finally
@@ -79,10 +81,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             var res = new byte[5];
             var index = 0;
-            
+
             // Write out an int 7 bits at a time.  The high bit of the byte,
             // when on, tells reader to continue reading more bytes.
-            uint v = (uint)value;   // support negative numbers
+            uint v = (uint) value; // support negative numbers
             while (v >= 0x80)
             {
                 res[index++] = (byte) (v | 0x80);
@@ -93,7 +95,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             return res;
         }
-        
+
         private static readonly Dictionary<Type, Func<RosBinaryReader, object>> Serializers =
             new Dictionary<Type, Func<RosBinaryReader, object>>
             {
@@ -160,11 +162,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             var secs = base.ReadUInt32();
             var nsecs = base.ReadUInt32();
-            
-            var dateTime = new DateTime(1970,1,1,0,0,0,0,System.DateTimeKind.Utc);
+
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dateTime = dateTime.AddSeconds(secs);
             dateTime = dateTime.AddMilliseconds(nsecs / 1000000.0);
-            
+
             return dateTime;
         }
 
@@ -172,8 +174,8 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
-            
-            var timeSpan = new TimeSpan(0,0,0,secs, nsecs / 1000000);
+
+            var timeSpan = new TimeSpan(0, 0, 0, secs, nsecs / 1000000);
             return timeSpan;
         }
 
