@@ -160,8 +160,8 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         private DateTime ReadRosTime()
         {
-            var secs = base.ReadUInt32();
-            var nsecs = base.ReadUInt32();
+            var secs = base.ReadInt32();
+            var nsecs = base.ReadInt32();
 
             var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dateTime = dateTime.AddSeconds(secs);

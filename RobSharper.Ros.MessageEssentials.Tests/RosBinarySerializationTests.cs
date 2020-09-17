@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using FluentAssertions;
 using RobSharper.Ros.MessageEssentials.Serialization;
@@ -40,6 +41,46 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 s.Position = 0;
 
                 reader.ReadString().Should().Be("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxASDF");
+            }
+        }
+
+        [Fact]
+        public void CanWriteAndReadDateTime()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                var writtenTime = DateTime.Now;
+                
+                // Writing should convert to UTC.
+                writer.WriteBuiltInType(typeof(DateTime), writtenTime);
+                
+                // Read back what we wrote.
+                s.Position = 0;
+                var readTime = (DateTime)reader.ReadBuiltInType(typeof(DateTime));
+                
+                // Expected behaviour is that time in ROS-Messages is UTC.
+                // Max difference is 0.001 since only milliseconds are preserved and ROS uses nanoseconds.
+                Assert.Equal(writtenTime.ToUniversalTime(), readTime, TimeSpan.FromSeconds(0.001));
+            }
+        }
+        
+        [Fact]
+        public void CanWriteAndReadTimeSpan()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                var writtenTimeSpan = TimeSpan.FromSeconds(123456789.123);
+                
+                writer.WriteBuiltInType(typeof(TimeSpan), writtenTimeSpan);
+                
+                s.Position = 0;
+                var readTime = (TimeSpan)reader.ReadBuiltInType(typeof(TimeSpan));
+                
+                Assert.Equal(writtenTimeSpan, readTime);
             }
         }
     }

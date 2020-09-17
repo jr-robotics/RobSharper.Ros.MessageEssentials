@@ -18,7 +18,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         public override void Write(string value)
         {
             Write(value.Length);
-            
+
             using (_stream.UseMode(LittleEndianStream.WriteModes.DoNotConvert))
             {
                 try
@@ -39,7 +39,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             // we do not want this to happen.
             if (_writesString)
                 return;
-            
+
             base.Write(value);
         }
 
@@ -62,7 +62,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         public override void Write(char[] chars)
         {
             CheckChars(chars, 0, chars.Length);
-            
+
             using (_stream.DoNotConvert())
             {
                 base.Write(chars);
@@ -72,7 +72,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         public override void Write(char[] chars, int index, int count)
         {
             CheckChars(chars, index, count);
-            
+
             using (_stream.DoNotConvert())
             {
                 base.Write(chars, index, count);
@@ -81,8 +81,8 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(char ch)
         {
-            CheckChars(new []{ch}, 0, 1);
-            
+            CheckChars(new[] {ch}, 0, 1);
+
             base.Write(ch);
         }
 
@@ -142,9 +142,35 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     typeof(string),
                     (writer, value) => writer.Write((string) value)
+                },
+                {
+                    typeof(DateTime),
+                    (writer, value) => WriteRosTime(writer, (DateTime) value)
+                },
+                {
+                    typeof(TimeSpan),
+                    (writer, value) => WriteRosDuration(writer, (TimeSpan) value)
                 }
             };
-        
+
+        private static void WriteRosTime(RosBinaryWriter writer, DateTime value)
+        {
+            var utcValue = value.ToUniversalTime();
+            var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            var seconds = (utcValue - epochBegin).TotalSeconds;
+            var nanoseconds = utcValue.Millisecond * 1000000.0;
+            writer.Write((int) seconds);
+            writer.Write((int) nanoseconds);
+        }
+
+        private static void WriteRosDuration(RosBinaryWriter writer, TimeSpan timeSpan)
+        {
+            var seconds = (int) timeSpan.TotalSeconds;
+            var nanoseconds = timeSpan.Milliseconds * 1000000;
+            writer.Write((int) seconds);
+            writer.Write((int) nanoseconds);
+        }
+
         public void WriteBuiltInType(Type type, object value)
         {
             var writeAction = Serializers[type];
