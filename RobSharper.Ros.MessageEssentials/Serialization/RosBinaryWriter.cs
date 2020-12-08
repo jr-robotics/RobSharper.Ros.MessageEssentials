@@ -91,6 +91,45 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             throw new NotSupportedException("Decimals are not supported by ROS");
         }
 
+        public void Write(DateTime time)
+        {
+            var utcValue = time.ToUniversalTime();
+            var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            var seconds = (utcValue - epochBegin).TotalSeconds;
+            var nanoseconds = utcValue.Millisecond * 1000000.0;
+            
+            Write((int) seconds);
+            Write((int) nanoseconds);
+        }
+        
+        public void Write(TimeSpan timeSpan)
+        {
+            var seconds = (int) timeSpan.TotalSeconds;
+            var nanoseconds = timeSpan.Milliseconds * 1000000;
+            
+            Write((int) seconds);
+            Write((int) nanoseconds);
+        }
+
+        public void WriteBuiltInType(Type type, object value)
+        {
+            var writeAction = Serializers[type];
+            writeAction(this, value);
+        }
+
+        /// <summary>
+        /// All characters must be 1 byte ascii chars
+        /// </summary>
+        /// <param name="chars"></param>
+        /// <param name="index"></param>
+        /// <param name="count"></param>
+        /// <exception cref="NotSupportedException"></exception>
+        private void CheckChars(char[] chars, int index, int count)
+        {
+            if (Encoding.ASCII.GetByteCount(chars, index, count) > count - index)
+                throw new NotSupportedException("Only ASCII characters are allowed");
+        }
+
         private static readonly Dictionary<Type, Action<RosBinaryWriter, object>> Serializers =
             new Dictionary<Type, Action<RosBinaryWriter, object>>
             {
@@ -145,49 +184,12 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 },
                 {
                     typeof(DateTime),
-                    (writer, value) => WriteRosTime(writer, (DateTime) value)
+                    (writer, value) => writer.Write((DateTime) value)
                 },
                 {
                     typeof(TimeSpan),
-                    (writer, value) => WriteRosDuration(writer, (TimeSpan) value)
+                    (writer, value) => writer.Write((TimeSpan) value)
                 }
             };
-
-        private static void WriteRosTime(RosBinaryWriter writer, DateTime value)
-        {
-            var utcValue = value.ToUniversalTime();
-            var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            var seconds = (utcValue - epochBegin).TotalSeconds;
-            var nanoseconds = utcValue.Millisecond * 1000000.0;
-            writer.Write((int) seconds);
-            writer.Write((int) nanoseconds);
-        }
-
-        private static void WriteRosDuration(RosBinaryWriter writer, TimeSpan timeSpan)
-        {
-            var seconds = (int) timeSpan.TotalSeconds;
-            var nanoseconds = timeSpan.Milliseconds * 1000000;
-            writer.Write((int) seconds);
-            writer.Write((int) nanoseconds);
-        }
-
-        public void WriteBuiltInType(Type type, object value)
-        {
-            var writeAction = Serializers[type];
-            writeAction(this, value);
-        }
-
-        /// <summary>
-        /// All characters must be 1 byte ascii chars
-        /// </summary>
-        /// <param name="chars"></param>
-        /// <param name="index"></param>
-        /// <param name="count"></param>
-        /// <exception cref="NotSupportedException"></exception>
-        private void CheckChars(char[] chars, int index, int count)
-        {
-            if (Encoding.ASCII.GetByteCount(chars, index, count) > count - index)
-                throw new NotSupportedException("Only ASCII characters are allowed");
-        }
     }
 }

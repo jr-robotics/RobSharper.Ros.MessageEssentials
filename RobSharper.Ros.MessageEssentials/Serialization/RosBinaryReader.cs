@@ -7,7 +7,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 {
     public class RosBinaryReader : BinaryReader
     {
-        private LittleEndianStream _stream;
+        private readonly LittleEndianStream _stream;
 
         private int _stringLengthIndex = -1;
         private byte[] _stringLength;
@@ -158,7 +158,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 }
             };
 
-        private DateTime ReadRosTime()
+        public DateTime ReadRosTime()
         {
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
@@ -170,7 +170,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             return dateTime;
         }
 
-        private TimeSpan ReadRosDuration()
+        public TimeSpan ReadRosDuration()
         {
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
