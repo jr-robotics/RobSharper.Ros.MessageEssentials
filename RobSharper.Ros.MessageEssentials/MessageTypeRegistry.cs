@@ -44,12 +44,23 @@ namespace RobSharper.Ros.MessageEssentials
             return _rosTypes.ContainsKey(rosMessageType);
         }
 
+        [Obsolete("Use Register(IRosMessageTypeInfo) method instead.")]
         public void RegisterMessageTypeInfo(IRosMessageTypeInfo messageTypeInfo)
+        {
+            Register(messageTypeInfo);
+        }
+
+        public void Register(IRosMessageTypeInfo messageTypeInfo)
         {
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
             
             _messageTypes.Add(messageTypeInfo.Type, messageTypeInfo);
             _rosTypes.Add(messageTypeInfo.RosType.ToString(), messageTypeInfo);
+        }
+
+        public void Register(Type type)
+        {
+            GetOrCreateMessageTypeInfo(type);
         }
 
         public IRosMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
@@ -102,7 +113,7 @@ namespace RobSharper.Ros.MessageEssentials
                 throw new NotSupportedException($"No registered factory supports {type}", innerException);
             }
 
-            RegisterMessageTypeInfo(messageTypeInfo);
+            Register(messageTypeInfo);
 
             return messageTypeInfo;
         }
