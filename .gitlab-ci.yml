@@ -15,7 +15,6 @@ build Solution:
 
 test MessageEssentials:
   stage: test
-  image: mcr.microsoft.com/dotnet/core/sdk:3.1
   before_script:
     - 'dotnet tool install dotnet-reportgenerator-globaltool --tool-path dotnet-tools --version 4.8.1'
   script:
@@ -24,9 +23,7 @@ test MessageEssentials:
     - '../dotnet-tools/reportgenerator -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -reporttypes:Html -verbosity:Warning'
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
-    when: always
     paths:
-      - 'dotnet-tools'
       - 'RobSharper.Ros.MessageEssentials.Tests/coverage'
       - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
     reports:
