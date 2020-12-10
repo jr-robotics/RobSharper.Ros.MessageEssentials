@@ -24,6 +24,7 @@ test MessageEssentials:
     - './dotnet-tools/reportgenerator -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -reporttypes:Html -verbosity:Warning'
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
+    when: always
     paths:
       - 'dotnet-tools'
       - 'RobSharper.Ros.MessageEssentials.Tests/coverage'
