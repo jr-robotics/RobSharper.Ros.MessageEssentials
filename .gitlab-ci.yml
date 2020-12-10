@@ -17,7 +17,7 @@ test MessageEssentials:
   stage: test
   image: mcr.microsoft.com/dotnet/core/sdk:2.1
   before_script:
-    - 'dotnet tool install dotnet-reportgenerator-globaltool --tool-path dotnet-tools --version 4.8.1'
+    - 'dotnet tool install dotnet-reportgenerator-globaltool --tool-path dotnet-tools --version 4.8.1 -v diag'
   script:
     - 'cd RobSharper.Ros.MessageEssentials.Tests'
     - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[RobSharper.Ros.MessageEssentials.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
