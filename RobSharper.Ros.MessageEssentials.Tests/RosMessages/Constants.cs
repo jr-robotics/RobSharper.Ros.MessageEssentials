@@ -12,7 +12,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string FULL_MESSAGE_DEFINITION = "int64 MY_CONSTANT=99";
         
-        [RosMessageField(1, "int64", "MY_CONSTANT")]
+        [RosMessageField("int64", "MY_CONSTANT", 1)]
         public const long MY_CONSTANT = 99;
     }
 
@@ -28,7 +28,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string FULL_MESSAGE_DEFINITION = "float32 MY_CONSTANT=13.77";
         
-        [RosMessageField(1, "float32", "MY_CONSTANT")]
+        [RosMessageField("float32", "MY_CONSTANT", 1)]
         public const float MY_CONSTANT = 13.77f;
     }
     
@@ -44,7 +44,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string FULL_MESSAGE_DEFINITION = "bool MY_CONSTANT=True";
         
-        [RosMessageField(1, "bool", "MY_CONSTANT")]
+        [RosMessageField("bool", "MY_CONSTANT", 1)]
         public const bool MY_CONSTANT = true;
     }
     
@@ -60,7 +60,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string FULL_MESSAGE_DEFINITION = "string MY_CONSTANT=lorem ipsum";
         
-        [RosMessageField(1, "string", "MY_CONSTANT")]
+        [RosMessageField("string", "MY_CONSTANT", 1)]
         public const string MY_CONSTANT = "lorem ipsum";
     }
 }

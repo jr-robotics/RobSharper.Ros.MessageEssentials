@@ -14,7 +14,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string MESSAGE_DEFINITION = "int32 a";
         
-        [RosMessageField(1, "int32", "a")]
+        [RosMessageField("int32", "a", 1)]
         public int A { get; set; }
     }
     
@@ -30,7 +30,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "rosmsg show"
         public const string MESSAGE_DEFINITION = "int32 a";
 
-        [RosMessageField(1, "int32", "a")] public int A;
+        [RosMessageField("int32", "a", 1)] public int A;
     }
     
     [RosMessage("test_msgs/SimpleInt2")]
@@ -45,7 +45,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "gendeps --cat"
         public const string FULL_MESSAGE_DEFINITION = "int32 a";
         
-        [RosMessageField(1, "int32", "a")]
+        [RosMessageField("int32", "a", 1)]
         public int A { get; set; }
     }
 
@@ -61,7 +61,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
         // Result of "gendeps --cat"
         public const string FULL_MESSAGE_DEFINITION = "int32[] a";
 
-        [RosMessageField(1, "int32[]", "a")]
+        [RosMessageField("int32[]", "a", 1)]
         public IList<int> A { get; set; } = new List<int>();
     }
     
@@ -80,7 +80,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
 MSG: test_msgs/SimpleInt
 int32 a";
 
-        [RosMessageField(1, "test_msgs/SimpleInt", "a")]
+        [RosMessageField("test_msgs/SimpleInt", "a", 1)]
         public SimpleInt A { get; set; } = new SimpleInt();
     }
     
@@ -99,7 +99,7 @@ int32 a";
 MSG: test_msgs/SimpleIntField
 int32 a";
 
-        [RosMessageField(1, "test_msgs/SimpleIntField", "a")]
+        [RosMessageField("test_msgs/SimpleIntField", "a", 1)]
         public SimpleIntField A = new SimpleIntField();
     }
 
@@ -118,7 +118,7 @@ int32 a";
 MSG: test_msgs/SimpleInt
 int32 a";
 
-        [RosMessageField(1, "test_msgs/SimpleInt[]", "a")]
+        [RosMessageField("test_msgs/SimpleInt[]", "a", 1)]
         public IList<SimpleInt> A { get; set; } = new List<SimpleInt>();
     }
 
@@ -140,7 +140,7 @@ test_msgs/SimpleInt a
 MSG: test_msgs/SimpleInt
 int32 a";
 
-        [RosMessageField(1, "test_msgs/NestedSimpleInt", "nestedField")]
+        [RosMessageField("test_msgs/NestedSimpleInt", "nestedField", 1)]
         public NestedSimpleInt NestedField { get; set; } = new NestedSimpleInt();
     }
 }
