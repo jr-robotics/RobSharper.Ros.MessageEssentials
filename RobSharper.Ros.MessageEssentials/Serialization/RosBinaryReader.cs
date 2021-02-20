@@ -184,5 +184,31 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             var readFunction = Serializers[type];
             return readFunction(this);
         }
+
+        public object ReadBuiltInType(RosType rosType, Type destinationType)
+        {
+            var type = BuiltInRosTypes.GetSerializationType(rosType);
+            var value = ReadBuiltInType(type);
+
+            if (type == destinationType)
+                return value;
+
+            if (destinationType.IsEnum)
+            {
+                if (type == typeof(string))
+                {
+                    value = Enum.Parse(destinationType, (string) value);
+                }
+                else
+                {
+                    value = Enum.ToObject(destinationType, value);
+                }
+                
+                return value;
+            }
+            
+            value = Convert.ChangeType(value, destinationType);
+            return value;
+        }
     }
 }

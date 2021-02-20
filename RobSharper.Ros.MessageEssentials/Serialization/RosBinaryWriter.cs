@@ -117,6 +117,23 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             writeAction(this, value);
         }
 
+        public void WriteBuiltInType(RosType rosType, object value)
+        {
+            var type = BuiltInRosTypes.GetSerializationType(rosType);
+            
+            if (value != null)
+            {
+                var valueType = value.GetType();
+                
+                if (valueType != type)
+                {
+                    value = Convert.ChangeType(value, type);
+                }
+            }
+
+            WriteBuiltInType(type, value);
+        }
+
         /// <summary>
         /// All characters must be 1 byte ascii chars
         /// </summary>
@@ -180,7 +197,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 },
                 {
                     typeof(string),
-                    (writer, value) => writer.Write((string) value)
+                    (writer, value) => writer.Write((string) value ?? string.Empty)
                 },
                 {
                     typeof(DateTime),

@@ -83,5 +83,77 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 Assert.Equal(writtenTimeSpan, readTime);
             }
         }
+
+        private enum EnumValues
+        {
+            AValue = 1,
+            BValue = 2,
+            CValue = 3
+        }
+        
+        [Theory]
+        [InlineData("int32", (int)10, (int)10)]
+        [InlineData("int32", (short)10, (short)10)]
+        [InlineData("int32", (int)10, (short)10)]
+        [InlineData("int32", (short)10, (int)10)]
+        [InlineData("int32", (long)10, (long)10)]
+        [InlineData("int32", (int)10, (long)10)]
+        [InlineData("int32", (long)10, (int)10)]
+        [InlineData("int32", (byte)10, (byte)10)]
+        [InlineData("int32", (int)10, (byte)10)]
+        [InlineData("int32", (byte)10, (int)10)]
+        [InlineData("int32", (uint)10, (uint)10)]
+        [InlineData("int32", (uint)10, (int)10)]
+        [InlineData("int32", (int)10, (uint)10)]
+        [InlineData("int8", (sbyte)10, (int)10)]
+        [InlineData("uint8", (byte)10, (int)10)]
+        [InlineData("byte", (byte)10, (byte)10)]
+        [InlineData("char", (int)10, (int)10)]
+        [InlineData("uint8", EnumValues.AValue, EnumValues.AValue)]
+        [InlineData("uint8", 2, EnumValues.BValue)]
+        [InlineData("uint8", EnumValues.CValue, 3)]
+        [InlineData("string", EnumValues.CValue, "CValue")]
+        [InlineData("string", "CValue", EnumValues.CValue)]
+        [InlineData("string", "", "")]
+        public void CanWriteAndReadBuiltInTypes2(string rosType, object writeValue, object expectedValue)
+        {
+            var primitiveRosType = RosType.Parse(rosType);
+            
+            primitiveRosType.IsBuiltIn.Should().BeTrue();
+            primitiveRosType.IsArray.Should().BeFalse();
+            
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                
+                writer.WriteBuiltInType(primitiveRosType, writeValue);
+
+                s.Position = 0;
+
+                var readValue = reader.ReadBuiltInType(primitiveRosType, expectedValue.GetType());
+
+                readValue.Should().BeEquivalentTo(expectedValue);
+                readValue.GetType().Should().Be(expectedValue.GetType());
+            }
+        }
+
+        [Fact]
+        public void WriteNullStringGetsEmptyString()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+
+                writer.WriteBuiltInType(typeof(string), null);
+
+                s.Position = 0;
+
+                var readValue = (string) reader.ReadBuiltInType(typeof(string));
+
+                readValue.Should().BeEmpty();
+            }
+        }
     }
 }

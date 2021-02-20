@@ -43,7 +43,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             if (rosType.IsBuiltIn)
             {
-                writer.WriteBuiltInType(type, value);
+                writer.WriteBuiltInType(rosType, value);
             }
             else
             {
@@ -133,7 +133,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             if (rosType.IsBuiltIn)
             {
-                return reader.ReadBuiltInType(type);
+                return reader.ReadBuiltInType(rosType, type);
             }
             else
             {

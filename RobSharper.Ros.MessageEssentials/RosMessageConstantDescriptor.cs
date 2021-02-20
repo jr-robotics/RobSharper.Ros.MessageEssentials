@@ -25,9 +25,18 @@ namespace RobSharper.Ros.MessageEssentials
 
         public override string ToString()
         {
-            FormattableString pattern = $"{RosType} {RosIdentifier}={Value}";
-            
-            return pattern.ToString(CultureInfo.InvariantCulture);
+            FormattableString pattern;
+
+            if (Value is Enum && !BuiltInRosTypes.String.Equals(RosType))
+            {
+                pattern = $"{RosType} {RosIdentifier}={Value:D}";
+            }
+            else
+            {
+                pattern = $"{RosType} {RosIdentifier}={Value}";
+            }
+
+            return FormattableString.Invariant(pattern);
         }
     }
 }
