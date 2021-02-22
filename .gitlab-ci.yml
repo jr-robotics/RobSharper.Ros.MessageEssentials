@@ -64,7 +64,7 @@ nuget-pack:
     GIT_STRATEGY: none
   environment:
     name: JR BaGet
-    url: http://robv005:33333/
+    url: https://robotics-bage.joanneum.at/
   script:
     - 'cd nuget'
     - 'dotnet nuget push *.nupkg -s $JR_BAGET_URL -k $JR_BAGET_API_KEY'
