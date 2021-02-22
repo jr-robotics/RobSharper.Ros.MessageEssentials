@@ -60,16 +60,9 @@
         Lost = 9
     }
     
-    [RosMessage("actionlib_msgs/EnumGoalStatus")]
+    [RosMessage("test_msgs/EnumGoalStatus")]
     public class EnumGoalStatus
     {
-        
-        // Result of "rosmsg md5"
-        // TODO: verify
-        public const string ROS_MD5 = "8cb38b482ac67b6c4b490371bee5a687";
-
-        // Result of "gendeps --cat"
-        // TODO: verify
         public const string MESSAGE_DEFINITION = @"uint8 PENDING=0
 uint8 ACTIVE=1
 uint8 PREEMPTED=2
@@ -127,16 +120,9 @@ string text";
         public const GoalStatusValue Lost = GoalStatusValue.Lost;
     }
     
-    [RosMessage("actionlib_msgs/GoalStatus")]
+    [RosMessage("test_msgs/GoalStatus")]
     public class GoalStatus
     {
-        
-        // Result of "rosmsg md5"
-        // TODO: verify
-        public const string ROS_MD5 = "8cb38b482ac67b6c4b490371bee5a687";
-
-        // Result of "gendeps --cat"
-        // TODO: verify
         public const string MESSAGE_DEFINITION = @"uint8 PENDING=0
 uint8 ACTIVE=1
 uint8 PREEMPTED=2
