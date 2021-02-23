@@ -68,7 +68,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
         }
 
-        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type type,
+        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type arrayType,
             object value)
         {
             var collection = value as ICollection;
@@ -89,15 +89,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             if (elementCount == 0)
                 return;
 
-            type = type
-                .GetInterfaces()
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(t => t.GetGenericArguments()[0])
-                .FirstOrDefault();
+            var elementType = GetGenericElementType(arrayType);
 
             foreach (var item in collection)
             {
-                SerializeValue(context, writer, rosType, type, item);
+                SerializeValue(context, writer, rosType, elementType, item);
             }
         }
 
@@ -168,11 +164,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             else
                 length = reader.ReadInt32();
 
-            var elementType = arrayType
-                .GetInterfaces()
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(t => t.GetGenericArguments()[0])
-                .FirstOrDefault();
+            var elementType = GetGenericElementType(arrayType);
 
             var listType = typeof(List<>)
                 .MakeGenericType(elementType);
@@ -189,6 +181,20 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
 
             return result;
+        }
+
+        private static Type GetGenericElementType(Type arrayType)
+        {
+            var elementType = arrayType
+                .GetInterfaces()
+                .Union(new [] { arrayType})
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(t => t.GetGenericArguments()[0])
+                .FirstOrDefault();
+
+            if (elementType == null)
+                throw new InvalidOperationException($"Could not retrieve element type from {arrayType}");
+            return elementType;
         }
     }
 }
