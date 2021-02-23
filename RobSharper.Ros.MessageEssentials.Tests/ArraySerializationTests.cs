@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -9,7 +10,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
 {
     public class ArraySerializationTests
     {
-        [Fact(Skip = "Arrays are not supported yet")]
+        [Fact]
         public void CanSerializeArrayMessage()
         {
             Test(new IntArrayMessage());
@@ -31,6 +32,18 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         public void CanSerializeIEnumerableMessage()
         {
             Test(new IntIEnumerableMessage());
+        }
+        
+        [Fact]
+        public void CanSerializeListMessage()
+        {
+            Test(new IntListMessage());
+        }
+        
+        [Fact]
+        public void CanSerializeCollectionMessage()
+        {
+            Test(new IntCollectionMessage());
         }
         
         private void Test<TMessage>(TMessage message) where TMessage : IIntValues
@@ -104,6 +117,32 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             [RosMessageField("int32[]", "values", 1)]
             public IEnumerable<int> Values { get; set; }
+        }
+    
+        [RosMessage("test_msgs/IntegerList")]
+        public class IntListMessage : IIntValues
+        {
+            [RosMessageField("int32[]", "values", 1)]
+            public List<int> Values { get; set; }
+
+            IEnumerable<int> IIntValues.Values
+            {
+                get => Values;
+                set => Values = new List<int>(value);
+            }
+        }
+    
+        [RosMessage("test_msgs/IntegerCollection")]
+        public class IntCollectionMessage : IIntValues
+        {
+            [RosMessageField("int32[]", "values", 1)]
+            public Collection<int> Values { get; set; }
+
+            IEnumerable<int> IIntValues.Values
+            {
+                get => Values;
+                set => Values = new Collection<int>(new List<int>(value));
+            }
         }
     }
 }

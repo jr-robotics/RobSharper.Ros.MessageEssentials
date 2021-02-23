@@ -68,7 +68,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
         }
 
-        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type arrayType,
+        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type memberType,
             object value)
         {
             var collection = value as ICollection;
@@ -89,7 +89,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             if (elementCount == 0)
                 return;
 
-            var elementType = GetGenericElementType(arrayType);
+            var elementType = GetGenericElementType(memberType);
 
             foreach (var item in collection)
             {
@@ -155,7 +155,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         }
 
         private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType,
-            Type arrayType)
+            Type memberType)
         {
             int length;
 
@@ -164,23 +164,50 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             else
                 length = reader.ReadInt32();
 
-            var elementType = GetGenericElementType(arrayType);
+            var elementType = GetGenericElementType(memberType);
+            var listType = typeof(List<>).MakeGenericType(elementType);
 
-            var listType = typeof(List<>)
-                .MakeGenericType(elementType);
-
-            if (!arrayType.IsAssignableFrom(listType))
-                throw new InvalidOperationException($"Cannot assign {listType} to type {arrayType}");
-
-            var result = (IList) Activator.CreateInstance(listType);
+            var list = (IList) Activator.CreateInstance(listType);
 
             for (var i = 0; i < length; i++)
             {
                 var item = DeserializeValue(context, reader, rosType, elementType);
-                result.Add(item);
+                list.Add(item);
             }
 
-            return result;
+            return ConvertListToMemberType(list, memberType);
+        }
+
+        private static object ConvertListToMemberType(IList list, Type memberType)
+        {
+            var listType = list.GetType();
+            
+            // If IList<T> can be assigned to memberType, return it.
+            if (memberType.IsAssignableFrom(listType))
+                return list;
+
+            // If memberType is an array, call IList<T>.ToArray().
+            if (memberType.IsArray)
+            {
+                var toArrayMethod = list
+                    .GetType()
+                    .GetMethod("ToArray");
+
+                if (toArrayMethod == null)
+                    throw new InvalidOperationException($"Could not reflect ToArray() method from {list.GetType()}");
+                
+                return toArrayMethod.Invoke(list, null);
+            }
+
+            // If memberType has a constructor with 1 argument accepting the list, use it!
+            var memberTypeConstructor = memberType.GetConstructor(new[] {listType});
+            
+            if (memberTypeConstructor != null)
+            {
+                return memberTypeConstructor.Invoke(new object[] {list});
+            }
+            
+            throw new InvalidOperationException($"Cannot assign {list.GetType()} to type {memberType}");
         }
 
         private static Type GetGenericElementType(Type arrayType)
