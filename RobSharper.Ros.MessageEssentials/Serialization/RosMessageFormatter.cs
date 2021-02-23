@@ -5,7 +5,12 @@ using System.Linq;
 
 namespace RobSharper.Ros.MessageEssentials.Serialization
 {
-    public class RosMessageFormatter : IRosMessageFormatter
+    [Obsolete("This class was renamed. Use DescriptorBasedMessageFormatter instead.")]
+    public class RosMessageFormatter : DescriptorBasedMessageFormatter
+    {
+    }
+    
+    public class DescriptorBasedMessageFormatter : IRosMessageFormatter
     {
         public bool CanSerialize(IRosMessageTypeInfo typeInfo)
         {

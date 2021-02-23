@@ -8,7 +8,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
     {
         public IList<IRosMessageFormatter> MessageFormatters { get; } = new List<IRosMessageFormatter>
         {
-            new RosMessageFormatter() // Default formatter
+            new DescriptorBasedMessageFormatter() // Default formatter
         };
         
         public MessageTypeRegistry MessageTypeRegistry { get; }
