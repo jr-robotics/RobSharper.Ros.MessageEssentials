@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using Joanneum.Robotics.Ros.MessageBase.RosTypeParser;
 
 namespace RobSharper.Ros.MessageEssentials
 {
@@ -146,9 +145,9 @@ namespace RobSharper.Ros.MessageEssentials
             }
 
             var input = new AntlrInputStream(type);
-            var lexer = new RosTypeLexer(input);
+            var lexer = new RosTypeParser.RosTypeLexer(input);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser(tokenStream);
+            var parser = new RosTypeParser.RosTypeParser(tokenStream);
             
             var rosTypeListener = new RosTypeListener();
             parser.AddParseListener(rosTypeListener);
@@ -186,7 +185,7 @@ namespace RobSharper.Ros.MessageEssentials
             }
         }
 
-        private class RosTypeListener : RosTypeBaseListener
+        private class RosTypeListener : RosTypeParser.RosTypeBaseListener
         {
             public bool IsBuiltInType { get; private set; }
             public string Package { get; private set; }
@@ -209,31 +208,31 @@ namespace RobSharper.Ros.MessageEssentials
             }
 
 
-            public override void ExitBuilt_in_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Built_in_typeContext context)
+            public override void ExitBuilt_in_type(RosTypeParser.RosTypeParser.Built_in_typeContext context)
             {
                 IsBuiltInType = true;
                 Type = context.GetText();
             }
 
-            public override void ExitRos_package_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Ros_package_typeContext context)
+            public override void ExitRos_package_type(RosTypeParser.RosTypeParser.Ros_package_typeContext context)
             {
                 Package = context.GetChild(0).GetText();
                 Type = context.GetChild(2).GetText();
             }
 
-            public override void ExitRos_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Ros_typeContext context)
+            public override void ExitRos_type(RosTypeParser.RosTypeParser.Ros_typeContext context)
             {
                 Package = null;
                 Type = context.GetChild(0).GetText();
             }
 
-            public override void ExitVariable_array_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Variable_array_typeContext context)
+            public override void ExitVariable_array_type(RosTypeParser.RosTypeParser.Variable_array_typeContext context)
             {
                 IsArray = true;
                 ArraySize = 0;
             }
 
-            public override void ExitFixed_array_type(RosTypeParser.Fixed_array_typeContext context)
+            public override void ExitFixed_array_type(RosTypeParser.RosTypeParser.Fixed_array_typeContext context)
             {
                 IsArray = true;
                 ArraySize = int.Parse(context.GetChild(2).GetText());
