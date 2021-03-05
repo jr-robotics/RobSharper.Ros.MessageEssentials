@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
-using Joanneum.Robotics.Ros.MessageBase.RosTypeParser;
 
 namespace RobSharper.Ros.MessageEssentials
 {
@@ -21,16 +20,40 @@ namespace RobSharper.Ros.MessageEssentials
             ArraySize = arraySize;
         }
 
+        /// <summary>
+        /// The package name of the ROS type. Might be null (built in type or relative intra-package type name).
+        /// </summary>
         public string PackageName { get; }
+        
+        /// <summary>
+        /// The name of the ROS type.
+        /// </summary>
         public string TypeName { get; }
         
+        /// <summary>
+        /// True for built in ROS types.
+        /// Built in types are bool, int8, uint8, int16, uint16, int32, uint32, int64,
+        /// uint64, float32, float64, string, time, duration, [char], [byte] and
+        /// arrays of these types.
+        /// </summary>
         public bool IsBuiltIn { get; }
+        
+        /// <summary>
+        /// True for ROS arrays.
+        /// </summary>
         public bool IsArray { get; }
+        
+        /// <summary>
+        /// Returns the size of a fixed sized ROS array (0 for variable size arrays). 
+        /// </summary>
         public int ArraySize { get; }
 
         public bool IsDynamicArray => IsArray && ArraySize == 0;
         public bool IsFixedSizeArray => IsArray && ArraySize > 0;
 
+        /// <summary>
+        /// True, if the type is std_msgs/Header.
+        /// </summary>
         public bool IsHeaderType => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
         
         /// <summary>
@@ -38,6 +61,12 @@ namespace RobSharper.Ros.MessageEssentials
         /// </summary>
         public bool IsFullQualified => IsBuiltIn || PackageName != null;
 
+        /// <summary>
+        /// Creates a fully qualified type with the given package name.
+        /// </summary>
+        /// <param name="packageName">The package, this type is part of.</param>
+        /// <returns>A new fully qualified ROS Type</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the type is already fully qualified.</exception>
         public RosType ToFullQualifiedType(string packageName)
         {
             if (IsFullQualified)
@@ -46,11 +75,20 @@ namespace RobSharper.Ros.MessageEssentials
             return new RosType(packageName, TypeName, IsBuiltIn, IsArray, ArraySize);
         }
 
+        /// <summary>
+        /// Full ROS type string
+        /// </summary>
+        /// <returns>Full ROS type string</returns>
         public override string ToString()
         {
             return ToString("F");
         }
 
+        /// <summary>
+        /// Formats 
+        /// </summary>
+        /// <param name="format">F = Full type name ([package/]typename and array specifier), T: Type only ([package/]typename)</param>
+        /// <returns></returns>
         public string ToString(string format)
         {
             return ToString(format, null);
@@ -146,9 +184,9 @@ namespace RobSharper.Ros.MessageEssentials
             }
 
             var input = new AntlrInputStream(type);
-            var lexer = new RosTypeLexer(input);
+            var lexer = new RosTypeParser.RosTypeLexer(input);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser(tokenStream);
+            var parser = new RosTypeParser.RosTypeParser(tokenStream);
             
             var rosTypeListener = new RosTypeListener();
             parser.AddParseListener(rosTypeListener);
@@ -186,7 +224,7 @@ namespace RobSharper.Ros.MessageEssentials
             }
         }
 
-        private class RosTypeListener : RosTypeBaseListener
+        private class RosTypeListener : RosTypeParser.RosTypeBaseListener
         {
             public bool IsBuiltInType { get; private set; }
             public string Package { get; private set; }
@@ -209,31 +247,31 @@ namespace RobSharper.Ros.MessageEssentials
             }
 
 
-            public override void ExitBuilt_in_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Built_in_typeContext context)
+            public override void ExitBuilt_in_type(RosTypeParser.RosTypeParser.Built_in_typeContext context)
             {
                 IsBuiltInType = true;
                 Type = context.GetText();
             }
 
-            public override void ExitRos_package_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Ros_package_typeContext context)
+            public override void ExitRos_package_type(RosTypeParser.RosTypeParser.Ros_package_typeContext context)
             {
                 Package = context.GetChild(0).GetText();
                 Type = context.GetChild(2).GetText();
             }
 
-            public override void ExitRos_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Ros_typeContext context)
+            public override void ExitRos_type(RosTypeParser.RosTypeParser.Ros_typeContext context)
             {
                 Package = null;
                 Type = context.GetChild(0).GetText();
             }
 
-            public override void ExitVariable_array_type(Joanneum.Robotics.Ros.MessageBase.RosTypeParser.RosTypeParser.Variable_array_typeContext context)
+            public override void ExitVariable_array_type(RosTypeParser.RosTypeParser.Variable_array_typeContext context)
             {
                 IsArray = true;
                 ArraySize = 0;
             }
 
-            public override void ExitFixed_array_type(RosTypeParser.Fixed_array_typeContext context)
+            public override void ExitFixed_array_type(RosTypeParser.RosTypeParser.Fixed_array_typeContext context)
             {
                 IsArray = true;
                 ArraySize = int.Parse(context.GetChild(2).GetText());

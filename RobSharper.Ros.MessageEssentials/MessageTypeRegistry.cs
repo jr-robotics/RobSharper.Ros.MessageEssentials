@@ -6,6 +6,7 @@ namespace RobSharper.Ros.MessageEssentials
 {
     public class MessageTypeRegistry
     {
+        private readonly object _writeLock = new object();
         private readonly IDictionary<Type, IRosMessageTypeInfo> _messageTypes = new Dictionary<Type, IRosMessageTypeInfo>();
         private readonly IDictionary<string, IRosMessageTypeInfo> _rosTypes = new Dictionary<string, IRosMessageTypeInfo>();
         
@@ -44,19 +45,51 @@ namespace RobSharper.Ros.MessageEssentials
             return _rosTypes.ContainsKey(rosMessageType);
         }
 
+        [Obsolete("Use Register(IRosMessageTypeInfo) method instead.")]
         public void RegisterMessageTypeInfo(IRosMessageTypeInfo messageTypeInfo)
         {
+            Register(messageTypeInfo);
+        }
+
+        public void Register(IRosMessageTypeInfo messageTypeInfo)
+        {
+            if (!TryRegister(messageTypeInfo))
+            {
+                throw new InvalidOperationException($"Message type info object for type {messageTypeInfo.Type} or ROS type {messageTypeInfo.RosType} already registered.");
+            };
+        }
+
+        public bool TryRegister(IRosMessageTypeInfo messageTypeInfo)
+        {
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
-            
-            _messageTypes.Add(messageTypeInfo.Type, messageTypeInfo);
-            _rosTypes.Add(messageTypeInfo.RosType.ToString(), messageTypeInfo);
+
+            lock (_writeLock)
+            {
+                var isRosTypeRegistered = IsRegistered(messageTypeInfo.RosType);
+                var isTypeRegistered = IsRegistered(messageTypeInfo.Type);
+
+                if (isTypeRegistered || isRosTypeRegistered)
+                {
+                    return false;
+                }
+                
+                _messageTypes.Add(messageTypeInfo.Type, messageTypeInfo);
+                _rosTypes.Add(messageTypeInfo.RosType.ToString(), messageTypeInfo);
+            }
+
+            return true;
+        }
+
+        public void Register(Type type)
+        {
+            GetOrCreateMessageTypeInfo(type);
         }
 
         public IRosMessageTypeInfo GetOrCreateMessageTypeInfo(Type type)
         {
             if (type == null) throw new ArgumentNullException(nameof(type));
 
-            if (_messageTypes.ContainsKey(type))
+            if (IsRegistered(type))
                 return _messageTypes[type];
 
             var factoryCandidates = RosMessageTypeInfoFactories
@@ -102,7 +135,10 @@ namespace RobSharper.Ros.MessageEssentials
                 throw new NotSupportedException($"No registered factory supports {type}", innerException);
             }
 
-            RegisterMessageTypeInfo(messageTypeInfo);
+            if (!TryRegister(messageTypeInfo))
+            {
+                messageTypeInfo = _messageTypes[type];
+            }
 
             return messageTypeInfo;
         }

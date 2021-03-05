@@ -23,6 +23,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [InlineData(typeof(BoolConstant), BoolConstant.ROS_MD5)]
         [InlineData(typeof(StringConstant), StringConstant.ROS_MD5)]
         [InlineData(typeof(Combined), Combined.ROS_MD5)]
+        [InlineData(typeof(EnumMessage), EnumMessage.ROS_MD5)]
         [InlineData(typeof(NestedNestedType), NestedNestedType.ROS_MD5)]
         public void CreateMessageTypeInfo_with_correct_md5_sum(Type messageType, string expectedMd5Sum)
         {
@@ -74,6 +75,9 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [InlineData(typeof(BoolConstant), BoolConstant.MESSAGE_DEFINITION)]
         [InlineData(typeof(StringConstant), StringConstant.MESSAGE_DEFINITION)]
         [InlineData(typeof(Combined), Combined.MESSAGE_DEFINITION)]
+        [InlineData(typeof(EnumMessage), EnumMessage.MESSAGE_DEFINITION)]
+        [InlineData(typeof(EnumGoalStatus), EnumGoalStatus.MESSAGE_DEFINITION)]
+        [InlineData(typeof(GoalStatus), GoalStatus.MESSAGE_DEFINITION)]
         [InlineData(typeof(NestedNestedType), NestedNestedType.MESSAGE_DEFINITION)]
         public void MessageTypeInfo_has_correct_message_definition(Type messageType, string expectedMessageDefinition)
         {

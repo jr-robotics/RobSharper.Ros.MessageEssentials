@@ -15,18 +15,19 @@ build Solution:
 
 test MessageEssentials:
   stage: test
-  image: mcr.microsoft.com/dotnet/core/sdk:2.1
+  before_script:
+    - 'dotnet tool install dotnet-reportgenerator-globaltool --tool-path dotnet-tools'
   script:
     - 'cd RobSharper.Ros.MessageEssentials.Tests'
-    - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[RobSharper.Ros.MessageEssentials.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
-    - 'dotnet $(find ~/.nuget/packages/reportgenerator -name ReportGenerator.dll | head -n1) -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -verbosity:Warning -reporttypes:Html'
+    - 'dotnet test --logger junit /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/'
+    - '../dotnet-tools/reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:TestResults/coverage-report -reporttypes:Html'
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
     paths:
-      - 'RobSharper.Ros.MessageEssentials.Tests/coverage'
-      - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
+      - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/'
     reports:
       junit: 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
+      cobertura: 'RobSharper.Ros.MessageEssentials.Tests/TestResults/coverage.cobertura.xml'
   tags:
     - docker-executor
 
@@ -63,7 +64,7 @@ nuget-pack:
     GIT_STRATEGY: none
   environment:
     name: JR BaGet
-    url: http://robv005:33333/
+    url: https://robotics-bage.joanneum.at/
   script:
     - 'cd nuget'
     - 'dotnet nuget push *.nupkg -s $JR_BAGET_URL -k $JR_BAGET_API_KEY'
@@ -88,21 +89,21 @@ baget manual:
 
 # Deploy to NuGet.org
 # This task has to be triggered manually
-#nuget.org:
-#  stage: deploy
-#  dependencies:
-#    - nuget-pack
-#  variables:
-#    GIT_STRATEGY: none
-#  environment:
-#    name: NuGet.org
-#    url: https://www.nuget.org/
-#  only:
-#    - master
-#    - /^v.*$/
-#  script:
-#    - 'cd nuget'
-#    - 'dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_ORG_API_KEY'
-#  tags:
-#    - docker-executor
-#  when: manual
+nuget.org:
+  stage: deploy
+  dependencies:
+    - nuget-pack
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: NuGet.org
+    url: https://www.nuget.org/
+  only:
+    - master
+    - /^v.*$/
+  script:
+    - 'cd nuget'
+    - 'dotnet nuget push *.nupkg -s https://api.nuget.org/v3/index.json -k $NUGET_ORG_API_KEY'
+  tags:
+    - docker-executor
+  when: manual

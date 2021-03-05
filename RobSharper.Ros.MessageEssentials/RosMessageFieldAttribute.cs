@@ -11,7 +11,15 @@ namespace RobSharper.Ros.MessageEssentials
 
         public RosMessageFieldAttribute() {}
         
+        [Obsolete("Use alternative constructor with reordered arguments instead")]
         public RosMessageFieldAttribute(int index, string rosType, string rosIdentifier)
+        {
+            Index = index;
+            RosType = rosType;
+            RosIdentifier = rosIdentifier;
+        }
+        
+        public RosMessageFieldAttribute(string rosType, string rosIdentifier, int index)
         {
             Index = index;
             RosType = rosType;

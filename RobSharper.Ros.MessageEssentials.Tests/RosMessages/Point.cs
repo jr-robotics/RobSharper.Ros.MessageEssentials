@@ -3,13 +3,13 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
     [RosMessage("geometry_msgs/Point")]
     public class Point
     {
-        [RosMessageField(1, "float64", "x")]
+        [RosMessageField("float64", "x", 1)]
         public double X { get; set; }
         
-        [RosMessageField(2, "float64", "y")]
+        [RosMessageField("float64", "y", 2)]
         public double Y { get; set; }
         
-        [RosMessageField(3, "float64", "z")]
+        [RosMessageField("float64", "z", 3)]
         public double Z { get; set; }
     }
 }

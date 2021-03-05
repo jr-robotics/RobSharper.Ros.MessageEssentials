@@ -7,11 +7,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 {
     public class RosBinaryReader : BinaryReader
     {
-        private LittleEndianStream _stream;
-        
+        private readonly LittleEndianStream _stream;
+
         private int _stringLengthIndex = -1;
         private byte[] _stringLength;
-        
+
 
         public RosBinaryReader(Stream input) : base(new LittleEndianStream(input), Encoding.ASCII, true)
         {
@@ -20,11 +20,13 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override byte ReadByte()
         {
-            if (_stringLengthIndex >= 0)
+            if (_stringLengthIndex >= 0 && _stringLengthIndex < 5)
             {
-                return _stringLength[_stringLengthIndex];
+                var length = _stringLength[_stringLengthIndex];
+                _stringLengthIndex++;
+                return length;
             }
-            
+
             return base.ReadByte();
         }
 
@@ -65,7 +67,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     _stringLengthIndex = 0;
                     _stringLength = Get7BitEncodedInt(ReadInt32());
-                    
+
                     return base.ReadString();
                 }
                 finally
@@ -79,10 +81,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             var res = new byte[5];
             var index = 0;
-            
+
             // Write out an int 7 bits at a time.  The high bit of the byte,
             // when on, tells reader to continue reading more bytes.
-            uint v = (uint)value;   // support negative numbers
+            uint v = (uint) value; // support negative numbers
             while (v >= 0x80)
             {
                 res[index++] = (byte) (v | 0x80);
@@ -93,7 +95,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             return res;
         }
-        
+
         private static readonly Dictionary<Type, Func<RosBinaryReader, object>> Serializers =
             new Dictionary<Type, Func<RosBinaryReader, object>>
             {
@@ -103,11 +105,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 },
 
                 {
-                    typeof(short),
-                    reader => reader.ReadByte()
+                    typeof(sbyte),
+                    reader => reader.ReadSByte()
                 },
                 {
-                    typeof(sbyte),
+                    typeof(short),
                     reader => reader.ReadInt16()
                 },
                 {
@@ -145,13 +147,68 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     typeof(string),
                     reader => reader.ReadString()
+                },
+                {
+                    typeof(DateTime),
+                    reader => reader.ReadRosTime()
+                },
+                {
+                    typeof(TimeSpan),
+                    reader => reader.ReadRosDuration()
                 }
             };
+
+        public DateTime ReadRosTime()
+        {
+            var secs = base.ReadInt32();
+            var nsecs = base.ReadInt32();
+
+            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dateTime = dateTime.AddSeconds(secs);
+            dateTime = dateTime.AddMilliseconds(nsecs / 1000000.0);
+
+            return dateTime;
+        }
+
+        public TimeSpan ReadRosDuration()
+        {
+            var secs = base.ReadInt32();
+            var nsecs = base.ReadInt32();
+
+            var timeSpan = new TimeSpan(0, 0, 0, secs, nsecs / 1000000);
+            return timeSpan;
+        }
 
         public object ReadBuiltInType(Type type)
         {
             var readFunction = Serializers[type];
             return readFunction(this);
+        }
+
+        public object ReadBuiltInType(RosType rosType, Type destinationType)
+        {
+            var type = BuiltInRosTypes.GetSerializationType(rosType);
+            var value = ReadBuiltInType(type);
+
+            if (type == destinationType)
+                return value;
+
+            if (destinationType.IsEnum)
+            {
+                if (type == typeof(string))
+                {
+                    value = Enum.Parse(destinationType, (string) value);
+                }
+                else
+                {
+                    value = Enum.ToObject(destinationType, value);
+                }
+                
+                return value;
+            }
+            
+            value = Convert.ChangeType(value, destinationType);
+            return value;
         }
     }
 }

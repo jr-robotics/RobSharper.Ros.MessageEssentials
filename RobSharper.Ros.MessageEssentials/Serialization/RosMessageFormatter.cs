@@ -5,14 +5,20 @@ using System.Linq;
 
 namespace RobSharper.Ros.MessageEssentials.Serialization
 {
-    public class RosMessageFormatter : IRosMessageFormatter
+    [Obsolete("This class was renamed. Use DescriptorBasedMessageFormatter instead.")]
+    public class RosMessageFormatter : DescriptorBasedMessageFormatter
+    {
+    }
+    
+    public class DescriptorBasedMessageFormatter : IRosMessageFormatter
     {
         public bool CanSerialize(IRosMessageTypeInfo typeInfo)
         {
             return typeInfo is DescriptorBasedMessageTypeInfo;
         }
-        
-        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo, object o)
+
+        public void Serialize(SerializationContext context, RosBinaryWriter writer, IRosMessageTypeInfo messageTypeInfo,
+            object o)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (o == null) throw new ArgumentNullException(nameof(o));
@@ -21,11 +27,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 throw new NotSupportedException();
 
             var fields = messageInfo.MessageDescriptor.Fields;
-            
+
             foreach (var field in fields)
             {
                 var value = field.GetValue(o);
-                
+
                 if (field.RosType.IsArray)
                 {
                     SerializeArray(context, writer, field.RosType, field.Type, value);
@@ -42,13 +48,13 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         {
             if (rosType.IsBuiltIn)
             {
-                writer.WriteBuiltInType(type, value);
+                writer.WriteBuiltInType(rosType, value);
             }
             else
             {
                 var typeInfo = context.MessageTypeRegistry.GetOrCreateMessageTypeInfo(type);
                 IRosMessageFormatter formatter = this;
-                
+
                 // If this serializer cannot serialize the object search for serializer who can do it
                 if (!CanSerialize(typeInfo))
                 {
@@ -62,49 +68,49 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
         }
 
-        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type type,
+        private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type memberType,
             object value)
         {
             var collection = value as ICollection;
-            
+
             var elementCount = collection?.Count ?? 0;
 
-            if (rosType.IsFixedSizeArray && rosType.ArraySize != elementCount)
+            if (rosType.IsFixedSizeArray)
             {
-                throw new InvalidOperationException(
-                    $"Expected array size of {rosType.ArraySize} but found array size of {elementCount}.");
+                if (rosType.ArraySize != elementCount)
+                    throw new InvalidOperationException(
+                        $"Expected array size of {rosType.ArraySize} but found array size of {elementCount}.");
             }
-
-            writer.Write(elementCount);
+            else
+            {
+                writer.Write(elementCount);    
+            }
             
             if (elementCount == 0)
                 return;
-            
-            type = type
-                .GetInterfaces()
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(t => t.GetGenericArguments()[0])
-                .FirstOrDefault();
-            
+
+            var elementType = GetGenericElementType(memberType);
+
             foreach (var item in collection)
             {
-                SerializeValue(context, writer, rosType, type, item);
+                SerializeValue(context, writer, rosType, elementType, item);
             }
         }
 
-        public object Deserialize(SerializationContext context, RosBinaryReader reader, IRosMessageTypeInfo messageTypeInfo)
+        public object Deserialize(SerializationContext context, RosBinaryReader reader,
+            IRosMessageTypeInfo messageTypeInfo)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (messageTypeInfo == null) throw new ArgumentNullException(nameof(messageTypeInfo));
-            
+
             if (!(messageTypeInfo is DescriptorBasedMessageTypeInfo messageInfo))
                 throw new NotSupportedException();
 
-            
+
             var result = Activator.CreateInstance(messageInfo.Type);
-            
+
             var fields = messageInfo.MessageDescriptor.Fields;
-            
+
             foreach (var field in fields)
             {
                 object fieldValue;
@@ -123,17 +129,18 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             return result;
         }
 
-        private object DeserializeValue(SerializationContext context, RosBinaryReader reader, RosType rosType, Type type)
+        private object DeserializeValue(SerializationContext context, RosBinaryReader reader, RosType rosType,
+            Type type)
         {
             if (rosType.IsBuiltIn)
             {
-                return reader.ReadBuiltInType(type);
+                return reader.ReadBuiltInType(rosType, type);
             }
             else
             {
                 var typeInfo = context.MessageTypeRegistry.GetOrCreateMessageTypeInfo(type);
                 IRosMessageFormatter formatter = this;
-                
+
                 // If this serializer cannot serialize the object search for serializer who can do it
                 if (!CanSerialize(typeInfo))
                 {
@@ -147,37 +154,74 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
         }
 
-        private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType, Type arrayType)
+        private object DeserializeArray(SerializationContext context, RosBinaryReader reader, RosType rosType,
+            Type memberType)
         {
-            var length = reader.ReadInt32();
+            int length;
 
-            if (rosType.IsFixedSizeArray && rosType.ArraySize != length)
-            {
-                throw new InvalidOperationException(
-                    $"Expected array size of {rosType.ArraySize} but found array size of {length}.");
-            }
-            
-            var elementType = arrayType
-                .GetInterfaces()
-                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                .Select(t => t.GetGenericArguments()[0])
-                .FirstOrDefault();
+            if (rosType.IsFixedSizeArray)
+                length = rosType.ArraySize;
+            else
+                length = reader.ReadInt32();
 
-            var listType = typeof(List<>)
-                .MakeGenericType(elementType);
-            
-            if (!arrayType.IsAssignableFrom(listType))
-                throw new InvalidOperationException($"Cannot assign {listType} to type {arrayType}");
-            
-            var result = (IList) Activator.CreateInstance(listType);
+            var elementType = GetGenericElementType(memberType);
+            var listType = typeof(List<>).MakeGenericType(elementType);
+
+            var list = (IList) Activator.CreateInstance(listType);
 
             for (var i = 0; i < length; i++)
             {
                 var item = DeserializeValue(context, reader, rosType, elementType);
-                result.Add(item);
+                list.Add(item);
             }
 
-            return result;
+            return ConvertListToMemberType(list, memberType);
+        }
+
+        private static object ConvertListToMemberType(IList list, Type memberType)
+        {
+            var listType = list.GetType();
+            
+            // If IList<T> can be assigned to memberType, return it.
+            if (memberType.IsAssignableFrom(listType))
+                return list;
+
+            // If memberType is an array, call IList<T>.ToArray().
+            if (memberType.IsArray)
+            {
+                var toArrayMethod = list
+                    .GetType()
+                    .GetMethod("ToArray");
+
+                if (toArrayMethod == null)
+                    throw new InvalidOperationException($"Could not reflect ToArray() method from {list.GetType()}");
+                
+                return toArrayMethod.Invoke(list, null);
+            }
+
+            // If memberType has a constructor with 1 argument accepting the list, use it!
+            var memberTypeConstructor = memberType.GetConstructor(new[] {listType});
+            
+            if (memberTypeConstructor != null)
+            {
+                return memberTypeConstructor.Invoke(new object[] {list});
+            }
+            
+            throw new InvalidOperationException($"Cannot assign {list.GetType()} to type {memberType}");
+        }
+
+        private static Type GetGenericElementType(Type arrayType)
+        {
+            var elementType = arrayType
+                .GetInterfaces()
+                .Union(new [] { arrayType})
+                .Where(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                .Select(t => t.GetGenericArguments()[0])
+                .FirstOrDefault();
+
+            if (elementType == null)
+                throw new InvalidOperationException($"Could not retrieve element type from {arrayType}");
+            return elementType;
         }
     }
 }

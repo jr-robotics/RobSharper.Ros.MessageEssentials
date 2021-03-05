@@ -1,9 +1,14 @@
-
-namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
+﻿namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
 {
-    [RosMessage("test_msgs/Combined")]
-    public class Combined
+    [RosMessage("test_msgs/EnumMessage")]
+    public class EnumMessage
     {
+        public enum EnumValues
+        {
+            A = 13,
+            B = 12
+        }
+        
         // Result of "rosmsg md5"
         public const string ROS_MD5 = "6fdbcb03a86043f4030df29cabc53b0c";
 
@@ -20,16 +25,16 @@ int32 fieldA
 int32 fieldB";
         
         [RosMessageField("int32", "CONST_A", 2)]
-        public const int CONST_A = 13;
+        public const EnumValues CONST_A = EnumValues.A;
         
         [RosMessageField("int32", "CONST_B", 4)]
-        public const int CONST_B = 12;
+        public const EnumValues CONST_B = EnumValues.B;
         
         
         [RosMessageField("int32", "fieldA", 1)]
-        public int A { get; set; }
+        public EnumValues A { get; set; }
         
         [RosMessageField("int32", "fieldB", 3)]
-        public int B { get; set; }
+        public EnumValues B { get; set; }
     }
 }
