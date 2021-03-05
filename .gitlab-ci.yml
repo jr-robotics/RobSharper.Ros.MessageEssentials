@@ -19,15 +19,15 @@ test MessageEssentials:
     - 'dotnet tool install dotnet-reportgenerator-globaltool --tool-path dotnet-tools'
   script:
     - 'cd RobSharper.Ros.MessageEssentials.Tests'
-    - "dotnet test --logger \"junit\" /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=\"$PWD/coverage/\" /p:Exclude=\"[xunit*]*%2C[RobSharper.Ros.MessageEssentials.Tests]*\" /p:ExcludeByAttribute=\"GeneratedCodeAttribute%2CObsolete%2CCompilerGeneratedAttribute\""
-    - '../dotnet-tools/reportgenerator -reports:coverage/coverage.opencover.xml -targetdir:coverage/report -reporttypes:Html -verbosity:Warning'
+    - 'dotnet test --logger junit /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults/'
+    - '../dotnet-tools/reportgenerator -reports:TestResults/coverage.cobertura.xml -targetdir:TestResults/coverage-report -reporttypes:Html'
   coverage: '/Total\s+\|\s+(\d{0,2}\.\d{1,2}%)/'
   artifacts:
     paths:
-      - 'RobSharper.Ros.MessageEssentials.Tests/coverage'
-      - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
+      - 'RobSharper.Ros.MessageEssentials.Tests/TestResults/'
     reports:
       junit: 'RobSharper.Ros.MessageEssentials.Tests/TestResults/TestResults.xml'
+      cobertura: 'RobSharper.Ros.MessageEssentials.Tests/TestResults/coverage.cobertura.xml'
   tags:
     - docker-executor
 
