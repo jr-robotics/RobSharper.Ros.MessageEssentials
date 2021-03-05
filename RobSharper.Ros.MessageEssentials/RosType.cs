@@ -20,16 +20,40 @@ namespace RobSharper.Ros.MessageEssentials
             ArraySize = arraySize;
         }
 
+        /// <summary>
+        /// The package name of the ROS type. Might be null (built in type or relative intra-package type name).
+        /// </summary>
         public string PackageName { get; }
+        
+        /// <summary>
+        /// The name of the ROS type.
+        /// </summary>
         public string TypeName { get; }
         
+        /// <summary>
+        /// True for built in ROS types.
+        /// Built in types are bool, int8, uint8, int16, uint16, int32, uint32, int64,
+        /// uint64, float32, float64, string, time, duration, [char], [byte] and
+        /// arrays of these types.
+        /// </summary>
         public bool IsBuiltIn { get; }
+        
+        /// <summary>
+        /// True for ROS arrays.
+        /// </summary>
         public bool IsArray { get; }
+        
+        /// <summary>
+        /// Returns the size of a fixed sized ROS array (0 for variable size arrays). 
+        /// </summary>
         public int ArraySize { get; }
 
         public bool IsDynamicArray => IsArray && ArraySize == 0;
         public bool IsFixedSizeArray => IsArray && ArraySize > 0;
 
+        /// <summary>
+        /// True, if the type is std_msgs/Header.
+        /// </summary>
         public bool IsHeaderType => !IsArray && !IsBuiltIn && PackageName == "std_msgs" && TypeName == "Header";
         
         /// <summary>
@@ -37,6 +61,12 @@ namespace RobSharper.Ros.MessageEssentials
         /// </summary>
         public bool IsFullQualified => IsBuiltIn || PackageName != null;
 
+        /// <summary>
+        /// Creates a fully qualified type with the given package name.
+        /// </summary>
+        /// <param name="packageName">The package, this type is part of.</param>
+        /// <returns>A new fully qualified ROS Type</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the type is already fully qualified.</exception>
         public RosType ToFullQualifiedType(string packageName)
         {
             if (IsFullQualified)
@@ -45,11 +75,20 @@ namespace RobSharper.Ros.MessageEssentials
             return new RosType(packageName, TypeName, IsBuiltIn, IsArray, ArraySize);
         }
 
+        /// <summary>
+        /// Full ROS type string
+        /// </summary>
+        /// <returns>Full ROS type string</returns>
         public override string ToString()
         {
             return ToString("F");
         }
 
+        /// <summary>
+        /// Formats 
+        /// </summary>
+        /// <param name="format">F = Full type name ([package/]typename and array specifier), T: Type only ([package/]typename)</param>
+        /// <returns></returns>
         public string ToString(string format)
         {
             return ToString(format, null);
