@@ -159,8 +159,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             };
 
         /// <summary>
-        /// Reads a ROS time value as DateTime.
-        /// DateTimeKind is set to UTC.
+        /// Reads a ROS time value.
         /// </summary>
         /// <returns></returns>
         public DateTime ReadRosTime()
@@ -168,10 +167,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
 
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            dateTime = dateTime.AddSeconds(secs);
-            dateTime = dateTime.AddMilliseconds(nsecs / 1000000.0);
-
+            var rosTime = new RosTime(secs, nsecs);
+            var dateTime = rosTime.DateTime;
+            
             return dateTime;
         }
 
@@ -180,7 +178,8 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
 
-            var timeSpan = new TimeSpan(0, 0, 0, secs, nsecs / 1000000);
+            var rosTime = new RosTime(secs, nsecs);
+            var timeSpan = rosTime.TimeSpan;
             return timeSpan;
         }
 

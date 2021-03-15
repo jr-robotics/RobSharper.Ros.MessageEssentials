@@ -93,48 +93,26 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         /// <summary>
         /// Writes a DateTime as ROS time value.
-        /// If DateTimeKind is Local, time is converted to UTC.
-        /// It DateTimeKind is Unspecified, time is assumed to be UTC.
-        /// If DateTimeKind is UTC, it is UTC.
+        /// Uses <see cref="RosTimeExtensions.ToRosTime"/> for conversion to a ROS time. 
         /// </summary>
         /// <param name="time"></param>
         /// <exception cref="NotSupportedException"></exception>
         public void Write(DateTime time)
         {
-            DateTime utcValue;
+            var rosTime = time.ToRosTime();
+            Write(rosTime);
+        }
 
-            switch (time.Kind)
-            {
-                case DateTimeKind.Utc:
-                    utcValue = time;
-                    break;
-                case DateTimeKind.Local:
-                    utcValue = time.ToUniversalTime();
-                    break;
-                case DateTimeKind.Unspecified:
-                    utcValue = DateTime.SpecifyKind(time, DateTimeKind.Utc);
-                    break;
-                default:
-                    throw new NotSupportedException($"DateTimeKind {time.Kind} is not supported");
-            }
-            
-            var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            var unixTimeSpan = (utcValue - epochBegin);
-
-            var seconds = unixTimeSpan.Ticks / 10000000L;
-            var nanoseconds = (unixTimeSpan.Ticks - (seconds * 10000000L)) * 100;
-            
-            Write((int) seconds);
-            Write((int) nanoseconds);
+        public void Write(RosTime time)
+        {
+            Write(time.Seconds);
+            Write(time.Nanoseconds);
         }
         
         public void Write(TimeSpan timeSpan)
         {
-            var seconds = (int) timeSpan.TotalSeconds;
-            var nanoseconds = timeSpan.Milliseconds * 1000000;
-            
-            Write((int) seconds);
-            Write((int) nanoseconds);
+            var rosTime = timeSpan.ToRosTime();
+            Write(rosTime);
         }
 
         public void WriteBuiltInType(Type type, object value)
@@ -228,6 +206,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     typeof(DateTime),
                     (writer, value) => writer.Write((DateTime) value)
+                },
+                {
+                    typeof(RosTime),
+                    (writer, value) => writer.Write((RosTime) value)
                 },
                 {
                     typeof(TimeSpan),

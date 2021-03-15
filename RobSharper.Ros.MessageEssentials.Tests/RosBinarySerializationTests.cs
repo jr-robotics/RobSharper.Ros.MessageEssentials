@@ -136,6 +136,58 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         }
 
         [Fact]
+        public void CanWriteAndReadRosTime()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                
+                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,12, 7, DateTimeKind.Unspecified)
+                    .ToRosTime();
+                
+                // Writing should convert to UTC.
+                writer.WriteBuiltInType(typeof(RosTime), writtenTime);
+                
+                // Read back what we wrote.
+                s.Position = 0;
+                var readTime = (RosTime)reader.ReadRosTime();
+                
+                // Expected behaviour is that time in ROS-Messages is UTC.
+                // Max difference is 0.001 since only milliseconds are preserved and ROS uses nanoseconds.
+                readTime.Seconds.Should().Be(writtenTime.Seconds);
+                readTime.Nanoseconds.Should().Be(writtenTime.Nanoseconds);
+                readTime.DateTime.Kind.Should().Be(DateTimeKind.Utc);
+                readTime.DateTime.Should().BeCloseTo(writtenTime.DateTime, TimeSpan.FromSeconds(0.001));
+            }
+        }
+
+        [Fact]
+        public void CanCallReadRosTimeWithImplicitCastToDateTime()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                
+                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,12, 7, DateTimeKind.Unspecified)
+                    .ToRosTime();
+                
+                // Writing should convert to UTC.
+                writer.WriteBuiltInType(typeof(RosTime), writtenTime);
+                
+                // Read back what we wrote.
+                s.Position = 0;
+                DateTime readTime = reader.ReadRosTime();
+                
+                // Expected behaviour is that time in ROS-Messages is UTC.
+                // Max difference is 0.001 since only milliseconds are preserved and ROS uses nanoseconds.
+                readTime.Kind.Should().Be(DateTimeKind.Utc);
+                readTime.Should().BeCloseTo(writtenTime.DateTime, TimeSpan.FromSeconds(0.001));
+            }
+        }
+
+        [Fact]
         public void CanSerializeDateTimeBefore1970()
         {
             using (var s = new MemoryStream())
