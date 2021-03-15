@@ -106,13 +106,30 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 {
                     A = 555
                 }
-            }
+            },
             
             // Null is not supported. Should this be the case?
             // new object[]
             // {
             //     new NestedSimpleInt() { A = null} 
-            // }
+            // },
+            
+            new object[]
+            {
+                new SetBoolRequest()
+                {
+                    Data = true
+                }
+            },
+            
+            new object[]
+            {
+                new SetBoolResponse()
+                {
+                    Message = "This is the message",
+                    Success = true
+                }
+            }
         };
         
         [Theory]
