@@ -91,9 +91,33 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             throw new NotSupportedException("Decimals are not supported by ROS");
         }
 
+        /// <summary>
+        /// Writes a DateTime as ROS time value.
+        /// If DateTimeKind is Local, time is converted to UTC.
+        /// It DateTimeKind is Unspecified, time is assumed to be UTC.
+        /// If DateTimeKind is UTC, it is UTC.
+        /// </summary>
+        /// <param name="time"></param>
+        /// <exception cref="NotSupportedException"></exception>
         public void Write(DateTime time)
         {
-            var utcValue = time.ToUniversalTime();
+            DateTime utcValue;
+
+            switch (time.Kind)
+            {
+                case DateTimeKind.Utc:
+                    utcValue = time;
+                    break;
+                case DateTimeKind.Local:
+                    utcValue = time.ToUniversalTime();
+                    break;
+                case DateTimeKind.Unspecified:
+                    utcValue = DateTime.SpecifyKind(time, DateTimeKind.Utc);
+                    break;
+                default:
+                    throw new NotSupportedException($"DateTimeKind {time.Kind} is not supported");
+            }
+            
             var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             var seconds = (utcValue - epochBegin).TotalSeconds;
             var nanoseconds = utcValue.Millisecond * 1000000.0;

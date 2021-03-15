@@ -158,6 +158,11 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 }
             };
 
+        /// <summary>
+        /// Reads a ROS time value as DateTime.
+        /// DateTimeKind is set to UTC.
+        /// </summary>
+        /// <returns></returns>
         public DateTime ReadRosTime()
         {
             var secs = base.ReadInt32();
