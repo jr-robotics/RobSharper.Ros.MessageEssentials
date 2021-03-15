@@ -73,7 +73,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             {
                 var writer = new RosBinaryWriter(s);
                 var reader = new RosBinaryReader(s);
-                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,0, DateTimeKind.Local);
+                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,12, 7, DateTimeKind.Local);
                 
                 // Writing should convert to UTC.
                 writer.WriteBuiltInType(typeof(DateTime), writtenTime);
@@ -96,7 +96,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             {
                 var writer = new RosBinaryWriter(s);
                 var reader = new RosBinaryReader(s);
-                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,0, DateTimeKind.Utc);
+                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,12, 7, DateTimeKind.Utc);
                 
                 // Writing should convert to UTC.
                 writer.WriteBuiltInType(typeof(DateTime), writtenTime);
@@ -119,7 +119,30 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             {
                 var writer = new RosBinaryWriter(s);
                 var reader = new RosBinaryReader(s);
-                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,0, DateTimeKind.Unspecified);
+                var writtenTime = new DateTime(2021, 03, 15, 18, 55 ,12, 7, DateTimeKind.Unspecified);
+                
+                // Writing should convert to UTC.
+                writer.WriteBuiltInType(typeof(DateTime), writtenTime);
+                
+                // Read back what we wrote.
+                s.Position = 0;
+                var readTime = (DateTime)reader.ReadBuiltInType(typeof(DateTime));
+                
+                // Expected behaviour is that time in ROS-Messages is UTC.
+                // Max difference is 0.001 since only milliseconds are preserved and ROS uses nanoseconds.
+                readTime.Kind.Should().Be(DateTimeKind.Utc);
+                readTime.Should().BeCloseTo(writtenTime, TimeSpan.FromSeconds(0.001));
+            }
+        }
+
+        [Fact]
+        public void CanSerializeDateTimeBefore1970()
+        {
+            using (var s = new MemoryStream())
+            {
+                var writer = new RosBinaryWriter(s);
+                var reader = new RosBinaryReader(s);
+                var writtenTime = new DateTime(1964, 01, 15, 18, 55 ,12, 7, DateTimeKind.Unspecified);
                 
                 // Writing should convert to UTC.
                 writer.WriteBuiltInType(typeof(DateTime), writtenTime);

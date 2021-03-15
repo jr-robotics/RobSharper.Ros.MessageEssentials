@@ -119,8 +119,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             }
             
             var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            var seconds = (utcValue - epochBegin).TotalSeconds;
-            var nanoseconds = utcValue.Millisecond * 1000000.0;
+            var unixTimeSpan = (utcValue - epochBegin);
+
+            var seconds = unixTimeSpan.Ticks / 10000000L;
+            var nanoseconds = (unixTimeSpan.Ticks - (seconds * 10000000L)) * 100;
             
             Write((int) seconds);
             Write((int) nanoseconds);
