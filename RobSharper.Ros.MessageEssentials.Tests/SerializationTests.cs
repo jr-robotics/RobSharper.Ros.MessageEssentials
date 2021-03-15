@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
@@ -128,6 +129,26 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 {
                     Message = "This is the message",
                     Success = true
+                }
+            },
+            
+            new object[]
+            {
+                new SingleJointPositionGoal()
+                {
+                    Position = 0.95099999,
+                    MaxVelocity = 1.5,
+                    MinDuration = TimeSpan.FromSeconds(3)
+                }
+            },
+            
+            new object []
+            {
+                new SingleJointPositionFeedback()
+                {
+                    Position = 0.00003,
+                    Error = 0.01,
+                    Velocity = 1.0,
                 }
             }
         };

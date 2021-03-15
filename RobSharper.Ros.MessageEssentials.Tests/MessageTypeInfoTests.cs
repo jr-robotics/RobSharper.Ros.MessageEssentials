@@ -27,6 +27,9 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [InlineData(typeof(NestedNestedType), NestedNestedType.ROS_MD5)]
         [InlineData(typeof(SetBoolRequest), SetBoolRequest.ROS_MD5)]
         [InlineData(typeof(SetBoolResponse), SetBoolResponse.ROS_MD5)]
+        [InlineData(typeof(SingleJointPositionGoal), SingleJointPositionGoal.ROS_MD5)]
+        [InlineData(typeof(SingleJointPositionResult), SingleJointPositionResult.ROS_MD5)]
+        [InlineData(typeof(SingleJointPositionFeedback), SingleJointPositionFeedback.ROS_MD5)]
         public void CreateMessageTypeInfo_with_correct_md5_sum(Type messageType, string expectedMd5Sum)
         {
             var target = new MessageTypeRegistry();
@@ -83,6 +86,9 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [InlineData(typeof(NestedNestedType), NestedNestedType.MESSAGE_DEFINITION)]
         [InlineData(typeof(SetBoolRequest), SetBoolRequest.MESSAGE_DEFINITION)]
         [InlineData(typeof(SetBoolResponse), SetBoolResponse.MESSAGE_DEFINITION)]
+        [InlineData(typeof(SingleJointPositionGoal), SingleJointPositionGoal.MESSAGE_DEFINITION)]
+        [InlineData(typeof(SingleJointPositionResult), SingleJointPositionResult.MESSAGE_DEFINITION)]
+        [InlineData(typeof(SingleJointPositionFeedback), SingleJointPositionFeedback.MESSAGE_DEFINITION)]
         public void MessageTypeInfo_has_correct_message_definition(Type messageType, string expectedMessageDefinition)
         {
             expectedMessageDefinition = expectedMessageDefinition?.Replace("\r\n", "\n");

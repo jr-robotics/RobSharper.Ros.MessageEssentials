@@ -7,7 +7,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
     public class ServiceMessageAttributeTests
     {
         [Fact]
-        public void RequestAttributeSetsCorrectMessageTypeNameForRequest()
+        public void ServiceAttributeSetsCorrectMessageTypeNameForRequest()
         {
             var attr = new RosServiceMessageAttribute("std_srvs/SetBool", ServiceMessageKind.Request);
 
@@ -17,7 +17,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         }
         
         [Fact]
-        public void RequestAttributeSetsCorrectMessageTypeNameForResponse()
+        public void ServiceAttributeSetsCorrectMessageTypeNameForResponse()
         {
             var attr = new RosServiceMessageAttribute("std_srvs/SetBool", ServiceMessageKind.Response);
 
@@ -38,7 +38,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         }
         
         [Fact]
-        public void CanGetRosMessageAttributeFromServiceMessage()
+        public void CanGetRosMessageBaseAttributeFromServiceMessage()
         {
             var targetType = typeof(SetBoolRequest);
             var attributes = targetType.GetCustomAttributes(typeof(RosMessageBaseAttribute), false);
