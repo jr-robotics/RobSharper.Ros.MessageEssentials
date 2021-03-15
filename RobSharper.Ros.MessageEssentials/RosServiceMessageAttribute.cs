@@ -1,16 +1,18 @@
 namespace RobSharper.Ros.MessageEssentials
 {
-    public sealed class RosServiceMessageAttribute : RosMessageAttribute
+    public sealed class RosServiceMessageAttribute : RosMessageBaseAttribute
     {
+        public override string MessageName { get; }
+        
         public string ServiceName { get; }
 
         public ServiceMessageKind MessageKind { get; }
 
-        public RosServiceMessageAttribute(string rosServiceName, ServiceMessageKind kind) : 
-            base(rosServiceName + kind.ToString())
+        public RosServiceMessageAttribute(string rosServiceName, ServiceMessageKind kind)
         {
             ServiceName = rosServiceName;
             MessageKind = kind;
+            MessageName = rosServiceName + kind;
         }
     }
 }

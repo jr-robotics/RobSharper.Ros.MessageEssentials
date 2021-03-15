@@ -33,17 +33,19 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             var attributes = targetType.GetCustomAttributes(typeof(RosServiceMessageAttribute), false);
 
             attributes.Should().HaveCount(1);
-            attributes.Should().AllBeAssignableTo<RosServiceMessageAttribute>();
+            attributes.Should().AllBeAssignableTo<RosMessageBaseAttribute>();
+            attributes.Should().AllBeOfType<RosServiceMessageAttribute>();
         }
         
         [Fact]
         public void CanGetRosMessageAttributeFromServiceMessage()
         {
             var targetType = typeof(SetBoolRequest);
-            var attributes = targetType.GetCustomAttributes(typeof(RosMessageAttribute), false);
+            var attributes = targetType.GetCustomAttributes(typeof(RosMessageBaseAttribute), false);
 
             attributes.Should().HaveCount(1);
-            attributes.Should().AllBeAssignableTo<RosMessageAttribute>();
+            attributes.Should().AllBeAssignableTo<RosMessageBaseAttribute>();
+            attributes.Should().AllBeOfType<RosServiceMessageAttribute>();
         }
     }
 }

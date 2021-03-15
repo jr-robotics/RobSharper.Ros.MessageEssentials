@@ -17,7 +17,7 @@ namespace RobSharper.Ros.MessageEssentials
             if (type == null) throw new ArgumentNullException(nameof(type));
             
             var messageTypeAttribute = type.GetCustomAttributes(false)
-                .OfType<RosMessageAttribute>()
+                .OfType<RosMessageBaseAttribute>()
                 .FirstOrDefault();
             
             if (messageTypeAttribute == null)
@@ -123,7 +123,7 @@ namespace RobSharper.Ros.MessageEssentials
             if (type == null) throw new ArgumentNullException(nameof(type));
 
             return type
-                .GetCustomAttributes(typeof(RosMessageAttribute), false)
+                .GetCustomAttributes(typeof(RosMessageBaseAttribute), false)
                 .Any();
         }
     }
