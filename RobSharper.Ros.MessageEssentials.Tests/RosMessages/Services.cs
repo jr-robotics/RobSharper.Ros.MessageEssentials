@@ -4,7 +4,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
     public class SetBoolRequest
     {
         // Result of "rosmsg md5"
-        public const string ROS_MD5 = "TOSO";
+        public const string ROS_MD5 = "8b94c1b53db61fb6aed406028ad6332a";
 
         // Result of "gendeps --cat"
         public const string MESSAGE_DEFINITION = @"bool data";
@@ -19,7 +19,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests.RosMessages
     public class SetBoolResponse
     {
         // Result of "rosmsg md5"
-        public const string ROS_MD5 = "TODO";
+        public const string ROS_MD5 = "937c9679a518e3a18d831e57125ea522";
 
         // Result of "gendeps --cat"
         public const string MESSAGE_DEFINITION = @"bool success
