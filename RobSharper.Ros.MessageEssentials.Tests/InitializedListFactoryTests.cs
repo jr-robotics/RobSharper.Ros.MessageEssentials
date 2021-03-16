@@ -6,7 +6,7 @@ using Xunit;
 
 namespace RobSharper.Ros.MessageEssentials.Tests
 {
-    public class FixedSizeInitializedListTests
+    public class InitializedListFactoryTests
     {
         [Theory]
         [InlineData(typeof(bool))]
@@ -30,7 +30,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             const int size = 5;
 
-            var list = FixedSizeInitializedList.Create(listType, size);
+            var list = InitializedListFactory.Create(listType, size);
             
             list.Should().NotBeNull();
             list.Should().HaveCount(size);
@@ -59,7 +59,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             const int size = 5;
 
-            var createMethod = typeof(FixedSizeInitializedList)
+            var createMethod = typeof(InitializedListFactory)
                 .GetMethod("Create", new [] {typeof(int)})
                 .MakeGenericMethod(elementType);
 
@@ -75,7 +75,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             const int size = 0;
 
-            var list = FixedSizeInitializedList.Create<int>(size);
+            var list = InitializedListFactory.Create<int>(size);
             
             list.Should().NotBeNull();
             list.Should().HaveCount(size);
@@ -84,7 +84,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [Fact]
         public void CanInitializeListWithNegativeSize()
         {
-            Action initAction = () => FixedSizeInitializedList.Create<int>(-5);
+            Action initAction = () => InitializedListFactory.Create<int>(-5);
             initAction.Should().Throw<ArgumentOutOfRangeException>();
         }
         
@@ -92,7 +92,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [Fact]
         public void InitializingListForClassWithoutDefaultConstrcutorThrowsException()
         {
-            Action initAction = () => FixedSizeInitializedList.Create<ClassWithoutDefaultConstructor>(5);
+            Action initAction = () => InitializedListFactory.Create<ClassWithoutDefaultConstructor>(5);
             initAction.Should().Throw<MissingMethodException>();
         }
         
@@ -115,7 +115,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         [InlineData(typeof(List<int>), typeof(int))]
         public void CanUnwrapListType(Type listTye, Type expectedElementType)
         {
-            var underlyingType = FixedSizeInitializedList.UnwrapListType(listTye);
+            var underlyingType = InitializedListFactory.UnwrapListType(listTye);
 
             underlyingType.Should().NotBeNull();
             underlyingType.Should().Be(expectedElementType);

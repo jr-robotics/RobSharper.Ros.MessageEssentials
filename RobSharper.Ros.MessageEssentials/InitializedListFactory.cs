@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace RobSharper.Ros.MessageEssentials
 {
-    public static class FixedSizeInitializedList
+    public static class InitializedListFactory
     {
         public static IList<T> Create<T>(int count)
         {
