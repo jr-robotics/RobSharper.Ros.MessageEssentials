@@ -29,8 +29,6 @@ namespace RobSharper.Ros.MessageEssentials
             }
         }
 
-        public TimeSpan TimeSpan => new TimeSpan(0, 0, 0, Seconds, Nanoseconds / 1000000);
-
         public RosTime(int seconds = 0, int nanoseconds = 0)
         {
             _dateTime = null;
@@ -41,9 +39,6 @@ namespace RobSharper.Ros.MessageEssentials
         
         public static implicit operator RosTime(DateTime value) => FromDateTime(value);
         public static implicit operator DateTime(RosTime value) => value.DateTime;
-        
-        public static implicit operator TimeSpan(RosTime value) => value.TimeSpan;
-        public static implicit operator RosTime(TimeSpan value) => FromTimeSpan(value);
         
 
         /// <summary>
@@ -81,14 +76,6 @@ namespace RobSharper.Ros.MessageEssentials
             var nanoseconds = (unixTimeSpan.Ticks - (seconds * 10000000L)) * 100;
 
             return new RosTime((int)seconds, (int)nanoseconds);
-        }
-
-        public static RosTime FromTimeSpan(TimeSpan timeSpan)
-        {
-            var seconds = (int) timeSpan.TotalSeconds;
-            var nanoseconds = timeSpan.Milliseconds * 1000000;
-
-            return new RosTime(seconds, nanoseconds);
         }
         
 

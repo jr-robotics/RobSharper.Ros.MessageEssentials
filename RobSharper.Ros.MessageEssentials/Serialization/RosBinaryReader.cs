@@ -178,7 +178,7 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             var secs = base.ReadInt32();
             var nsecs = base.ReadInt32();
 
-            var rosTime = new RosTime(secs, nsecs);
+            var rosTime = new RosDuration(secs, nsecs);
             var timeSpan = rosTime.TimeSpan;
             return timeSpan;
         }

@@ -111,8 +111,14 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         
         public void Write(TimeSpan timeSpan)
         {
-            var rosTime = timeSpan.ToRosTime();
-            Write(rosTime);
+            var rosDuration = timeSpan.ToRosDuration();
+            Write(rosDuration);
+        }
+
+        public void Write(RosDuration duration)
+        {
+            Write(duration.Seconds);
+            Write(duration.Nanoseconds);
         }
 
         public void WriteBuiltInType(Type type, object value)
@@ -214,6 +220,10 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 {
                     typeof(TimeSpan),
                     (writer, value) => writer.Write((TimeSpan) value)
+                },
+                {
+                    typeof(RosDuration),
+                    (writer, value) => writer.Write((RosDuration) value)
                 }
             };
     }
