@@ -308,6 +308,129 @@ public class EnumGoalStatus
 }
 ```
 
+### Topics, Services & Actions
+
+The examples above depicted the mapping of ROS message (for topics).
+You can also map ROS services and actions.
+
+**Topics**
+
+Use [`RosMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosMessageAttribute.cs) to annotate message classes.
+
+ROS msg file (geometry_msgs/msg/Point.msg):
+``` 
+# This contains the position of a point in free space
+float64 x
+float64 y
+float64 z 
+```
+
+.Net Class:
+```c#
+[RosMessage("geometry_msgs/Point")]
+public class Point
+{
+    [RosMessageField("float64", "x", 1)]
+    public double X { get; set; }
+    
+    [RosMessageField("float64", "y", 2)]
+    public double Y { get; set; }
+    
+    [RosMessageField("float64", "z", 3)]
+    public double Z { get; set; }
+}
+```
+
+**Services**
+
+Use [`RosServiceMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosServiceMessageAttribute.cs) to annotate message classes.
+
+ROS srv file (diagnostic_msgs/srv/AddDiagnostics.srv):
+``` 
+string load_namespace
+---
+bool success
+string message
+```
+
+.Net Classes:
+```c#
+[RosServiceMessage("diagnostic_msgs/AddDiagnostics", ServiceMessageKind.Request)]
+public class AddDiagnosticsRequest
+{
+    [RosMessageField("string", "load_namespace", 1)]
+    public string LoadNamespace { get; set; } = string.Empty;
+}
+
+[RosServiceMessage("diagnostic_msgs/AddDiagnostics", ServiceMessageKind.Response)]
+public class AddDiagnosticsResponse
+{
+    [RosMessageField("bool", "success", 1)]
+    bool Success { get; set; }
+    
+    [RosMessageField("string", "message", 2)]
+    public string Message { get; set; } = string.Empty;
+}
+```
+
+
+**Actions**
+
+Use [`RosActionMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosActionMessageAttribute.cs) to annotate message classes.
+
+ROS action file (control_msgs/action/SingleJointPosition.action):
+``` 
+float64 position
+duration min_duration
+float64 max_velocity
+---
+---
+Header header
+float64 position
+float64 velocity
+float64 error
+```
+
+.Net Classes:
+```c#
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Goal)]
+public class SingleJointPositionGoal
+{
+    [RosMessageField("float64", "position", 1)]
+    public System.Double Position { get; set; }
+
+    [RosMessageField("duration", "min_duration", 2)]
+    public System.TimeSpan MinDuration { get; set; }
+
+    [RosMessageField("float64", "max_velocity", 3)]
+    public System.Double MaxVelocity { get; set; }
+
+}
+
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Result)]
+public class SingleJointPositionResult
+{
+}
+
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Feedback)]
+public class SingleJointPositionFeedback
+{
+    [RosMessageField("std_msgs/Header", "header", 1)]
+    public Header Header { get; set; } = new Header();
+
+    [RosMessageField("float64", "position", 2)]
+    public System.Double Position { get; set; }
+
+    [RosMessageField("float64", "velocity", 3)]
+    public System.Double Velocity { get; set; }
+
+    [RosMessageField("float64", "error", 4)]
+    public System.Double Error { get; set; }
+
+}
+```
+
+
 ### Serialization
 
 The annotated types can now be used for serialization and deserialization to binary streams in
