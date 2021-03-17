@@ -60,8 +60,6 @@ nuget-pack:
   stage: deploy
   dependencies:
     - nuget-pack
-  variables:
-    GIT_STRATEGY: none
   environment:
     name: JR BaGet
     url: https://robotics-bage.joanneum.at/
@@ -93,8 +91,6 @@ nuget.org:
   stage: deploy
   dependencies:
     - nuget-pack
-  variables:
-    GIT_STRATEGY: none
   environment:
     name: NuGet.org
     url: https://www.nuget.org/
