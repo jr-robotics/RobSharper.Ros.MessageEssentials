@@ -97,8 +97,8 @@ public class LongConstant
 
 **Primitive types**
 
-| ROS       | .Net      |
-| --------- | --------- |
+| ROS       | .Net      | Notes |
+| --------- | --------- | ------|
 | bool      | bool      |
 | int8      | sbyte     |
 | uint8     | byte      |
@@ -110,9 +110,9 @@ public class LongConstant
 | uint64    | ulong     |
 | float32   | float     |
 | float64   | double    |
-| string    | string    |
-| time      | DateTime  |
-| duration  | TimeSpan  |
+| string    | string    | Initialize fields with `string.Empty`. ROS middleware serialization does not support null values. |
+| time      | DateTime  | [RosTime](RobSharper.Ros.MessageEssentials/RosTime.cs) is a helper struct to map between ROS time and DateTime. Initialize fields with `RosTime.Zero`.|
+| duration  | TimeSpan  | [RosDuration](RobSharper.Ros.MessageEssentials/RosDuration.cs) is a helper struct to map between ROS duration and TimeSpan. | 
 
 These are the default type mappings between ROS and .Net.
 You can define alternative mappings by setting the `RosType` property of the 
@@ -130,20 +130,62 @@ public class IntMessage
 }
 ```
 
+Example of ROS message with default values
+```c#
+[RosMessage("test_msgs/Example")]
+public class IntMessage
+{
+    // Value types have a default value
+    [RosMessageField("int8", "IntValue", 1)]
+    public int IntValue { get; set; }
+    
+    // strings should be set to string.Empty (null is not allowed for ROS serialization)
+    [RosMessageField("int8", "IntValue", 2)]
+    public string StringValue { get; set; } = string.Empty;
+    
+    // A default DateTime (January 1, 0001) is not the same as the default ROS time (January 1, 1970)
+    [RosMessageField("time", "TimeValue", 3)]
+    public DateTime TimeValue { get; set; } = RosTime.Zero;  
+}
+```
+
 **Arrays**
 
 Arrays are mapped to `IList<T>`, but it also accepts `List<T>`, `IEnumerable<T>` or `ICollection<T>`.
 For fixed size ROS arrays make sure, that the list contains exactly the required number of elements,
-otherwise serialization will throw an exception.
-As for all properties annotated with `RosMessageFieldAttribute`, they must be public, readable (get) and
+otherwise serialization will throw an exception. 
+RobSharper offers is a `PopulateWithInitializedRosValues` extension method defined on `ICollection<T>` for
+initializing fixed size ROS arrays.
+
+Remember:
+ * ROS does not support null values. Make sure to initialize your arrays. 
+ * As for all properties annotated with `RosMessageFieldAttribute`, they must be public, readable (get) and
 writable (set).
 
+
+Variable size ROS array example:
 ```c#
 [RosMessage("test_msgs/IntArray")]
 public class SimpleIntArray
 {
     [RosMessageField("int32[]", "values", 1)]
     public IList<int> Values { get; set; } = new List<int>();
+}
+```
+
+Fixed size ROS array example:
+```c#
+[RosMessage("test_msgs/IntArray")]
+public class SimpleFixedSizeIntArray
+{
+    [RosMessageField("int32[5]", "values", 1)]
+    public IList<int> Values { get; set; } = new List<int>();
+    
+    public SimpleFixedSizeIntArray()
+    {
+        // Populate list with 5 default values.
+        Values.PopulateWithInitializedRosValues(5);
+    }
 }
 ```
 
