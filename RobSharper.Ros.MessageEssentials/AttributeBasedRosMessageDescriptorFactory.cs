@@ -25,7 +25,7 @@ namespace RobSharper.Ros.MessageEssentials
             
             var descriptorBuilder = new RosMessageDescriptorBuilder();
 
-            var rosType = RosType.Parse(messageTypeAttribute.MessageName);
+            var rosType = RosType.Parse(messageTypeAttribute.MessageType);
             descriptorBuilder.SetRosType(rosType);
             
             // Get Fields from properties

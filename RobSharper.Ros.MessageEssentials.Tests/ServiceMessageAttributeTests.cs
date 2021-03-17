@@ -12,7 +12,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             var attr = new RosServiceMessageAttribute("std_srvs/SetBool", ServiceMessageKind.Request);
 
             attr.ServiceName.Should().Be("std_srvs/SetBool");
-            attr.MessageName.Should().Be("std_srvs/SetBoolRequest");
+            attr.MessageType.Should().Be("std_srvs/SetBoolRequest");
             attr.MessageKind.Should().Be(ServiceMessageKind.Request);
         }
         
@@ -22,7 +22,7 @@ namespace RobSharper.Ros.MessageEssentials.Tests
             var attr = new RosServiceMessageAttribute("std_srvs/SetBool", ServiceMessageKind.Response);
 
             attr.ServiceName.Should().Be("std_srvs/SetBool");
-            attr.MessageName.Should().Be("std_srvs/SetBoolResponse");
+            attr.MessageType.Should().Be("std_srvs/SetBoolResponse");
             attr.MessageKind.Should().Be(ServiceMessageKind.Response);
         }
 

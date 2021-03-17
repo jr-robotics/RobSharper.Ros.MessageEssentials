@@ -11,8 +11,8 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             var attr = new RosActionMessageAttribute("control_msgs/SingleJointPosition", ActionMessageKind.Goal);
 
-            attr.ServiceName.Should().Be("control_msgs/SingleJointPosition");
-            attr.MessageName.Should().Be("control_msgs/SingleJointPositionGoal");
+            attr.ActionName.Should().Be("control_msgs/SingleJointPosition");
+            attr.MessageType.Should().Be("control_msgs/SingleJointPositionGoal");
             attr.MessageKind.Should().Be(ActionMessageKind.Goal);
         }
         
@@ -21,8 +21,8 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             var attr = new RosActionMessageAttribute("control_msgs/SingleJointPosition", ActionMessageKind.Result);
 
-            attr.ServiceName.Should().Be("control_msgs/SingleJointPosition");
-            attr.MessageName.Should().Be("control_msgs/SingleJointPositionResult");
+            attr.ActionName.Should().Be("control_msgs/SingleJointPosition");
+            attr.MessageType.Should().Be("control_msgs/SingleJointPositionResult");
             attr.MessageKind.Should().Be(ActionMessageKind.Result);
         }
         
@@ -31,8 +31,8 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         {
             var attr = new RosActionMessageAttribute("control_msgs/SingleJointPosition", ActionMessageKind.Feedback);
 
-            attr.ServiceName.Should().Be("control_msgs/SingleJointPosition");
-            attr.MessageName.Should().Be("control_msgs/SingleJointPositionFeedback");
+            attr.ActionName.Should().Be("control_msgs/SingleJointPosition");
+            attr.MessageType.Should().Be("control_msgs/SingleJointPositionFeedback");
             attr.MessageKind.Should().Be(ActionMessageKind.Feedback);
         }
 

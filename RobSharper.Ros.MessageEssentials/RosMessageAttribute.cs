@@ -4,17 +4,17 @@ namespace RobSharper.Ros.MessageEssentials
 {
     public sealed class RosMessageAttribute : RosMessageBaseAttribute
     {
-        private string _messageName;
+        private string _messageType;
         
         [Obsolete("This property was renamed to MessageName")]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
         public string RosType
         {
-            get => _messageName;
-            set => _messageName = value;
+            get => _messageType;
+            set => _messageType = value;
         }
 
-        public override string MessageName => _messageName;
+        public override string MessageType => _messageType;
 
         [Obsolete("Use constructor with message type")]
         [System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)]
@@ -22,9 +22,9 @@ namespace RobSharper.Ros.MessageEssentials
         {
         }
 
-        public RosMessageAttribute(string rosMessageName)
+        public RosMessageAttribute(string rosMessageType)
         {
-            _messageName = rosMessageName;
+            _messageType = rosMessageType;
         }
     }
 }
