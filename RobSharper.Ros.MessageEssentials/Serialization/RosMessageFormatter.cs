@@ -24,21 +24,36 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             if (o == null) throw new ArgumentNullException(nameof(o));
 
             if (!(messageTypeInfo is DescriptorBasedMessageTypeInfo messageInfo))
-                throw new NotSupportedException();
+                throw new NotSupportedException("MessageTypeInfo is no DescriptorBasedMessageTypeInfo");
 
             var fields = messageInfo.MessageDescriptor.Fields;
 
             foreach (var field in fields)
             {
-                var value = field.GetValue(o);
+                try
+                {
+                    var value = field.GetValue(o);
 
-                if (field.RosType.IsArray)
-                {
-                    SerializeArray(context, writer, field.RosType, field.Type, value);
+                    if (field.RosType.IsArray)
+                    {
+                        SerializeArray(context, writer, field.RosType, field.Type, value);
+                    }
+                    else
+                    {
+                        SerializeValue(context, writer, field.RosType, field.Type, value);
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    SerializeValue(context, writer, field.RosType, field.Type, value);
+                    if (e is RosFieldSerializationException rosException)
+                    {
+                        rosException.AddLeadingRosIdentifier(field.RosIdentifier);
+                        throw;
+                    }
+                    else
+                    {
+                        throw new RosFieldSerializationException(RosFieldSerializationException.SerializationOperation.Serialize, field.RosIdentifier, e);
+                    }
                 }
             }
         }
@@ -71,9 +86,14 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
         private void SerializeArray(SerializationContext context, RosBinaryWriter writer, RosType rosType, Type memberType,
             object value)
         {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            
             var collection = value as ICollection;
 
-            var elementCount = collection?.Count ?? 0;
+            if (collection == null)
+                throw new InvalidCastException("Value does not implement System.ICollection.");
+
+            var elementCount = collection.Count;
 
             if (rosType.IsFixedSizeArray)
             {
@@ -91,9 +111,28 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             var elementType = GetGenericElementType(memberType);
 
+            var index = -1;
             foreach (var item in collection)
             {
-                SerializeValue(context, writer, rosType, elementType, item);
+                index++;
+
+                try
+                {
+                    SerializeValue(context, writer, rosType, elementType, item);
+                }
+                catch (Exception e)
+                {
+                    var indexString = $"[{index}]";
+                    if (e is RosFieldSerializationException rosException)
+                    {
+                        rosException.AddLeadingRosIdentifier(indexString);
+                        throw;
+                    }
+                    else
+                    {
+                        throw new RosFieldSerializationException(RosFieldSerializationException.SerializationOperation.Serialize, indexString, e);
+                    }
+                }
             }
         }
 
