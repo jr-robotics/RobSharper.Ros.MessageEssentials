@@ -283,20 +283,14 @@ namespace RobSharper.Ros.MessageEssentials.Tests
         }
 
         [Fact]
-        public void WriteNullStringGetsEmptyString()
+        public void WriteNullStringThrowsException()
         {
             using (var s = new MemoryStream())
             {
                 var writer = new RosBinaryWriter(s);
-                var reader = new RosBinaryReader(s);
 
-                writer.WriteBuiltInType(typeof(string), null);
-
-                s.Position = 0;
-
-                var readValue = (string) reader.ReadBuiltInType(typeof(string));
-
-                readValue.Should().BeEmpty();
+                Action writeAction = () => writer.WriteBuiltInType(typeof(string), null);
+                writeAction.Should().Throw<ArgumentNullException>();
             }
         }
     }
