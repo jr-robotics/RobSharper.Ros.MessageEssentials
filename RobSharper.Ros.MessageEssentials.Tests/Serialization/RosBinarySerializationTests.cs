@@ -4,7 +4,7 @@ using FluentAssertions;
 using RobSharper.Ros.MessageEssentials.Serialization;
 using Xunit;
 
-namespace RobSharper.Ros.MessageEssentials.Tests
+namespace RobSharper.Ros.MessageEssentials.Tests.Serialization
 {
     public class RosBinarySerializationTests
     {

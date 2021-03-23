@@ -6,7 +6,7 @@ using RobSharper.Ros.MessageEssentials.Serialization;
 using RobSharper.Ros.MessageEssentials.Tests.RosMessages;
 using Xunit;
 
-namespace RobSharper.Ros.MessageEssentials.Tests
+namespace RobSharper.Ros.MessageEssentials.Tests.Serialization
 {
     public class SerializationTests
     {
