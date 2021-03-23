@@ -152,17 +152,32 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             foreach (var field in fields)
             {
-                object fieldValue;
-                if (field.RosType.IsArray)
+                try
                 {
-                    fieldValue = DeserializeArray(context, reader, field.RosType, field.Type);
-                }
-                else
-                {
-                    fieldValue = DeserializeValue(context, reader, field.RosType, field.Type);
-                }
+                    object fieldValue;
+                    if (field.RosType.IsArray)
+                    {
+                        fieldValue = DeserializeArray(context, reader, field.RosType, field.Type);
+                    }
+                    else
+                    {
+                        fieldValue = DeserializeValue(context, reader, field.RosType, field.Type);
+                    }
 
-                field.SetValue(result, fieldValue);
+                    field.SetValue(result, fieldValue);
+                }
+                catch (Exception e)
+                {
+                    if (e is RosFieldSerializationException rosException)
+                    {
+                        rosException.AddLeadingRosIdentifier(field.RosIdentifier);
+                        throw;
+                    }
+                    else
+                    {
+                        throw new RosFieldSerializationException(RosFieldSerializationException.SerializationOperation.Deserialize, field.RosIdentifier, e);
+                    }
+                }
             }
 
             return result;
@@ -210,8 +225,24 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
             for (var i = 0; i < length; i++)
             {
-                var item = DeserializeValue(context, reader, rosType, elementType);
-                list.Add(item);
+                try
+                {
+                    var item = DeserializeValue(context, reader, rosType, elementType);
+                    list.Add(item);
+                }
+                catch (Exception e)
+                {
+                    var indexString = $"[{i}]";
+                    if (e is RosFieldSerializationException rosException)
+                    {
+                        rosException.AddLeadingRosIdentifier(indexString);
+                        throw;
+                    }
+                    else
+                    {
+                        throw new RosFieldSerializationException(RosFieldSerializationException.SerializationOperation.Deserialize, indexString, e);
+                    }
+                }
             }
 
             return ConvertListToMemberType(list, memberType);
