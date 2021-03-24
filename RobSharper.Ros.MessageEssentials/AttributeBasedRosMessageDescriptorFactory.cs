@@ -17,7 +17,7 @@ namespace RobSharper.Ros.MessageEssentials
             if (type == null) throw new ArgumentNullException(nameof(type));
             
             var messageTypeAttribute = type.GetCustomAttributes(false)
-                .OfType<RosMessageAttribute>()
+                .OfType<RosMessageBaseAttribute>()
                 .FirstOrDefault();
             
             if (messageTypeAttribute == null)
@@ -25,7 +25,7 @@ namespace RobSharper.Ros.MessageEssentials
             
             var descriptorBuilder = new RosMessageDescriptorBuilder();
 
-            var rosType = RosType.Parse(messageTypeAttribute.RosType);
+            var rosType = RosType.Parse(messageTypeAttribute.MessageType);
             descriptorBuilder.SetRosType(rosType);
             
             // Get Fields from properties
@@ -123,7 +123,7 @@ namespace RobSharper.Ros.MessageEssentials
             if (type == null) throw new ArgumentNullException(nameof(type));
 
             return type
-                .GetCustomAttributes(typeof(RosMessageAttribute), false)
+                .GetCustomAttributes(typeof(RosMessageBaseAttribute), false)
                 .Any();
         }
     }

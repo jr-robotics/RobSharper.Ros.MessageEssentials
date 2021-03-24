@@ -17,6 +17,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(string value)
         {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+            
             Write(value.Length);
 
             using (_stream.UseMode(LittleEndianStream.WriteModes.DoNotConvert))
@@ -45,6 +48,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(byte[] buffer)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            
             using (_stream.DoNotConvert())
             {
                 base.Write(buffer);
@@ -53,6 +59,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(byte[] buffer, int index, int count)
         {
+            if (buffer == null)
+                throw new ArgumentNullException(nameof(buffer));
+            
             using (_stream.DoNotConvert())
             {
                 base.Write(buffer, index, count);
@@ -61,6 +70,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(char[] chars)
         {
+            if (chars == null)
+                throw new ArgumentNullException(nameof(chars));
+            
             CheckChars(chars, 0, chars.Length);
 
             using (_stream.DoNotConvert())
@@ -71,6 +83,9 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
 
         public override void Write(char[] chars, int index, int count)
         {
+            if (chars == null)
+                throw new ArgumentNullException(nameof(chars));
+            
             CheckChars(chars, index, count);
 
             using (_stream.DoNotConvert())
@@ -91,24 +106,34 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
             throw new NotSupportedException("Decimals are not supported by ROS");
         }
 
+        /// <summary>
+        /// Writes a DateTime as ROS time value.
+        /// Uses <see cref="RosTimeExtensions.ToRosTime"/> for conversion to a ROS time. 
+        /// </summary>
+        /// <param name="time"></param>
+        /// <exception cref="NotSupportedException"></exception>
         public void Write(DateTime time)
         {
-            var utcValue = time.ToUniversalTime();
-            var epochBegin = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            var seconds = (utcValue - epochBegin).TotalSeconds;
-            var nanoseconds = utcValue.Millisecond * 1000000.0;
-            
-            Write((int) seconds);
-            Write((int) nanoseconds);
+            var rosTime = time.ToRosTime();
+            Write(rosTime);
+        }
+
+        public void Write(RosTime time)
+        {
+            Write(time.Seconds);
+            Write(time.Nanoseconds);
         }
         
         public void Write(TimeSpan timeSpan)
         {
-            var seconds = (int) timeSpan.TotalSeconds;
-            var nanoseconds = timeSpan.Milliseconds * 1000000;
-            
-            Write((int) seconds);
-            Write((int) nanoseconds);
+            var rosDuration = timeSpan.ToRosDuration();
+            Write(rosDuration);
+        }
+
+        public void Write(RosDuration duration)
+        {
+            Write(duration.Seconds);
+            Write(duration.Nanoseconds);
         }
 
         public void WriteBuiltInType(Type type, object value)
@@ -197,15 +222,23 @@ namespace RobSharper.Ros.MessageEssentials.Serialization
                 },
                 {
                     typeof(string),
-                    (writer, value) => writer.Write((string) value ?? string.Empty)
+                    (writer, value) => writer.Write((string) value)
                 },
                 {
                     typeof(DateTime),
                     (writer, value) => writer.Write((DateTime) value)
                 },
                 {
+                    typeof(RosTime),
+                    (writer, value) => writer.Write((RosTime) value)
+                },
+                {
                     typeof(TimeSpan),
                     (writer, value) => writer.Write((TimeSpan) value)
+                },
+                {
+                    typeof(RosDuration),
+                    (writer, value) => writer.Write((RosDuration) value)
                 }
             };
     }

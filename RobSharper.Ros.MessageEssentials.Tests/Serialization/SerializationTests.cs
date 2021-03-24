@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using FluentAssertions;
@@ -5,7 +6,7 @@ using RobSharper.Ros.MessageEssentials.Serialization;
 using RobSharper.Ros.MessageEssentials.Tests.RosMessages;
 using Xunit;
 
-namespace RobSharper.Ros.MessageEssentials.Tests
+namespace RobSharper.Ros.MessageEssentials.Tests.Serialization
 {
     public class SerializationTests
     {
@@ -106,13 +107,50 @@ namespace RobSharper.Ros.MessageEssentials.Tests
                 {
                     A = 555
                 }
-            }
+            },
             
             // Null is not supported. Should this be the case?
             // new object[]
             // {
             //     new NestedSimpleInt() { A = null} 
-            // }
+            // },
+            
+            new object[]
+            {
+                new SetBoolRequest()
+                {
+                    Data = true
+                }
+            },
+            
+            new object[]
+            {
+                new SetBoolResponse()
+                {
+                    Message = "This is the message",
+                    Success = true
+                }
+            },
+            
+            new object[]
+            {
+                new SingleJointPositionGoal()
+                {
+                    Position = 0.95099999,
+                    MaxVelocity = 1.5,
+                    MinDuration = TimeSpan.FromSeconds(3)
+                }
+            },
+            
+            new object []
+            {
+                new SingleJointPositionFeedback()
+                {
+                    Position = 0.00003,
+                    Error = 0.01,
+                    Velocity = 1.0,
+                }
+            }
         };
         
         [Theory]

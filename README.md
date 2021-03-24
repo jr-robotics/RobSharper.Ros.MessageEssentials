@@ -97,8 +97,8 @@ public class LongConstant
 
 **Primitive types**
 
-| ROS       | .Net      |
-| --------- | --------- |
+| ROS       | .Net      | Notes |
+| --------- | --------- | ------|
 | bool      | bool      |
 | int8      | sbyte     |
 | uint8     | byte      |
@@ -110,9 +110,9 @@ public class LongConstant
 | uint64    | ulong     |
 | float32   | float     |
 | float64   | double    |
-| string    | string    |
-| time      | DateTime  |
-| duration  | TimeSpan  |
+| string    | string    | Initialize fields with `string.Empty`. ROS middleware serialization does not support null values. |
+| time      | DateTime  | [RosTime](RobSharper.Ros.MessageEssentials/RosTime.cs) is a helper struct to map between ROS time and DateTime. Initialize fields with `RosTime.Zero`.|
+| duration  | TimeSpan  | [RosDuration](RobSharper.Ros.MessageEssentials/RosDuration.cs) is a helper struct to map between ROS duration and TimeSpan. | 
 
 These are the default type mappings between ROS and .Net.
 You can define alternative mappings by setting the `RosType` property of the 
@@ -130,20 +130,62 @@ public class IntMessage
 }
 ```
 
+Example of ROS message with default values
+```c#
+[RosMessage("test_msgs/Example")]
+public class IntMessage
+{
+    // Value types have a default value
+    [RosMessageField("int8", "IntValue", 1)]
+    public int IntValue { get; set; }
+    
+    // strings should be set to string.Empty (null is not allowed for ROS serialization)
+    [RosMessageField("int8", "IntValue", 2)]
+    public string StringValue { get; set; } = string.Empty;
+    
+    // A default DateTime (January 1, 0001) is not the same as the default ROS time (January 1, 1970)
+    [RosMessageField("time", "TimeValue", 3)]
+    public DateTime TimeValue { get; set; } = RosTime.Zero;  
+}
+```
+
 **Arrays**
 
 Arrays are mapped to `IList<T>`, but it also accepts `List<T>`, `IEnumerable<T>` or `ICollection<T>`.
 For fixed size ROS arrays make sure, that the list contains exactly the required number of elements,
-otherwise serialization will throw an exception.
-As for all properties annotated with `RosMessageFieldAttribute`, they must be public, readable (get) and
+otherwise serialization will throw an exception. 
+RobSharper offers is a `PopulateWithInitializedRosValues` extension method defined on `ICollection<T>` for
+initializing fixed size ROS arrays.
+
+Remember:
+ * ROS does not support null values. Make sure to initialize your arrays. 
+ * As for all properties annotated with `RosMessageFieldAttribute`, they must be public, readable (get) and
 writable (set).
 
+
+Variable size ROS array example:
 ```c#
 [RosMessage("test_msgs/IntArray")]
 public class SimpleIntArray
 {
     [RosMessageField("int32[]", "values", 1)]
     public IList<int> Values { get; set; } = new List<int>();
+}
+```
+
+Fixed size ROS array example:
+```c#
+[RosMessage("test_msgs/IntArray")]
+public class SimpleFixedSizeIntArray
+{
+    [RosMessageField("int32[5]", "values", 1)]
+    public IList<int> Values { get; set; } = new List<int>();
+    
+    public SimpleFixedSizeIntArray()
+    {
+        // Populate list with 5 default values.
+        Values.PopulateWithInitializedRosValues(5);
+    }
 }
 ```
 
@@ -265,6 +307,129 @@ public class EnumGoalStatus
     public const GoalStatusValue Lost = GoalStatusValue.Lost;
 }
 ```
+
+### Topics, Services & Actions
+
+The examples above depicted the mapping of ROS message (for topics).
+You can also map ROS services and actions.
+
+**Topics**
+
+Use [`RosMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosMessageAttribute.cs) to annotate message classes.
+
+ROS msg file (geometry_msgs/msg/Point.msg):
+``` 
+# This contains the position of a point in free space
+float64 x
+float64 y
+float64 z 
+```
+
+.Net Class:
+```c#
+[RosMessage("geometry_msgs/Point")]
+public class Point
+{
+    [RosMessageField("float64", "x", 1)]
+    public double X { get; set; }
+    
+    [RosMessageField("float64", "y", 2)]
+    public double Y { get; set; }
+    
+    [RosMessageField("float64", "z", 3)]
+    public double Z { get; set; }
+}
+```
+
+**Services**
+
+Use [`RosServiceMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosServiceMessageAttribute.cs) to annotate message classes.
+
+ROS srv file (diagnostic_msgs/srv/AddDiagnostics.srv):
+``` 
+string load_namespace
+---
+bool success
+string message
+```
+
+.Net Classes:
+```c#
+[RosServiceMessage("diagnostic_msgs/AddDiagnostics", ServiceMessageKind.Request)]
+public class AddDiagnosticsRequest
+{
+    [RosMessageField("string", "load_namespace", 1)]
+    public string LoadNamespace { get; set; } = string.Empty;
+}
+
+[RosServiceMessage("diagnostic_msgs/AddDiagnostics", ServiceMessageKind.Response)]
+public class AddDiagnosticsResponse
+{
+    [RosMessageField("bool", "success", 1)]
+    bool Success { get; set; }
+    
+    [RosMessageField("string", "message", 2)]
+    public string Message { get; set; } = string.Empty;
+}
+```
+
+
+**Actions**
+
+Use [`RosActionMessageAttribute.cs](RobSharper.Ros.MessageEssentials/RosActionMessageAttribute.cs) to annotate message classes.
+
+ROS action file (control_msgs/action/SingleJointPosition.action):
+``` 
+float64 position
+duration min_duration
+float64 max_velocity
+---
+---
+Header header
+float64 position
+float64 velocity
+float64 error
+```
+
+.Net Classes:
+```c#
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Goal)]
+public class SingleJointPositionGoal
+{
+    [RosMessageField("float64", "position", 1)]
+    public System.Double Position { get; set; }
+
+    [RosMessageField("duration", "min_duration", 2)]
+    public System.TimeSpan MinDuration { get; set; }
+
+    [RosMessageField("float64", "max_velocity", 3)]
+    public System.Double MaxVelocity { get; set; }
+
+}
+
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Result)]
+public class SingleJointPositionResult
+{
+}
+
+[RosActionMessage("control_msgs/SingleJointPosition", ActionMessageKind.Feedback)]
+public class SingleJointPositionFeedback
+{
+    [RosMessageField("std_msgs/Header", "header", 1)]
+    public Header Header { get; set; } = new Header();
+
+    [RosMessageField("float64", "position", 2)]
+    public System.Double Position { get; set; }
+
+    [RosMessageField("float64", "velocity", 3)]
+    public System.Double Velocity { get; set; }
+
+    [RosMessageField("float64", "error", 4)]
+    public System.Double Error { get; set; }
+
+}
+```
+
 
 ### Serialization
 
